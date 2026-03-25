@@ -51,3 +51,25 @@ tests/data/*.tif.xml
 
 # windows
 Thumbs.db
+
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Python packaging artifacts
+*.egg-info/
+*.dist-info/
+
+# pytest / coverage
+.pytest_cache/
+htmlcov/
+coverage.xml
+.coverage.*
+
+# ruff cache
+.ruff_cache/
+
+# Distribution / build
+dist/
+build/

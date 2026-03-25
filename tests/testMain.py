@@ -1,29 +1,36 @@
-from __future__ import absolute_import
 
 import locale
 import os
-import unittest
 import sys
-import numpy as np
-import arcpy
-from arcpy import Raster
+import unittest
 import zipfile
 
-from nose.tools import raises
-
+import arcpy
+import numpy as np
 import test_config as config
 import test_utils
+from arcpy import Raster
+from nose.tools import raises
 
 # import our local directory so we can use the internal modules
 import_paths = ['../Install/toolbox', '../Install']
 test_utils.add_local_paths(import_paths)
 
 # now we can import our scripts
-from scripts import bpi, standardize_bpi_grids, btm_model, aspect, \
-    slope, ruggedness, depth_statistics, classify, \
-    surface_area_to_planar_area, scale_comparison, utils as su
-
-from scripts.tempdir import TempDir
+from scripts import (  # noqa: E402
+    aspect,
+    bpi,
+    btm_model,
+    classify,
+    depth_statistics,
+    ruggedness,
+    scale_comparison,
+    slope,
+    standardize_bpi_grids,
+    surface_area_to_planar_area,
+)
+from scripts import utils as su  # noqa: E402
+from scripts.tempdir import TempDir  # noqa: E402
 
 
 class TestBtmDocument(unittest.TestCase):
@@ -178,7 +185,7 @@ class TestStandardizeBpiGrids(unittest.TestCase):
                 aprx = arcpy.mp.ArcGISProject(config.bpi_grids_aprx)
                 mdoc = aprx.listMaps()[0]
                 layers = mdoc.listLayers()
-            layer_names = [l.name for l in layers]
+            layer_names = [lyr.name for lyr in layers]
 
             broad_lyr = layers[layer_names.index('broad_bpi')]
             fine_lyr = layers[layer_names.index('fine_bpi')]
@@ -439,8 +446,7 @@ class TestDepthStatistics(unittest.TestCase):
 
             for (prefix, expected_value) in mean_depths.items():
                 raster_path = os.path.join(
-                    d, "{0}_{1}_{2:03d}.tif".format(self.base,
-                                                    prefix, neighborhood))
+                    d, f"{self.base}_{prefix}_{neighborhood:03d}.tif")
                 self.assertTrue(os.path.exists(raster_path))
                 self.assertAlmostEqual(
                     su.raster_properties(raster_path, 'MEAN'), expected_value)
@@ -459,8 +465,7 @@ class TestDepthStatistics(unittest.TestCase):
             prefix = 'mean_diff'
             expected_value = -0.0055500285014563
             raster_path = os.path.join(
-                d, "{0}_{1}_{2:03d}.tif".format(self.base,
-                                                    prefix, neighborhood))
+                d, f"{self.base}_{prefix}_{neighborhood:03d}.tif")
             self.assertTrue(os.path.exists(raster_path))
             self.assertAlmostEqual(
                 su.raster_properties(raster_path, 'MEAN'), expected_value)
@@ -478,7 +483,7 @@ class TestDepthStatistics(unittest.TestCase):
                 config.bathy_raster, neighborhood, out_workspace, stats)
 
             raster_path = os.path.join(
-                    d, "{}_kurt_{:03d}.tif".format(self.base, neighborhood))
+                    d, f"{self.base}_kurt_{neighborhood:03d}.tif")
 
             self.assertTrue(os.path.exists(raster_path))
 
@@ -779,7 +784,7 @@ class TestMultipleScales(unittest.TestCase):
 
             for (prefix, expected_value) in depth_stats.items():
                 raster_path = os.path.join(
-                    d, "bathy5m_clip_{0}_{1:03d}.tif".format(prefix, 3))
+                    d, f"bathy5m_clip_{prefix}_{3:03d}.tif")
                 self.assertAlmostEqual(
                     su.raster_properties(raster_path, 'MEAN'), expected_value)
 

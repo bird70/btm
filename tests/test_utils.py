@@ -2,7 +2,6 @@ import os
 import sys
 
 import arcpy
-
 import test_config
 
 
@@ -13,7 +12,7 @@ def add_local_paths(paths):
         sys.path.insert(0, abs_path)
 
 
-class Rast(object):
+class Rast:
     def __init__(self, raster=None):
         self.path = raster
         if self.path is not None:

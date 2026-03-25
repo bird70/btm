@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "btm"
+version = "4.0.0.dev0"
+description = "Benthic Terrain Modeler — platform-agnostic core"
+requires-python = ">=3.11"
+dependencies = [
+    "rasterio>=1.3",
+    "numpy>=1.24",
+    "scipy>=1.11",
+    "openpyxl>=3.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-cov",
+    "ruff",
+]
+
+[project.scripts]
+btm-bpi               = "btm.cli.bpi:main"
+btm-standardize-bpi   = "btm.cli.standardize_bpi:main"
+btm-slope             = "btm.cli.slope:main"
+btm-vrm               = "btm.cli.vrm:main"
+btm-surface-ratio     = "btm.cli.surface_ratio:main"
+btm-classify          = "btm.cli.classify:main"
+btm-run-model         = "btm.cli.run_model:main"
+btm-depth-stats       = "btm.cli.depth_statistics:main"
+btm-scale-compare     = "btm.cli.scale_comparison:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["btm*"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP"]
+
+[tool.pytest.ini_options]
+markers = [
+    "arcgis: requires ArcGIS Pro / arcpy",
+    "qgis: requires QGIS / PyQGIS",
+]
+testpaths = ["tests"]
