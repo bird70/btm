@@ -34,6 +34,11 @@ nosetests.xml
 tests/data/log
 tests/data/*.tif.xml
 
+# large MBES raster files (downloaded separately via Kaggle)
+data/MBES/*.tif
+data/MBES/*.tif.ovr
+data/MBES/*.tif.aux.xml
+
 # Translations
 *.mo
 
