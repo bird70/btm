@@ -1,0 +1,28 @@
+{
+  "version": "v4-auto",
+  "created": "2026-03-26T20:47:12.114459+00:00",
+  "git_revision": "2e9d31d",
+  "blend_weights": {
+    "kriging_depth": 0.6,
+    "kriging_global": 0.15,
+    "catboost": 0.1,
+    "lgbm": 0.15
+  },
+  "n_features": 88,
+  "has_expert_annotations": false,
+  "cv_scores": {
+    "kriging_depth": 0.7276505316354641,
+    "kriging_global": 0.7305379608227689,
+    "catboost": 0.6917137287272447,
+    "lgbm": 0.6824848193598441,
+    "blend": 0.7663757405837864
+  },
+  "submission_file": "data\\submission_v4.csv",
+  "class_distribution": {
+    "NVB": "35",
+    "ALG": "30",
+    "FMAT": "17",
+    "SGZ": "9",
+    "SGAM": "7"
+  }
+}
