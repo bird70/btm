@@ -20,6 +20,12 @@ dev = [
     "pytest-cov",
     "ruff",
 ]
+# ML bridge: point-sampled feature extraction compatible with benthic_model
+ml = [
+    "pandas>=2.0",
+]
+# Install everything: pip install -e ".[dev,ml]"
+all = ["btm[dev,ml]"]
 
 [project.scripts]
 btm-bpi               = "btm.cli.bpi:main"
