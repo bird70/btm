@@ -24,7 +24,10 @@ Produces:
 
 All outputs in EPSG:28355 (GDA94 MGA Zone 55).
 """
+<<<<<<< HEAD
 
+=======
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
 from __future__ import annotations
 
 import json
@@ -39,10 +42,17 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import rasterio
+<<<<<<< HEAD
 from numpy.linalg import LinAlgError
 from pykrige.ok import OrdinaryKriging
 from rasterio.features import shapes as raster_shapes
 from rasterio.transform import from_bounds
+=======
+from rasterio.features import shapes as raster_shapes
+from rasterio.transform import from_bounds
+from numpy.linalg import LinAlgError
+from pykrige.ok import OrdinaryKriging
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
 from scipy.ndimage import gaussian_filter, uniform_filter
 from shapely.geometry import shape as shapely_shape
 from sklearn.cluster import KMeans
@@ -71,7 +81,10 @@ _OUT_RPT = _OUT / "reports"
 # Helpers
 # ---------------------------------------------------------------------------
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
 def _load_raster(path: Path):
     with rasterio.open(path) as src:
         arr = src.read(1).astype(np.float32)
@@ -83,6 +96,7 @@ def _load_raster(path: Path):
     return arr, transform, crs
 
 
+<<<<<<< HEAD
 def _write_raster(
     path: Path, data: np.ndarray, transform, crs, dtype="float32", nodata=np.nan
 ):
@@ -100,14 +114,30 @@ def _write_raster(
         transform=transform,
         nodata=nodata,
         compress="lzw",
+=======
+def _write_raster(path: Path, data: np.ndarray, transform, crs,
+                  dtype="float32", nodata=np.nan):
+    """Write a single-band GeoTIFF."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with rasterio.open(
+        path, "w", driver="GTiff",
+        height=data.shape[0], width=data.shape[1], count=1,
+        dtype=dtype, crs=crs, transform=transform,
+        nodata=nodata, compress="lzw",
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
     ) as dst:
         dst.write(data.astype(dtype), 1)
     print(f"  Wrote {path.name} ({data.shape})")
 
 
+<<<<<<< HEAD
 def _indicator_kriging_full(
     xs_tr, ys_tr, y_tr, target_rows, target_cols, transform, n_classes, max_tr=3000
 ):
+=======
+def _indicator_kriging_full(xs_tr, ys_tr, y_tr, target_rows, target_cols,
+                             transform, n_classes, max_tr=3000):
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
     """Indicator kriging on a grid of target points (row, col indices)."""
     # Convert grid points to coordinates
     xs_te = transform.c + (target_cols + 0.5) * transform.a
@@ -125,6 +155,7 @@ def _indicator_kriging_full(
             continue
         try:
             ok = OrdinaryKriging(
+<<<<<<< HEAD
                 xs_tr[sub],
                 ys_tr[sub],
                 indicator,
@@ -132,6 +163,11 @@ def _indicator_kriging_full(
                 verbose=False,
                 enable_plotting=False,
                 nlags=20,
+=======
+                xs_tr[sub], ys_tr[sub], indicator,
+                variogram_model="exponential",
+                verbose=False, enable_plotting=False, nlags=20,
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
             )
             z_vals, _ = ok.execute("points", xs_te, ys_te)
             proba[:, c] = np.clip(z_vals, 0, 1)
@@ -142,7 +178,11 @@ def _indicator_kriging_full(
 
 def _raster_to_polygons(zone_raster, transform, crs, valid_mask=None):
     """Convert a categorical raster to polygons via rasterio.features.shapes."""
+<<<<<<< HEAD
     mask = zone_raster >= 0
+=======
+    mask = (zone_raster >= 0)
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
     if valid_mask is not None:
         mask = mask & valid_mask
     data = zone_raster.astype(np.int32)
@@ -158,7 +198,10 @@ def _raster_to_polygons(zone_raster, transform, crs, valid_mask=None):
 # Main
 # ---------------------------------------------------------------------------
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
 def main():
     t_start = time.time()
 
@@ -223,7 +266,13 @@ def main():
 
     # --- Depth zones (5 quantile classes) ---
     print("Computing depth zones...")
+<<<<<<< HEAD
     depth_edges = np.quantile(depths_tr[np.isfinite(depths_tr)], np.linspace(0, 1, 6))
+=======
+    depth_edges = np.quantile(
+        depths_tr[np.isfinite(depths_tr)], np.linspace(0, 1, 6)
+    )
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
     depth_edges[0] = np.nanmin(bathy) - 1
     depth_edges[-1] = np.nanmax(bathy) + 1
     n_depth_zones = 5
@@ -231,9 +280,14 @@ def main():
         np.digitize(bathy_f, depth_edges) - 1, 0, n_depth_zones - 1
     ).astype(np.int32)
     dz_raster[~valid_mask] = -1
+<<<<<<< HEAD
     _write_raster(
         _OUT_R / "depth_zones.tif", dz_raster.astype(np.float32), bt, crs, nodata=-1
     )
+=======
+    _write_raster(_OUT_R / "depth_zones.tif", dz_raster.astype(np.float32),
+                  bt, crs, nodata=-1)
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
 
     # --- Backscatter zones (5 k-means classes) ---
     print("Computing backscatter zones...")
@@ -255,6 +309,7 @@ def main():
     for new_l, old_l in enumerate(np.argsort(zone_means)):
         remap[old_l] = new_l
     bz_raster = np.where(bz_raster >= 0, remap[bz_raster], -1)
+<<<<<<< HEAD
     _write_raster(
         _OUT_R / "backscatter_zones.tif",
         bz_raster.astype(np.float32),
@@ -262,11 +317,16 @@ def main():
         crs,
         nodata=-1,
     )
+=======
+    _write_raster(_OUT_R / "backscatter_zones.tif", bz_raster.astype(np.float32),
+                  bt, crs, nodata=-1)
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
 
     # --- Combined acoustic facies (8 k-means on depth×backscatter) ---
     print("Computing acoustic facies zones...")
     n_af = 8
     scaler_2d = StandardScaler()
+<<<<<<< HEAD
     feats_2d = scaler_2d.fit_transform(
         np.column_stack(
             [
@@ -275,10 +335,17 @@ def main():
             ]
         )
     )
+=======
+    feats_2d = scaler_2d.fit_transform(np.column_stack([
+        bathy_f[vr[si], vc[si]],
+        back_smooth[vr[si], vc[si]],
+    ]))
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
     km_af = KMeans(n_clusters=n_af, random_state=42, n_init=10)
     km_af.fit(feats_2d)
 
     af_raster = np.full(bathy_f.shape, -1, dtype=np.int32)
+<<<<<<< HEAD
     af_raster[valid_mask] = km_af.predict(
         scaler_2d.transform(
             np.column_stack([bathy_f[valid_mask], back_smooth[valid_mask]])
@@ -287,6 +354,13 @@ def main():
     _write_raster(
         _OUT_R / "acoustic_facies.tif", af_raster.astype(np.float32), bt, crs, nodata=-1
     )
+=======
+    af_raster[valid_mask] = km_af.predict(scaler_2d.transform(
+        np.column_stack([bathy_f[valid_mask], back_smooth[valid_mask]])
+    ))
+    _write_raster(_OUT_R / "acoustic_facies.tif", af_raster.astype(np.float32),
+                  bt, crs, nodata=-1)
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
 
     # --- Kriging dominant class raster (subsampled grid) ---
     print("Computing kriging predictions (subsampled grid)...")
@@ -320,6 +394,7 @@ def main():
 
     # Write at subsampled resolution with adjusted transform
     krig_transform = rasterio.transform.from_bounds(
+<<<<<<< HEAD
         bt.c,
         bt.f + bt.e * bathy.shape[0],
         bt.c + bt.a * bathy.shape[1],
@@ -334,6 +409,15 @@ def main():
         crs,
         nodata=-1,
     )
+=======
+        bt.c, bt.f + bt.e * bathy.shape[0],
+        bt.c + bt.a * bathy.shape[1], bt.f,
+        krig_w, krig_h,
+    )
+    _write_raster(_OUT_R / "kriging_dominant.tif",
+                  krig_raster_sub.astype(np.float32),
+                  krig_transform, crs, nodata=-1)
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
 
     # ══════════════════════════════════════════════════════════════════
     # VECTOR PRODUCTS (GeoPackage)
@@ -352,6 +436,7 @@ def main():
         mask_z = af_raster == zone_id
         if mask_z.sum() == 0:
             continue
+<<<<<<< HEAD
         af_records.append(
             {
                 "geometry": geom,
@@ -374,10 +459,25 @@ def main():
                 "notes": None,  # ← Free-text notes field
             }
         )
+=======
+        af_records.append({
+            "geometry": geom,
+            "zone_id": zone_id,
+            "zone_type": "acoustic_facies",
+            "mean_depth": float(np.nanmean(bathy[mask_z & valid_mask])) if (mask_z & valid_mask).any() else None,
+            "mean_backscatter": float(np.nanmean(back[mask_z & valid_mask])) if (mask_z & valid_mask).any() else None,
+            "pixel_count": int(mask_z.sum()),
+            "dominant_class": None,  # Will fill after spatial join with training
+            "confidence": None,
+            "expert_label": None,    # ← For the analyst to fill in
+            "notes": None,           # ← Free-text notes field
+        })
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
 
     gdf_af = gpd.GeoDataFrame(af_records, crs=f"EPSG:{CRS_EPSG}")
     # Fill dominant_class from training points spatial join
     train_gdf = gpd.GeoDataFrame(
+<<<<<<< HEAD
         train,
         geometry=gpd.points_from_xy(train["x"], train["y"]),
         crs=f"EPSG:{CRS_EPSG}",
@@ -388,6 +488,13 @@ def main():
         how="left",
         predicate="within",
     )
+=======
+        train, geometry=gpd.points_from_xy(train["x"], train["y"]),
+        crs=f"EPSG:{CRS_EPSG}",
+    )
+    joined = gpd.sjoin(train_gdf, gdf_af[["geometry", "zone_id"]].drop_duplicates("zone_id"),
+                       how="left", predicate="within")
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
 
     for zid in gdf_af["zone_id"].unique():
         pts_in_zone = joined[joined["zone_id"] == zid]
@@ -416,6 +523,7 @@ def main():
         if zone_id < 0:
             continue
         mask_z = dz_raster == zone_id
+<<<<<<< HEAD
         dz_records.append(
             {
                 "geometry": geom,
@@ -437,6 +545,19 @@ def main():
                 "notes": None,
             }
         )
+=======
+        dz_records.append({
+            "geometry": geom,
+            "zone_id": zone_id,
+            "zone_type": "depth_zone",
+            "depth_min": float(depth_edges[zone_id]),
+            "depth_max": float(depth_edges[zone_id + 1]),
+            "mean_depth": float(np.nanmean(bathy[mask_z & valid_mask])) if (mask_z & valid_mask).any() else None,
+            "mean_backscatter": float(np.nanmean(back[mask_z & valid_mask])) if (mask_z & valid_mask).any() else None,
+            "expert_label": None,
+            "notes": None,
+        })
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
     gdf_dz = gpd.GeoDataFrame(dz_records, crs=f"EPSG:{CRS_EPSG}")
     gdf_dz["area_m2"] = gdf_dz.geometry.area
     gdf_dz = gdf_dz[gdf_dz["area_m2"] > 100].drop(columns=["area_m2"])
@@ -451,6 +572,7 @@ def main():
         if zone_id < 0:
             continue
         mask_z = bz_raster == zone_id
+<<<<<<< HEAD
         bz_records.append(
             {
                 "geometry": geom,
@@ -470,6 +592,17 @@ def main():
                 "notes": None,
             }
         )
+=======
+        bz_records.append({
+            "geometry": geom,
+            "zone_id": zone_id,
+            "zone_type": "backscatter_zone",
+            "mean_depth": float(np.nanmean(bathy[mask_z & valid_mask])) if (mask_z & valid_mask).any() else None,
+            "mean_backscatter": float(np.nanmean(back[mask_z & valid_mask])) if (mask_z & valid_mask).any() else None,
+            "expert_label": None,
+            "notes": None,
+        })
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
     gdf_bz = gpd.GeoDataFrame(bz_records, crs=f"EPSG:{CRS_EPSG}")
     gdf_bz["area_m2"] = gdf_bz.geometry.area
     gdf_bz = gdf_bz[gdf_bz["area_m2"] > 100].drop(columns=["area_m2"])
@@ -488,11 +621,15 @@ def main():
 
     # Sample zone IDs at training points
     import rasterio.transform as rtransform
+<<<<<<< HEAD
 
+=======
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
     tr_rows, tr_cols = rtransform.rowcol(bt, xs_tr, ys_tr)
     tr_rows = np.clip(np.asarray(tr_rows, dtype=int), 0, bathy.shape[0] - 1)
     tr_cols = np.clip(np.asarray(tr_cols, dtype=int), 0, bathy.shape[1] - 1)
 
+<<<<<<< HEAD
     train_pt = gpd.GeoDataFrame(
         {
             "ID": (
@@ -518,6 +655,22 @@ def main():
         geometry=gpd.points_from_xy(xs_tr, ys_tr),
         crs=f"EPSG:{CRS_EPSG}",
     )
+=======
+    train_pt = gpd.GeoDataFrame({
+        "ID": train["ID"].values if "ID" in train.columns else range(1, len(train) + 1),
+        "class": train["class"].values,
+        "predicted_class": knn_pred_tr,
+        "knn_confidence": np.round(knn_conf_tr, 3),
+        "depth": np.round(depths_tr, 2),
+        "backscatter": np.round(
+            sample_raster_at_points(np.nan_to_num(back, nan=-10000), bkt, xs_tr, ys_tr, nodata=-10000), 2
+        ),
+        "depth_zone": dz_raster[tr_rows, tr_cols],
+        "backscatter_zone": bz_raster[tr_rows, tr_cols],
+        "acoustic_facies": af_raster[tr_rows, tr_cols],
+        "correct": (train["class"].values == knn_pred_tr).astype(int),
+    }, geometry=gpd.points_from_xy(xs_tr, ys_tr), crs=f"EPSG:{CRS_EPSG}")
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
     train_pt.to_file(gpkg_path, layer="training_points", driver="GPKG")
     print(f"  {len(train_pt)} training points")
 
@@ -531,6 +684,7 @@ def main():
     te_rows = np.clip(np.asarray(te_rows, dtype=int), 0, bathy.shape[0] - 1)
     te_cols = np.clip(np.asarray(te_cols, dtype=int), 0, bathy.shape[1] - 1)
 
+<<<<<<< HEAD
     test_pt = gpd.GeoDataFrame(
         {
             "ID": test["ID"].values,
@@ -555,6 +709,22 @@ def main():
         geometry=gpd.points_from_xy(xs_te, ys_te),
         crs=f"EPSG:{CRS_EPSG}",
     )
+=======
+    test_pt = gpd.GeoDataFrame({
+        "ID": test["ID"].values,
+        "predicted_class": knn_pred_te,
+        "knn_confidence": np.round(knn_conf_te, 3),
+        "depth": np.round(
+            sample_raster_at_points(np.nan_to_num(bathy, nan=-10000), bt, xs_te, ys_te, nodata=-10000), 2
+        ),
+        "backscatter": np.round(
+            sample_raster_at_points(np.nan_to_num(back, nan=-10000), bkt, xs_te, ys_te, nodata=-10000), 2
+        ),
+        "depth_zone": dz_raster[te_rows, te_cols],
+        "backscatter_zone": bz_raster[te_rows, te_cols],
+        "acoustic_facies": af_raster[te_rows, te_cols],
+    }, geometry=gpd.points_from_xy(xs_te, ys_te), crs=f"EPSG:{CRS_EPSG}")
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
     test_pt.to_file(gpkg_path, layer="test_points", driver="GPKG")
     print(f"  {len(test_pt)} test points")
 
@@ -566,7 +736,12 @@ def main():
     # Get git revision
     try:
         git_rev = subprocess.check_output(
+<<<<<<< HEAD
             ["git", "rev-parse", "--short", "HEAD"], cwd=str(_REPO), text=True
+=======
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=str(_REPO), text=True
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
         ).strip()
     except Exception:
         git_rev = "unknown"
@@ -696,6 +871,7 @@ Save the file and run the refinement script (Step 3, to be provided) which will:
         "n_acoustic_facies": n_af,
         "n_backscatter_zones": n_bz,
         "rasters": [f.name for f in sorted(_OUT_R.glob("*.tif"))],
+<<<<<<< HEAD
         "gpkg_layers": [
             "acoustic_facies_zones",
             "depth_zones",
@@ -703,6 +879,10 @@ Save the file and run the refinement script (Step 3, to be provided) which will:
             "training_points",
             "test_points",
         ],
+=======
+        "gpkg_layers": ["acoustic_facies_zones", "depth_zones", "backscatter_zones",
+                        "training_points", "test_points"],
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
     }
     meta_path = _OUT_RPT / "layer_metadata.json"
     meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")

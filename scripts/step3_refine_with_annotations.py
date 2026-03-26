@@ -15,7 +15,10 @@ Usage:
 If --no-annotations is passed, the script runs the full ensemble using only
 automated zone features (equivalent to v3 with extended features).
 """
+<<<<<<< HEAD
 
+=======
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
 from __future__ import annotations
 
 import argparse
@@ -81,6 +84,7 @@ def _indicator_kriging(xs_tr, ys_tr, y_tr, xs_te, ys_te, n_classes, max_tr=3000)
             proba[:, c] = ind.mean()
             continue
         try:
+<<<<<<< HEAD
             ok = OrdinaryKriging(
                 xs_tr[sub],
                 ys_tr[sub],
@@ -90,6 +94,11 @@ def _indicator_kriging(xs_tr, ys_tr, y_tr, xs_te, ys_te, n_classes, max_tr=3000)
                 enable_plotting=False,
                 nlags=20,
             )
+=======
+            ok = OrdinaryKriging(xs_tr[sub], ys_tr[sub], ind,
+                                 variogram_model="exponential",
+                                 verbose=False, enable_plotting=False, nlags=20)
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
             z_vals, _ = ok.execute("points", xs_te, ys_te)
             proba[:, c] = np.clip(z_vals, 0, 1)
         except (ValueError, LinAlgError):
@@ -97,6 +106,7 @@ def _indicator_kriging(xs_tr, ys_tr, y_tr, xs_te, ys_te, n_classes, max_tr=3000)
     return proba
 
 
+<<<<<<< HEAD
 def _stratified_kriging(
     xs_tr,
     ys_tr,
@@ -109,6 +119,11 @@ def _stratified_kriging(
     n_zones,
     max_per_zone=1500,
 ):
+=======
+def _stratified_kriging(xs_tr, ys_tr, y_tr, zones_tr,
+                         xs_te, ys_te, zones_te,
+                         n_classes, n_zones, max_per_zone=1500):
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
     rng = np.random.RandomState(42)
     proba = np.zeros((len(xs_te), n_classes))
     for z in range(n_zones):
@@ -128,6 +143,7 @@ def _stratified_kriging(
                 proba[te_idx, c] = ind.mean()
                 continue
             try:
+<<<<<<< HEAD
                 ok = OrdinaryKriging(
                     xs_tr[tr_idx],
                     ys_tr[tr_idx],
@@ -137,6 +153,11 @@ def _stratified_kriging(
                     enable_plotting=False,
                     nlags=15,
                 )
+=======
+                ok = OrdinaryKriging(xs_tr[tr_idx], ys_tr[tr_idx], ind,
+                                     variogram_model="exponential",
+                                     verbose=False, enable_plotting=False, nlags=15)
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
                 z_vals, _ = ok.execute("points", xs_te[te_idx], ys_te[te_idx])
                 proba[te_idx, c] = np.clip(z_vals, 0, 1)
             except (ValueError, LinAlgError):
@@ -144,6 +165,7 @@ def _stratified_kriging(
     return proba
 
 
+<<<<<<< HEAD
 def extract_features(
     xs,
     ys,
@@ -162,16 +184,29 @@ def extract_features(
     depths_all,
     expert_zone_map=None,
 ):
+=======
+def extract_features(xs, ys, bathy, back, bathy_f, back_f, back_smooth,
+                     bt, bkt, cell_size,
+                     bz_raster, af_raster, dz_raster,
+                     isobath_depths, depths_all,
+                     expert_zone_map=None):
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
     """Build feature matrix. If expert_zone_map is provided, adds expert zone features."""
     feats = {}
     feats["x"] = xs.copy()
     feats["y"] = ys.copy()
     feats["bathy"] = sample_raster_at_points(
+<<<<<<< HEAD
         np.nan_to_num(bathy, nan=-10000), bt, xs, ys, nodata=-10000
     )
     feats["back"] = sample_raster_at_points(
         np.nan_to_num(back, nan=-10000), bkt, xs, ys, nodata=-10000
     )
+=======
+        np.nan_to_num(bathy, nan=-10000), bt, xs, ys, nodata=-10000)
+    feats["back"] = sample_raster_at_points(
+        np.nan_to_num(back, nan=-10000), bkt, xs, ys, nodata=-10000)
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
 
     # Zone features
     feats["back_zone"] = _sample_zone(bz_raster, bt, xs, ys).astype(float)
@@ -194,11 +229,18 @@ def extract_features(
         size = 2 * n + 1
         for arr, p in [(bathy_f, "b_"), (back_f, "k_")]:
             fm = uniform_filter(arr, size=size)
+<<<<<<< HEAD
             fsq = uniform_filter(arr**2, size=size)
             feats[f"{p}fm_{size}"] = sample_raster_at_points(fm, bt, xs, ys)
             feats[f"{p}std_{size}"] = sample_raster_at_points(
                 np.sqrt(np.maximum(fsq - fm**2, 0)), bt, xs, ys
             )
+=======
+            fsq = uniform_filter(arr ** 2, size=size)
+            feats[f"{p}fm_{size}"] = sample_raster_at_points(fm, bt, xs, ys)
+            feats[f"{p}std_{size}"] = sample_raster_at_points(
+                np.sqrt(np.maximum(fsq - fm ** 2, 0)), bt, xs, ys)
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
             feats[f"{p}tpi_{size}"] = sample_raster_at_points(arr - fm, bt, xs, ys)
 
     # Curvature
@@ -210,12 +252,17 @@ def extract_features(
         d2y = np.gradient(dy, cell_size, axis=0)
         dxy = np.gradient(dx, cell_size, axis=0)
         feats[f"mcurv_s{sigma}"] = sample_raster_at_points((d2x + d2y) / 2, bt, xs, ys)
+<<<<<<< HEAD
         feats[f"gcurv_s{sigma}"] = sample_raster_at_points(
             d2x * d2y - dxy**2, bt, xs, ys
         )
         feats[f"mslope_s{sigma}"] = sample_raster_at_points(
             np.sqrt(dx**2 + dy**2), bt, xs, ys
         )
+=======
+        feats[f"gcurv_s{sigma}"] = sample_raster_at_points(d2x * d2y - dxy ** 2, bt, xs, ys)
+        feats[f"mslope_s{sigma}"] = sample_raster_at_points(np.sqrt(dx ** 2 + dy ** 2), bt, xs, ys)
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
 
     # Aspect
     dx = np.gradient(bathy_f, cell_size, axis=1)
@@ -229,15 +276,23 @@ def extract_features(
         n = max(1, round(r / cell_size))
         size = 2 * n + 1
         feats[f"rel_back_{size}"] = sample_raster_at_points(
+<<<<<<< HEAD
             back_f - uniform_filter(back_f, size=size), bkt, xs, ys
         )
+=======
+            back_f - uniform_filter(back_f, size=size), bkt, xs, ys)
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
 
     # Backscatter gradient
     bk_dx = np.gradient(back_f, cell_size, axis=1)
     bk_dy = np.gradient(back_f, cell_size, axis=0)
+<<<<<<< HEAD
     feats["back_grad"] = sample_raster_at_points(
         np.sqrt(bk_dx**2 + bk_dy**2), bkt, xs, ys
     )
+=======
+    feats["back_grad"] = sample_raster_at_points(np.sqrt(bk_dx ** 2 + bk_dy ** 2), bkt, xs, ys)
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
 
     # Interactions
     feats["depth_x_back"] = np.abs(feats["bathy"]) * feats["back"]
@@ -272,10 +327,17 @@ def _load_expert_annotations(gpkg_path, xs, ys, crs_epsg):
     label_map = {lab: i for i, lab in enumerate(unique_labels)}
 
     # Spatial join: assign each point to the expert zone it falls within
+<<<<<<< HEAD
     pts = gpd.GeoDataFrame(geometry=gpd.points_from_xy(xs, ys), crs=f"EPSG:{crs_epsg}")
     joined = gpd.sjoin(
         pts, annotated[["geometry", "expert_label"]], how="left", predicate="within"
     )
+=======
+    pts = gpd.GeoDataFrame(
+        geometry=gpd.points_from_xy(xs, ys), crs=f"EPSG:{crs_epsg}"
+    )
+    joined = gpd.sjoin(pts, annotated[["geometry", "expert_label"]], how="left", predicate="within")
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
 
     expert_zones = np.full(len(xs), -1, dtype=int)
     for idx, row in joined.iterrows():
@@ -286,6 +348,7 @@ def _load_expert_annotations(gpkg_path, xs, ys, crs_epsg):
 
 
 def main(argv=None):
+<<<<<<< HEAD
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
@@ -303,6 +366,16 @@ def main(argv=None):
         default="0.60,0.15,0.10,0.15",
         help="kriging_depth,kriging_global,catboost,lgbm",
     )
+=======
+    parser = argparse.ArgumentParser(description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--gpkg", default=str(_OUT / "vectors" / "annotation_layers.gpkg"))
+    parser.add_argument("--output", default="data/submission_v4.csv")
+    parser.add_argument("--no-annotations", action="store_true",
+                        help="Skip expert annotations (automated fallback)")
+    parser.add_argument("--blend", default="0.60,0.15,0.10,0.15",
+                        help="kriging_depth,kriging_global,catboost,lgbm")
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
     parser.add_argument("--seed", default=42, type=int)
     parser.add_argument("--n-cv-blocks", default=10, type=int)
     parser.add_argument("--skip-cv", action="store_true")
@@ -340,6 +413,7 @@ def main(argv=None):
     coords = train[["x", "y"]].values
 
     depths_tr = sample_raster_at_points(
+<<<<<<< HEAD
         np.nan_to_num(bathy, nan=-10000), bt, xs_tr, ys_tr, nodata=-10000
     )
 
@@ -351,6 +425,15 @@ def main(argv=None):
     dz_raster = np.clip(np.digitize(bathy_f, depth_edges) - 1, 0, n_dz - 1).astype(
         np.int32
     )
+=======
+        np.nan_to_num(bathy, nan=-10000), bt, xs_tr, ys_tr, nodata=-10000)
+
+    # Depth zones
+    depth_edges = np.quantile(depths_tr[np.isfinite(depths_tr)], np.linspace(0, 1, 6))
+    depth_edges[0] -= 1; depth_edges[-1] += 1
+    n_dz = 5
+    dz_raster = np.clip(np.digitize(bathy_f, depth_edges) - 1, 0, n_dz - 1).astype(np.int32)
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
     dz_raster[~valid_mask] = -1
     dz_tr = _sample_zone(dz_raster, bt, xs_tr, ys_tr)
     dz_te = _sample_zone(dz_raster, bt, xs_te, ys_te)
@@ -374,6 +457,7 @@ def main(argv=None):
     # Acoustic facies
     n_af = 8
     scaler_2d = StandardScaler()
+<<<<<<< HEAD
     feats_2d = scaler_2d.fit_transform(
         np.column_stack([bathy_f[vr[si], vc[si]], back_smooth[vr[si], vc[si]]])
     )
@@ -389,6 +473,17 @@ def main(argv=None):
     isobath_depths = np.quantile(
         depths_tr[np.isfinite(depths_tr)], [0.1, 0.25, 0.5, 0.75, 0.9]
     )
+=======
+    feats_2d = scaler_2d.fit_transform(np.column_stack([
+        bathy_f[vr[si], vc[si]], back_smooth[vr[si], vc[si]]]))
+    km_af = KMeans(n_clusters=n_af, random_state=42, n_init=10)
+    km_af.fit(feats_2d)
+    af_raster = np.full(bathy_f.shape, -1, dtype=np.int32)
+    af_raster[valid_mask] = km_af.predict(scaler_2d.transform(
+        np.column_stack([bathy_f[valid_mask], back_smooth[valid_mask]])))
+
+    isobath_depths = np.quantile(depths_tr[np.isfinite(depths_tr)], [0.1, 0.25, 0.5, 0.75, 0.9])
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
 
     # Expert annotations
     expert_tr = expert_te = expert_labels = None
@@ -396,6 +491,7 @@ def main(argv=None):
         gpkg = Path(args.gpkg)
         if gpkg.exists():
             print("Loading expert annotations...")
+<<<<<<< HEAD
             expert_tr, expert_labels = _load_expert_annotations(
                 gpkg, xs_tr, ys_tr, CRS_EPSG
             )
@@ -410,6 +506,16 @@ def main(argv=None):
                 print(
                     "  No expert annotations found in GeoPackage (expert_label all NULL)"
                 )
+=======
+            expert_tr, expert_labels = _load_expert_annotations(gpkg, xs_tr, ys_tr, CRS_EPSG)
+            if expert_tr is not None:
+                expert_te, _ = _load_expert_annotations(gpkg, xs_te, ys_te, CRS_EPSG)
+                n_annotated = (expert_tr >= 0).sum()
+                print(f"  {n_annotated}/{len(expert_tr)} training points have expert labels")
+                print(f"  Expert label classes: {expert_labels}")
+            else:
+                print("  No expert annotations found in GeoPackage (expert_label all NULL)")
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
         else:
             print(f"  GeoPackage not found: {gpkg}")
 
@@ -418,6 +524,7 @@ def main(argv=None):
     # Extract features
     print("Extracting features (train)...")
     X_train = extract_features(
+<<<<<<< HEAD
         xs_tr,
         ys_tr,
         bathy,
@@ -433,6 +540,11 @@ def main(argv=None):
         dz_raster,
         isobath_depths,
         depths_tr,
+=======
+        xs_tr, ys_tr, bathy, back, bathy_f, back_f, back_smooth,
+        bt, bkt, cell_size, bz_raster, af_raster, dz_raster,
+        isobath_depths, depths_tr,
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
         expert_zone_map=expert_tr,
     )
     n_feats = X_train.shape[1]
@@ -440,6 +552,7 @@ def main(argv=None):
 
     print("Extracting features (test)...")
     X_test = extract_features(
+<<<<<<< HEAD
         xs_te,
         ys_te,
         bathy,
@@ -455,6 +568,11 @@ def main(argv=None):
         dz_raster,
         isobath_depths,
         depths_tr,
+=======
+        xs_te, ys_te, bathy, back, bathy_f, back_f, back_smooth,
+        bt, bkt, cell_size, bz_raster, af_raster, dz_raster,
+        isobath_depths, depths_tr,
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
         expert_zone_map=expert_te,
     )
 
@@ -485,6 +603,7 @@ def main(argv=None):
             t0 = time.time()
 
             oof["kriging_depth"][va] = _stratified_kriging(
+<<<<<<< HEAD
                 xs_tr[tr],
                 ys_tr[tr],
                 y[tr],
@@ -508,10 +627,22 @@ def main(argv=None):
                 verbose=0,
                 auto_class_weights="Balanced",
             )
+=======
+                xs_tr[tr], ys_tr[tr], y[tr], dz_tr[tr],
+                xs_tr[va], ys_tr[va], dz_tr[va], n_classes, n_dz)
+            oof["kriging_global"][va] = _indicator_kriging(
+                xs_tr[tr], ys_tr[tr], y[tr], xs_tr[va], ys_tr[va], n_classes)
+
+            cb = CatBoostClassifier(
+                iterations=1000, depth=6, learning_rate=0.02,
+                l2_leaf_reg=10.0, random_seed=args.seed, verbose=0,
+                auto_class_weights="Balanced")
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
             cb.fit(X_tr_clean.iloc[tr], y[tr])
             oof["catboost"][va] = cb.predict_proba(X_tr_clean.iloc[va])
 
             lgbm = LGBMClassifier(
+<<<<<<< HEAD
                 n_estimators=1000,
                 max_depth=8,
                 learning_rate=0.02,
@@ -526,14 +657,24 @@ def main(argv=None):
                 n_jobs=-1,
                 verbose=-1,
             )
+=======
+                n_estimators=1000, max_depth=8, learning_rate=0.02,
+                num_leaves=63, subsample=0.7, colsample_bytree=0.5,
+                min_child_samples=15, reg_alpha=2.0, reg_lambda=10.0,
+                class_weight="balanced", random_state=args.seed, n_jobs=-1, verbose=-1)
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
             lgbm.fit(X_tr_clean.iloc[tr], y[tr])
             oof["lgbm"][va] = lgbm.predict_proba(X_tr_clean.iloc[va])
 
             elapsed = time.time() - t0
             scores = "  ".join(
                 f"{k}={f1_score(y[va], np.argmax(oof[k][va], 1), average='weighted'):.4f}"
+<<<<<<< HEAD
                 for k in model_names
             )
+=======
+                for k in model_names)
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
             print(f"  Block {b:2d} ({len(va):4d} pts, {elapsed:5.0f}s): {scores}")
 
         for name in model_names:
@@ -541,12 +682,17 @@ def main(argv=None):
             cv_scores[name] = f1
             print(f"  OOF {name:20s}: {f1:.4f}")
 
+<<<<<<< HEAD
         blend_oof = (
             w_kd * oof["kriging_depth"]
             + w_kg * oof["kriging_global"]
             + w_cb * oof["catboost"]
             + w_lg * oof["lgbm"]
         )
+=======
+        blend_oof = (w_kd * oof["kriging_depth"] + w_kg * oof["kriging_global"] +
+                     w_cb * oof["catboost"] + w_lg * oof["lgbm"])
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
         blend_preds = enc.classes_[np.argmax(blend_oof, axis=1)]
         blend_f1 = f1_score(enc.inverse_transform(y), blend_preds, average="weighted")
         cv_scores["blend"] = blend_f1
@@ -557,14 +703,20 @@ def main(argv=None):
     print("Training final models...")
 
     print("  Depth-stratified kriging...")
+<<<<<<< HEAD
     p_kd = _stratified_kriging(
         xs_tr, ys_tr, y, dz_tr, xs_te, ys_te, dz_te, n_classes, n_dz
     )
+=======
+    p_kd = _stratified_kriging(xs_tr, ys_tr, y, dz_tr, xs_te, ys_te, dz_te,
+                                n_classes, n_dz)
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
     print("  Global kriging...")
     p_kg = _indicator_kriging(xs_tr, ys_tr, y, xs_te, ys_te, n_classes)
 
     print("  CatBoost...")
     cb_final = CatBoostClassifier(
+<<<<<<< HEAD
         iterations=1000,
         depth=6,
         learning_rate=0.02,
@@ -573,11 +725,17 @@ def main(argv=None):
         verbose=0,
         auto_class_weights="Balanced",
     )
+=======
+        iterations=1000, depth=6, learning_rate=0.02,
+        l2_leaf_reg=10.0, random_seed=args.seed, verbose=0,
+        auto_class_weights="Balanced")
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
     cb_final.fit(X_tr_clean, y)
     p_cb = cb_final.predict_proba(X_te_clean)
 
     print("  LightGBM...")
     lgbm_final = LGBMClassifier(
+<<<<<<< HEAD
         n_estimators=1000,
         max_depth=8,
         learning_rate=0.02,
@@ -592,6 +750,12 @@ def main(argv=None):
         n_jobs=-1,
         verbose=-1,
     )
+=======
+        n_estimators=1000, max_depth=8, learning_rate=0.02,
+        num_leaves=63, subsample=0.7, colsample_bytree=0.5,
+        min_child_samples=15, reg_alpha=2.0, reg_lambda=10.0,
+        class_weight="balanced", random_state=args.seed, n_jobs=-1, verbose=-1)
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
     lgbm_final.fit(X_tr_clean, y)
     p_lg = lgbm_final.predict_proba(X_te_clean)
 
@@ -610,11 +774,17 @@ def main(argv=None):
     # Reproducibility report
     try:
         git_rev = subprocess.check_output(
+<<<<<<< HEAD
             ["git", "rev-parse", "--short", "HEAD"], cwd=str(_REPO), text=True
         ).strip()
         git_branch = subprocess.check_output(
             ["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=str(_REPO), text=True
         ).strip()
+=======
+            ["git", "rev-parse", "--short", "HEAD"], cwd=str(_REPO), text=True).strip()
+        git_branch = subprocess.check_output(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=str(_REPO), text=True).strip()
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
     except Exception:
         git_rev = git_branch = "unknown"
 
@@ -683,12 +853,17 @@ python scripts/step3_refine_with_annotations.py {'--gpkg ' + args.gpkg if has_ex
         "version": version,
         "created": datetime.now(timezone.utc).isoformat(),
         "git_revision": git_rev,
+<<<<<<< HEAD
         "blend_weights": {
             "kriging_depth": w_kd,
             "kriging_global": w_kg,
             "catboost": w_cb,
             "lgbm": w_lg,
         },
+=======
+        "blend_weights": {"kriging_depth": w_kd, "kriging_global": w_kg,
+                          "catboost": w_cb, "lgbm": w_lg},
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
         "n_features": n_feats,
         "has_expert_annotations": has_expert,
         "cv_scores": cv_scores,
@@ -696,8 +871,12 @@ python scripts/step3_refine_with_annotations.py {'--gpkg ' + args.gpkg if has_ex
         "class_distribution": dict(submission["class"].value_counts()),
     }
     (rpt_dir / f"{version}_metrics.json").write_text(
+<<<<<<< HEAD
         json.dumps(metrics, indent=2, default=str), encoding="utf-8"
     )
+=======
+        json.dumps(metrics, indent=2, default=str), encoding="utf-8")
+>>>>>>> a80473012c473f73e5a86b35e2b0cd2b7043d402
 
     print(f"\nReport: {rpt_dir / f'{version}_reproducibility.md'}")
     print(f"Metrics: {rpt_dir / f'{version}_metrics.json'}")
