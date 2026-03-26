@@ -1,66 +1,134 @@
-Benthic Terrain Modeler
-=======================
+# Benthic Terrain Modeler (BTM) v4
 
-A set of tools useful in the analysis of benthic terrain. Includes tools for geomorphology and classification. 
+A platform-agnostic Python library and command-line toolset for analysis and
+classification of benthic (seafloor) terrain.
 
-Requirements
-------------
+BTM v4 decouples the scientific algorithms from ArcGIS, making them available
+as a pure-Python package that runs anywhere with Python 3.11+. The original
+ArcGIS Pro toolbox (`Install/toolbox/btm.pyt`) continues to work for users
+who need it; the new core library powers both.
 
-ArcGIS 10.1 or greater. ArcGIS 10.0 is also supported, but only as a toolbox, as the Python Add-in was introduced at 10.1. Spatial Analyst Extension. The Arc-Chord Ratio tool also requires Geostatistical Analyst and 3D Analyst.
+## What it does
 
-Installation
-------------
+| Algorithm        | CLI command           | Description                                             |
+| ---------------- | --------------------- | ------------------------------------------------------- |
+| BPI              | `btm-bpi`             | Bathymetric Position Index — crests, flats, depressions |
+| Standardise BPI  | `btm-standardize-bpi` | Z-score rescaling × 100                                 |
+| Slope            | `btm-slope`           | Horn (1981) 3×3 finite-difference, degrees              |
+| VRM              | `btm-vrm`             | Sappington (2007) Vector Ruggedness Measure             |
+| Surface ratio    | `btm-surface-ratio`   | Jenness (2002) surface-to-planar area                   |
+| Depth statistics | `btm-depth-stats`     | Focal mean, std, IQR, kurtosis                          |
+| Scale comparison | `btm-scale-compare`   | BPI across a range of scales                            |
+| Classify         | `btm-classify`        | Rule-based terrain classification                       |
+| Full pipeline    | `btm-run-model`       | All of the above in one command                         |
 
-The current release of the Add-in, Toolbox and demonstration data is [available on ArcGIS Online](http://www.arcgis.com/home/item.html?id=b0d0be66fd33440d97e8c83d220e7926)
+## Requirements
 
-Steps:
-- Unzip the BTM zip file to your desired location.
-- Close any existing ArcMap sessions.
-- Double-click the btm.esriaddin file in your workspace, which will install both the graphical user interface and the toolbox into ArcGIS. 
-- In addition to the user interface, you can also add the tools to ArcToolbox. Open the ArcToolbox window and pin it to the display. Right-click on the ArcToolbox top folder in the window and select Add Toolbox. Navigate to where you unzipped BTM and add the file btm.pyt.
-- To view important documentation on each script right-click on that script in the BTM toolset and select Item Description as well as Properties. 
-- Click on the Add Data button in ArcMap and proceed to add your bathymetry data to your ArcMap session. You may now run the BTM tools on your data.
+- Python 3.11+
+- rasterio ≥ 1.3
+- numpy ≥ 1.24
+- scipy ≥ 1.11
+- openpyxl ≥ 3.1
 
-![Installation](https://raw.github.com/EsriOceans/btm/master/resources/btm-install.gif)
+No ArcGIS installation required for the core library and CLI.
 
-To get the latest source, clone this repository, and run `makeaddin.py` to create an installable `btm.esriaddin`.
+## Installation
 
-Using
------
-
-Install the Python Add-in `btm.esriaddin`, to access the graphical tools. The Python toolbox can be added by navigating to a path containing `btm.pyt`. All of the tools also support being run directly from the command-line (here btm is installed to the users directory in 'btm'):
-
-    cd %HOME%\btm\Install\toolbox\scripts
-    python bpi.py e:\\bathy5m 5 10 e:\\bpi_fine
-
-Downloading from Source
------------------------
-
-To download from GitHub, clone as with any other repository, with the additional step of updating the submodules to get the `datatype` package.
-
-```
+```bash
+# Clone (include the datatype submodule)
 git clone https://github.com/EsriOceans/btm
 git submodule update --init --recursive
+
+# Create a virtual environment and install
+python -m venv .venv
+.venv\Scripts\activate          # Windows
+# source .venv/bin/activate     # macOS / Linux
+pip install -e ".[dev]"
 ```
 
-Testing
--------
+## Quick start
 
-[Nose](https://nose.readthedocs.org/en/latest/) tests are included which perform basic checks. To run, first install nose:
-    
-    $ pip install nose
+Run the complete BTM pipeline on the bundled Fagatele Bay demo data:
 
-Then, run nose from the top-level directory:
+```bash
+btm-run-model \
+  --bathy     tests/data/bathy5m_clip.tif \
+  --classdict tests/data/fagatelebay.csv \
+  --broad-inner 10 --broad-outer 30 \
+  --fine-inner   1 --fine-outer   5 \
+  --outdir    outputs/fagatelebay
+```
 
-    $ nosetests
+Inspect the outputs and class distribution:
 
-Note that the tests run against actual data, and may take upwards of ten minutes to complete on modern hardware. Also note that when running the tests from the repository, Git will list the metadata file updates as being changes. These can safely be ignored, you can instruct Git to ignore them with the command:
+```bash
+python scripts/run_fagatelebay.py --outdir outputs/fagatelebay
+```
 
-    git update-index --assume-unchanged tests/data/*.tif.xml
+See [TESTING.md](TESTING.md) for a full walkthrough with expected values and
+tips on visualising outputs in QGIS or ArcGIS Pro.
 
+For combining BTM with machine-learning classification (XGBoost / LightGBM),
+see [docs/classification-methods.md](docs/classification-methods.md) and the
+step-by-step [docs/runsheet-hybrid-kaggle.md](docs/runsheet-hybrid-kaggle.md).
 
-Citing
-------
+## Running the tests
+
+```bash
+# Unit + integration tests — no ArcGIS required, completes in ~10 s
+pytest tests/unit/ tests/integration/ -m "not arcgis and not qgis"
+
+# With coverage report
+pytest tests/unit/ tests/integration/ -m "not arcgis and not qgis" \
+    --cov=btm/core --cov=btm/classification --cov-report=term-missing
+
+# ArcGIS Pro adapter tests (requires ArcGIS Pro + arcpy)
+pytest tests/arcgis/ -m arcgis
+```
+
+## Repository layout
+
+```
+btm/
+  core/            Scientific algorithms — zero GIS runtime imports
+  io/              Raster I/O via rasterio
+  classification/  Class dictionary readers (CSV, XML, XLSX)
+  cli/             Argparse entry points (one per algorithm)
+  adapters/
+    arcgis/        ArcGIS Pro .pyt adapter (requires arcpy)
+    qgis/          QGIS Processing provider (requires PyQGIS)
+
+Install/
+  toolbox/
+    btm.pyt        ArcGIS Pro Python toolbox (legacy scripts)
+    scripts/       Original arcpy-coupled scripts (BTM 3.0 reference)
+
+legacy/
+  10.0/            ArcGIS 10.0 era scripts (historical archive)
+  build.bat        ArcGIS addin builder (no longer maintained)
+
+tests/
+  unit/            Fast unit tests, no file I/O
+  integration/     Full pipeline tests against Fagatele Bay data
+  arcgis/          ArcGIS Pro / arcpy tests (skipped without arcpy)
+  data/            Fagatele Bay test dataset + classification files
+
+scripts/           Helper scripts for development and demos
+specs/             Feature specifications (speckit artefacts)
+```
+
+## Background
+
+BTM was originally developed by ESRI Oceans as an ArcGIS toolbox (v1–v3,
+2010–2017). v4 extracts the core algorithms into a standalone Python package
+while preserving ArcGIS compatibility through a thin adapter layer. The
+scientific algorithms are identical; they are simply decoupled from arcpy.
+
+## License
+
+See [LICENSE](LICENSE) for details.
+
+## Citing
 
 We ask that you use the following citation for this software:
 
