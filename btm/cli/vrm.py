@@ -26,14 +26,18 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    configure_cli_logging(verbose=args.verbose, quiet=args.quiet, log_file=args.log_file)
+    configure_cli_logging(
+        verbose=args.verbose, quiet=args.quiet, log_file=args.log_file
+    )
     try:
         ds = RasterDataset.from_file(args.bathy)
     except FileNotFoundError as exc:
         _log.error("%s", exc)
         return 2
     try:
-        result = compute_vrm(ds.array, args.neighborhood_size, ds.cell_size(), nodata=ds.nodata)
+        result = compute_vrm(
+            ds.array, args.neighborhood_size, ds.cell_size(), nodata=ds.nodata
+        )
     except ValueError as exc:
         _log.error("Invalid parameters: %s", exc)
         return 1

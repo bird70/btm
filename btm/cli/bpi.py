@@ -17,16 +17,31 @@ def build_parser() -> argparse.ArgumentParser:
         prog="btm-bpi",
         description="Compute Bathymetric Position Index (BPI).",
     )
-    p.add_argument("--bathy", required=True, metavar="PATH", help="Input bathymetric raster")
     p.add_argument(
-        "--inner", required=True, type=int, metavar="INT", help="Annulus inner radius (cells)"
+        "--bathy", required=True, metavar="PATH", help="Input bathymetric raster"
     )
     p.add_argument(
-        "--outer", required=True, type=int, metavar="INT", help="Annulus outer radius (cells)"
+        "--inner",
+        required=True,
+        type=int,
+        metavar="INT",
+        help="Annulus inner radius (cells)",
     )
-    p.add_argument("--output", required=True, metavar="PATH", help="Output GeoTIFF path")
     p.add_argument(
-        "--scale", default="broad", choices=["broad", "fine"], help="Label only; default broad"
+        "--outer",
+        required=True,
+        type=int,
+        metavar="INT",
+        help="Annulus outer radius (cells)",
+    )
+    p.add_argument(
+        "--output", required=True, metavar="PATH", help="Output GeoTIFF path"
+    )
+    p.add_argument(
+        "--scale",
+        default="broad",
+        choices=["broad", "fine"],
+        help="Label only; default broad",
     )
     _add_log_args(p)
     return p
@@ -34,7 +49,9 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    configure_cli_logging(verbose=args.verbose, quiet=args.quiet, log_file=args.log_file)
+    configure_cli_logging(
+        verbose=args.verbose, quiet=args.quiet, log_file=args.log_file
+    )
 
     try:
         ds = RasterDataset.from_file(args.bathy)
@@ -43,7 +60,9 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     try:
-        result = compute_bpi(ds.array, args.inner, args.outer, ds.cell_size(), nodata=ds.nodata)
+        result = compute_bpi(
+            ds.array, args.inner, args.outer, ds.cell_size(), nodata=ds.nodata
+        )
     except ValueError as exc:
         _log.error("Invalid parameters: %s", exc)
         return 1

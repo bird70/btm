@@ -25,22 +25,32 @@ def classdict_path():
 
 
 class TestRunFullModel:
-    def test_returns_6_outputs_with_intermediates(self, bathy_path, classdict_path, tmp_path):
+    def test_returns_6_outputs_with_intermediates(
+        self, bathy_path, classdict_path, tmp_path
+    ):
         outputs = run_full_model(
             bathy_path,
-            broad_bpi_inner=10, broad_bpi_outer=30,
-            fine_bpi_inner=1, fine_bpi_outer=5,
+            broad_bpi_inner=10,
+            broad_bpi_outer=30,
+            fine_bpi_inner=1,
+            fine_bpi_outer=5,
             classification_file=classdict_path,
             outdir=str(tmp_path),
             keep_intermediates=True,
         )
-        assert len(outputs) == 6, f"Expected 6 outputs, got {len(outputs)}: {list(outputs)}"
+        assert (
+            len(outputs) == 6
+        ), f"Expected 6 outputs, got {len(outputs)}: {list(outputs)}"
 
-    def test_returns_1_output_no_intermediates(self, bathy_path, classdict_path, tmp_path):
+    def test_returns_1_output_no_intermediates(
+        self, bathy_path, classdict_path, tmp_path
+    ):
         outputs = run_full_model(
             bathy_path,
-            broad_bpi_inner=10, broad_bpi_outer=30,
-            fine_bpi_inner=1, fine_bpi_outer=5,
+            broad_bpi_inner=10,
+            broad_bpi_outer=30,
+            fine_bpi_inner=1,
+            fine_bpi_outer=5,
             classification_file=classdict_path,
             outdir=str(tmp_path),
             keep_intermediates=False,
@@ -50,8 +60,10 @@ class TestRunFullModel:
     def test_outputs_are_valid_geotiffs(self, bathy_path, classdict_path, tmp_path):
         outputs = run_full_model(
             bathy_path,
-            broad_bpi_inner=10, broad_bpi_outer=30,
-            fine_bpi_inner=1, fine_bpi_outer=5,
+            broad_bpi_inner=10,
+            broad_bpi_outer=30,
+            fine_bpi_inner=1,
+            fine_bpi_outer=5,
             classification_file=classdict_path,
             outdir=str(tmp_path),
         )
@@ -67,8 +79,10 @@ class TestRunFullModel:
 
         outputs = run_full_model(
             bathy_path,
-            broad_bpi_inner=10, broad_bpi_outer=30,
-            fine_bpi_inner=1, fine_bpi_outer=5,
+            broad_bpi_inner=10,
+            broad_bpi_outer=30,
+            fine_bpi_inner=1,
+            fine_bpi_outer=5,
             classification_file=classdict_path,
             outdir=str(tmp_path),
         )
@@ -80,8 +94,10 @@ class TestRunFullModel:
         for _ in range(2):
             run_full_model(
                 bathy_path,
-                broad_bpi_inner=10, broad_bpi_outer=30,
-                fine_bpi_inner=1, fine_bpi_outer=5,
+                broad_bpi_inner=10,
+                broad_bpi_outer=30,
+                fine_bpi_inner=1,
+                fine_bpi_outer=5,
                 classification_file=classdict_path,
                 outdir=str(tmp_path),
             )

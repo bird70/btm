@@ -32,8 +32,10 @@ def pipeline_outputs(tmp_path_factory):
     classdict = str(DATA_DIR / "fagatelebay.csv")
     return run_full_model(
         bathy,
-        broad_bpi_inner=10, broad_bpi_outer=30,
-        fine_bpi_inner=1, fine_bpi_outer=5,
+        broad_bpi_inner=10,
+        broad_bpi_outer=30,
+        fine_bpi_inner=1,
+        fine_bpi_outer=5,
         classification_file=classdict,
         outdir=str(tmp),
     )

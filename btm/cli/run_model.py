@@ -24,8 +24,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--fine-outer", required=True, type=int, metavar="INT")
     p.add_argument("--classdict", required=True, metavar="PATH")
     p.add_argument("--outdir", required=True, metavar="PATH")
-    p.add_argument("--no-intermediates", action="store_true",
-                   help="Write only classified_zones.tif")
+    p.add_argument(
+        "--no-intermediates",
+        action="store_true",
+        help="Write only classified_zones.tif",
+    )
     p.add_argument("--block-size", type=int, default=None, metavar="INT")
     _add_log_args(p)
     return p
@@ -33,7 +36,9 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    configure_cli_logging(verbose=args.verbose, quiet=args.quiet, log_file=args.log_file)
+    configure_cli_logging(
+        verbose=args.verbose, quiet=args.quiet, log_file=args.log_file
+    )
 
     # Validate inputs before starting
     for attr, label in [("bathy", "--bathy"), ("classdict", "--classdict")]:

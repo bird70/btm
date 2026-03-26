@@ -21,10 +21,10 @@ To generate (requires ArcGIS Pro + BTM 3.0 toolbox):
             np.save(f"tests/data/reference/{name}.npy", arr)
 
 Expected files:
-    broad_bpi_ref.npy
-    fine_bpi_ref.npy
-    broad_std_ref.npy
-    fine_std_ref.npy
-    slope_ref.npy
-    classified_zones_ref.npy
+broad_bpi_ref.npy
+fine_bpi_ref.npy
+broad_std_ref.npy
+fine_std_ref.npy
+slope_ref.npy
+classified_zones_ref.npy
 """

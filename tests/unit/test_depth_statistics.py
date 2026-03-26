@@ -19,9 +19,7 @@ class TestFocalStats:
     def test_mean_flat_surface(self):
         arr = np.full((15, 15), -50.0)
         results = compute_focal_stats(arr, n_size=3, stats=["mean"])
-        np.testing.assert_allclose(
-            results["mean"][2:-2, 2:-2], -50.0, atol=1e-6
-        )
+        np.testing.assert_allclose(results["mean"][2:-2, 2:-2], -50.0, atol=1e-6)
 
     def test_iqr_synthetic(self):
         """IQR of a constant array should be 0."""

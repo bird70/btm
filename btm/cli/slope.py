@@ -13,16 +13,24 @@ _log = get_logger(__name__)
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="btm-slope", description="Compute slope in degrees.")
-    p.add_argument("--bathy", required=True, metavar="PATH", help="Input bathymetric raster")
-    p.add_argument("--output", required=True, metavar="PATH", help="Output GeoTIFF path")
+    p = argparse.ArgumentParser(
+        prog="btm-slope", description="Compute slope in degrees."
+    )
+    p.add_argument(
+        "--bathy", required=True, metavar="PATH", help="Input bathymetric raster"
+    )
+    p.add_argument(
+        "--output", required=True, metavar="PATH", help="Output GeoTIFF path"
+    )
     _add_log_args(p)
     return p
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    configure_cli_logging(verbose=args.verbose, quiet=args.quiet, log_file=args.log_file)
+    configure_cli_logging(
+        verbose=args.verbose, quiet=args.quiet, log_file=args.log_file
+    )
     try:
         ds = RasterDataset.from_file(args.bathy)
     except FileNotFoundError as exc:

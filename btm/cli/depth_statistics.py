@@ -21,8 +21,13 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--bathy", required=True, metavar="PATH")
     p.add_argument("--neighborhood", required=True, type=int, metavar="INT")
     p.add_argument("--outdir", required=True, metavar="PATH")
-    p.add_argument("--stats", required=True, nargs="+", metavar="STAT",
-                   help="Stats: mean std variance iqr kurtosis")
+    p.add_argument(
+        "--stats",
+        required=True,
+        nargs="+",
+        metavar="STAT",
+        help="Stats: mean std variance iqr kurtosis",
+    )
     p.add_argument("--window", default="rectangle", choices=["rectangle", "circle"])
     _add_log_args(p)
     return p
@@ -30,7 +35,9 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    configure_cli_logging(verbose=args.verbose, quiet=args.quiet, log_file=args.log_file)
+    configure_cli_logging(
+        verbose=args.verbose, quiet=args.quiet, log_file=args.log_file
+    )
 
     try:
         ds = RasterDataset.from_file(args.bathy)
@@ -40,8 +47,11 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         results = compute_focal_stats(
-            ds.array, args.neighborhood, args.stats,
-            window_type=args.window, nodata=ds.nodata,
+            ds.array,
+            args.neighborhood,
+            args.stats,
+            window_type=args.window,
+            nodata=ds.nodata,
         )
     except ValueError as exc:
         _log.error("Parameter error: %s", exc)
@@ -58,9 +68,13 @@ def main(argv: list[str] | None = None) -> int:
     for stat, arr in results.items():
         out_path = str(outdir / f"{stem}_{stat}_{n_label}.tif")
         tmp_ds = RasterDataset(
-            path=None, array=arr.astype("float32"), crs=ds.crs,
-            transform=ds.transform, nodata=None,
-            cell_width=ds.cell_width, cell_height=ds.cell_height,
+            path=None,
+            array=arr.astype("float32"),
+            crs=ds.crs,
+            transform=ds.transform,
+            nodata=None,
+            cell_width=ds.cell_width,
+            cell_height=ds.cell_height,
         )
         tmp_ds.to_file(out_path, dtype="float32")
         print(out_path)

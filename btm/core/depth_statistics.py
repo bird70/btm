@@ -132,7 +132,9 @@ def compute_focal_stats(
     if "mean_diff" in stats:
         focal_range = _uniform(np.abs(work - focal_mean))
         with np.errstate(divide="ignore", invalid="ignore"):
-            mean_diff = np.where(focal_range != 0, -(focal_mean - work) / focal_range, 0.0)
+            mean_diff = np.where(
+                focal_range != 0, -(focal_mean - work) / focal_range, 0.0
+            )
         results["mean_diff"] = mean_diff
 
     if "iqr" in stats:

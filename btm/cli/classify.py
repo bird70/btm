@@ -14,7 +14,9 @@ _log = get_logger(__name__)
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="btm-classify", description="Classify benthic terrain.")
+    p = argparse.ArgumentParser(
+        prog="btm-classify", description="Classify benthic terrain."
+    )
     p.add_argument("--broad-std", required=True, metavar="PATH")
     p.add_argument("--fine-std", required=True, metavar="PATH")
     p.add_argument("--slope", required=True, metavar="PATH")
@@ -27,7 +29,9 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    configure_cli_logging(verbose=args.verbose, quiet=args.quiet, log_file=args.log_file)
+    configure_cli_logging(
+        verbose=args.verbose, quiet=args.quiet, log_file=args.log_file
+    )
 
     try:
         broad_ds = RasterDataset.from_file(args.broad_std)
@@ -45,6 +49,7 @@ def main(argv: list[str] | None = None) -> int:
         return 3
 
     import numpy as np
+
     result = classify_terrain(
         broad_ds.array.astype(np.float64),
         fine_ds.array.astype(np.float64),
@@ -55,6 +60,7 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     import numpy as np
+
     if not np.any(result > 0):
         _log.warning("No cells were classified (all unclassified).")
         return 4
