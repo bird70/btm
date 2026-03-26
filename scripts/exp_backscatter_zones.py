@@ -17,6 +17,7 @@ We test three segmentation approaches:
 
 For each, we run stratified indicator kriging and blend with GBDT.
 """
+
 import sys
 import time
 import warnings
@@ -99,9 +100,11 @@ for cls in sorted(train["class"].unique()):
     mask = train["class"] == cls
     b = backs_tr[mask]
     d = depths_tr[mask]
-    print(f"  {cls}: back [{b.min():.1f}, {b.max():.1f}] "
-          f"mean={b.mean():.1f} std={b.std():.1f} | "
-          f"depth [{d.min():.1f}, {d.max():.1f}] mean={d.mean():.1f}")
+    print(
+        f"  {cls}: back [{b.min():.1f}, {b.max():.1f}] "
+        f"mean={b.mean():.1f} std={b.std():.1f} | "
+        f"depth [{d.min():.1f}, {d.max():.1f}] mean={d.mean():.1f}"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -118,7 +121,9 @@ valid_mask = np.isfinite(bathy) & np.isfinite(back)
 valid_rows, valid_cols = np.where(valid_mask)
 rng = np.random.RandomState(42)
 n_sample_pixels = 50000
-sample_idx = rng.choice(len(valid_rows), min(n_sample_pixels, len(valid_rows)), replace=False)
+sample_idx = rng.choice(
+    len(valid_rows), min(n_sample_pixels, len(valid_rows)), replace=False
+)
 sample_back = back_smooth[valid_rows[sample_idx], valid_cols[sample_idx]].reshape(-1, 1)
 
 n_back_zones = 5
@@ -127,29 +132,29 @@ km_back.fit(sample_back)
 
 # Assign every raster pixel to a backscatter zone
 back_zone_raster = np.full(back_smooth.shape, -1, dtype=np.int32)
-back_zone_raster[valid_mask] = km_back.predict(
-    back_smooth[valid_mask].reshape(-1, 1)
-)
+back_zone_raster[valid_mask] = km_back.predict(back_smooth[valid_mask].reshape(-1, 1))
 # Sort zone labels by backscatter intensity (0 = softest, 4 = hardest)
 zone_means = [back_smooth[back_zone_raster == z].mean() for z in range(n_back_zones)]
 sort_order = np.argsort(zone_means)
 remap = np.zeros(n_back_zones, dtype=int)
 for new_label, old_label in enumerate(sort_order):
     remap[old_label] = new_label
-back_zone_raster_sorted = np.where(back_zone_raster >= 0,
-                                    remap[back_zone_raster], -1)
+back_zone_raster_sorted = np.where(back_zone_raster >= 0, remap[back_zone_raster], -1)
 
 print("Backscatter zones (sorted by intensity):")
 for z in range(n_back_zones):
     mask_z = back_zone_raster_sorted == z
     bval = back_smooth[mask_z]
-    print(f"  Zone {z}: pixels={mask_z.sum()}, back=[{bval.min():.1f}, {bval.max():.1f}], "
-          f"mean={bval.mean():.1f}")
+    print(
+        f"  Zone {z}: pixels={mask_z.sum()}, back=[{bval.min():.1f}, {bval.max():.1f}], "
+        f"mean={bval.mean():.1f}"
+    )
 
 # Approach C: Combined depth × backscatter k-means
 sample_depth = bathy_f[valid_rows[sample_idx], valid_cols[sample_idx]]
 # Standardise before k-means
 from sklearn.preprocessing import StandardScaler
+
 scaler_2d = StandardScaler()
 features_2d = scaler_2d.fit_transform(
     np.column_stack([sample_depth, sample_back.ravel()])
@@ -169,9 +174,12 @@ for z in range(n_combined_zones):
     mask_z = combined_zone_raster == z
     dval = bathy_f[mask_z]
     bval = back_smooth[mask_z]
-    print(f"  Zone {z}: px={mask_z.sum():>8d}, "
-          f"depth=[{dval.min():.1f},{dval.max():.1f}] mean={dval.mean():.1f}, "
-          f"back mean={bval.mean():.1f}")
+    print(
+        f"  Zone {z}: px={mask_z.sum():>8d}, "
+        f"depth=[{dval.min():.1f},{dval.max():.1f}] mean={dval.mean():.1f}, "
+        f"back mean={bval.mean():.1f}"
+    )
+
 
 # Sample zone assignments at training/test points
 def sample_zone_at_points(zone_raster, transform, xs, ys):
@@ -183,6 +191,7 @@ def sample_zone_at_points(zone_raster, transform, xs, ys):
     rows = np.clip(rows, 0, h - 1)
     cols = np.clip(cols, 0, w - 1)
     return zone_raster[rows, cols]
+
 
 back_zones_tr = sample_zone_at_points(back_zone_raster_sorted, bt, xs_tr, ys_tr)
 back_zones_te = sample_zone_at_points(back_zone_raster_sorted, bt, xs_te, ys_te)
@@ -197,8 +206,10 @@ for z in range(n_back_zones):
         continue
     dist = train.loc[mask, "class"].value_counts()
     purity = dist.iloc[0] / mask.sum()
-    print(f"  Zone {z}: n={mask.sum()}, dominant={dist.index[0]} ({purity:.0%}), "
-          f"classes={dict(dist)}")
+    print(
+        f"  Zone {z}: n={mask.sum()}, dominant={dist.index[0]} ({purity:.0%}), "
+        f"classes={dict(dist)}"
+    )
 
 print("\nCombined zone ↔ class confusion:")
 for z in range(n_combined_zones):
@@ -207,8 +218,10 @@ for z in range(n_combined_zones):
         continue
     dist = train.loc[mask, "class"].value_counts()
     purity = dist.iloc[0] / mask.sum()
-    print(f"  Zone {z}: n={mask.sum()}, dominant={dist.index[0]} ({purity:.0%}), "
-          f"classes={dict(dist)}")
+    print(
+        f"  Zone {z}: n={mask.sum()}, dominant={dist.index[0]} ({purity:.0%}), "
+        f"classes={dict(dist)}"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -217,9 +230,18 @@ for z in range(n_combined_zones):
 print("\n=== Part 3: Stratified kriging comparison ===")
 
 
-def stratified_kriging(xs_tr, ys_tr, y_tr, zones_tr,
-                       xs_va, ys_va, zones_va,
-                       n_classes, n_zones, max_per_zone=1500):
+def stratified_kriging(
+    xs_tr,
+    ys_tr,
+    y_tr,
+    zones_tr,
+    xs_va,
+    ys_va,
+    zones_va,
+    n_classes,
+    n_zones,
+    max_per_zone=1500,
+):
     """Indicator kriging stratified by pre-computed zones."""
     n_va = len(xs_va)
     proba = np.zeros((n_va, n_classes))
@@ -246,9 +268,13 @@ def stratified_kriging(xs_tr, ys_tr, y_tr, zones_tr,
                 continue
             try:
                 ok = OrdinaryKriging(
-                    xs_tr[tr_idx], ys_tr[tr_idx], indicator,
+                    xs_tr[tr_idx],
+                    ys_tr[tr_idx],
+                    indicator,
                     variogram_model="exponential",
-                    verbose=False, enable_plotting=False, nlags=15,
+                    verbose=False,
+                    enable_plotting=False,
+                    nlags=15,
                 )
                 z_vals, _ = ok.execute("points", xs_va[va_idx], ys_va[va_idx])
                 proba[va_idx, c] = np.clip(z_vals, 0, 1)
@@ -270,9 +296,13 @@ def global_kriging(xs_tr, ys_tr, y_tr, xs_va, ys_va, n_classes, max_tr=3000):
             continue
         try:
             ok = OrdinaryKriging(
-                xs_tr[sub], ys_tr[sub], indicator,
+                xs_tr[sub],
+                ys_tr[sub],
+                indicator,
                 variogram_model="exponential",
-                verbose=False, enable_plotting=False, nlags=20,
+                verbose=False,
+                enable_plotting=False,
+                nlags=20,
             )
             z_vals, _ = ok.execute("points", xs_va, ys_va)
             proba[:, c] = np.clip(z_vals, 0, 1)
@@ -282,9 +312,7 @@ def global_kriging(xs_tr, ys_tr, y_tr, xs_va, ys_va, n_classes, max_tr=3000):
 
 
 # Depth zone edges (from previous experiment)
-depth_zone_edges = np.quantile(
-    depths_tr[np.isfinite(depths_tr)], np.linspace(0, 1, 6)
-)
+depth_zone_edges = np.quantile(depths_tr[np.isfinite(depths_tr)], np.linspace(0, 1, 6))
 depth_zone_edges[0] -= 1
 depth_zone_edges[-1] += 1
 depth_zones_tr = np.clip(np.digitize(depths_tr, depth_zone_edges) - 1, 0, 4)
@@ -320,9 +348,15 @@ for b in range(10):
     # Stratified kriging variants
     for name, (_, zones_all, nz) in [(k, v) for k, v in strategies.items() if v]:
         oof[name][va] = stratified_kriging(
-            xs_tr[tr], ys_tr[tr], y[tr], zones_all[tr],
-            xs_tr[va], ys_tr[va], zones_all[va],
-            n_classes, nz,
+            xs_tr[tr],
+            ys_tr[tr],
+            y[tr],
+            zones_all[tr],
+            xs_tr[va],
+            ys_tr[va],
+            zones_all[va],
+            n_classes,
+            nz,
         )
 
     elapsed = time.time() - t0
@@ -374,10 +408,10 @@ def extract_features_with_zones(xs, ys, back_zones, combined_zones):
         size = 2 * n + 1
         for arr, p in [(bathy_f, "b_"), (back_f, "k_")]:
             fm = uniform_filter(arr, size=size)
-            fsq = uniform_filter(arr ** 2, size=size)
+            fsq = uniform_filter(arr**2, size=size)
             feats[f"{p}fm_{size}"] = sample_raster_at_points(fm, bt, xs, ys)
             feats[f"{p}std_{size}"] = sample_raster_at_points(
-                np.sqrt(np.maximum(fsq - fm ** 2, 0)), bt, xs, ys
+                np.sqrt(np.maximum(fsq - fm**2, 0)), bt, xs, ys
             )
             feats[f"{p}tpi_{size}"] = sample_raster_at_points(arr - fm, bt, xs, ys)
 
@@ -390,10 +424,10 @@ def extract_features_with_zones(xs, ys, back_zones, combined_zones):
         dxy = np.gradient(dx, cell_size, axis=0)
         feats[f"mcurv_s{sigma}"] = sample_raster_at_points((d2x + d2y) / 2, bt, xs, ys)
         feats[f"gcurv_s{sigma}"] = sample_raster_at_points(
-            d2x * d2y - dxy ** 2, bt, xs, ys
+            d2x * d2y - dxy**2, bt, xs, ys
         )
         feats[f"mslope_s{sigma}"] = sample_raster_at_points(
-            np.sqrt(dx ** 2 + dy ** 2), bt, xs, ys
+            np.sqrt(dx**2 + dy**2), bt, xs, ys
         )
 
     dx = np.gradient(bathy_f, cell_size, axis=1)
@@ -412,7 +446,7 @@ def extract_features_with_zones(xs, ys, back_zones, combined_zones):
     bk_dx = np.gradient(back_f, cell_size, axis=1)
     bk_dy = np.gradient(back_f, cell_size, axis=0)
     feats["back_grad"] = sample_raster_at_points(
-        np.sqrt(bk_dx ** 2 + bk_dy ** 2), bkt, xs, ys
+        np.sqrt(bk_dx**2 + bk_dy**2), bkt, xs, ys
     )
 
     feats["depth_x_back"] = np.abs(feats["bathy"]) * feats["back"]
@@ -455,18 +489,31 @@ for b in range(10):
     tr = np.where(blocks != b)[0]
 
     cb = CatBoostClassifier(
-        iterations=1000, depth=6, learning_rate=0.02,
-        l2_leaf_reg=10.0, random_seed=42, verbose=0,
+        iterations=1000,
+        depth=6,
+        learning_rate=0.02,
+        l2_leaf_reg=10.0,
+        random_seed=42,
+        verbose=0,
         auto_class_weights="Balanced",
     )
     cb.fit(X_tr_clean.iloc[tr], y[tr])
     oof["catboost"][va] = cb.predict_proba(X_tr_clean.iloc[va])
 
     lgbm = LGBMClassifier(
-        n_estimators=1000, max_depth=8, learning_rate=0.02,
-        num_leaves=63, subsample=0.7, colsample_bytree=0.5,
-        min_child_samples=15, reg_alpha=2.0, reg_lambda=10.0,
-        class_weight="balanced", random_state=42, n_jobs=-1, verbose=-1,
+        n_estimators=1000,
+        max_depth=8,
+        learning_rate=0.02,
+        num_leaves=63,
+        subsample=0.7,
+        colsample_bytree=0.5,
+        min_child_samples=15,
+        reg_alpha=2.0,
+        reg_lambda=10.0,
+        class_weight="balanced",
+        random_state=42,
+        n_jobs=-1,
+        verbose=-1,
     )
     lgbm.fit(X_tr_clean.iloc[tr], y[tr])
     oof["lgbm"][va] = lgbm.predict_proba(X_tr_clean.iloc[va])
@@ -483,7 +530,13 @@ for name in oof:
 
 # Exhaustive blend search
 print("\n=== Blend search (all spatial × GBDT combos) ===")
-spatial_names = ["knn5", "kriging_global", "kriging_depth", "kriging_back", "kriging_combined"]
+spatial_names = [
+    "knn5",
+    "kriging_global",
+    "kriging_depth",
+    "kriging_back",
+    "kriging_combined",
+]
 gbdt_names = ["catboost", "lgbm"]
 
 best_f1, best_label, best_weights = 0, "", {}
@@ -499,8 +552,12 @@ for sp1 in spatial_names:
                     wlg = 1.0 - w1 - w2 - wcb
                     if wlg < 0.0 or wlg > 0.5:
                         continue
-                    blend = (w1 * oof[sp1] + w2 * oof[sp2] +
-                             wcb * oof["catboost"] + wlg * oof["lgbm"])
+                    blend = (
+                        w1 * oof[sp1]
+                        + w2 * oof[sp2]
+                        + wcb * oof["catboost"]
+                        + wlg * oof["lgbm"]
+                    )
                     bp = enc.classes_[np.argmax(blend, axis=1)]
                     f1 = f1_score(enc.inverse_transform(y), bp, average="weighted")
                     if f1 > best_f1:

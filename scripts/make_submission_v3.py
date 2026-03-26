@@ -14,6 +14,7 @@ Spatial-block CV (10-fold KMeans on coordinates): weighted-F1 ≈ 0.77
 
 Output: data/submission_v3.csv — ready for Kaggle upload in ID,class format
 """
+
 from __future__ import annotations
 
 import argparse
@@ -49,6 +50,7 @@ _DATA = _REPO / "data"
 # Raster helpers
 # ---------------------------------------------------------------------------
 
+
 def _load_raster(path: Path):
     with rasterio.open(path) as src:
         arr = src.read(1).astype(np.float32)
@@ -62,6 +64,7 @@ def _load_raster(path: Path):
 def _sample_zone_at_points(zone_raster, transform, xs, ys):
     """Sample integer zone raster at (x, y) points."""
     import rasterio.transform as rtransform
+
     rows, cols = rtransform.rowcol(transform, xs, ys)
     rows = np.asarray(rows, dtype=int)
     cols = np.asarray(cols, dtype=int)
@@ -75,27 +78,49 @@ def _sample_zone_at_points(zone_raster, transform, xs, ys):
 # Feature extraction (87 features)
 # ---------------------------------------------------------------------------
 
+
 def extract_features(
-    xs, ys,
-    bathy, back, bathy_f, back_f, back_smooth,
-    bt, bkt, cell_size,
-    back_zone_raster, combined_zone_raster,
-    isobath_depths, depths_all,
+    xs,
+    ys,
+    bathy,
+    back,
+    bathy_f,
+    back_f,
+    back_smooth,
+    bt,
+    bkt,
+    cell_size,
+    back_zone_raster,
+    combined_zone_raster,
+    isobath_depths,
+    depths_all,
 ):
     feats = {}
 
     feats["x"] = xs.copy()
     feats["y"] = ys.copy()
     feats["bathy"] = sample_raster_at_points(
-        np.nan_to_num(bathy, nan=-10000), bt, xs, ys, nodata=-10000,
+        np.nan_to_num(bathy, nan=-10000),
+        bt,
+        xs,
+        ys,
+        nodata=-10000,
     )
     feats["back"] = sample_raster_at_points(
-        np.nan_to_num(back, nan=-10000), bkt, xs, ys, nodata=-10000,
+        np.nan_to_num(back, nan=-10000),
+        bkt,
+        xs,
+        ys,
+        nodata=-10000,
     )
 
     # Zone features
-    feats["back_zone"] = _sample_zone_at_points(back_zone_raster, bt, xs, ys).astype(float)
-    feats["combined_zone"] = _sample_zone_at_points(combined_zone_raster, bt, xs, ys).astype(float)
+    feats["back_zone"] = _sample_zone_at_points(back_zone_raster, bt, xs, ys).astype(
+        float
+    )
+    feats["combined_zone"] = _sample_zone_at_points(
+        combined_zone_raster, bt, xs, ys
+    ).astype(float)
 
     # BTM derivatives
     slope_arr = compute_slope(bathy_f, cell_size, nodata=None)
@@ -109,10 +134,10 @@ def extract_features(
         size = 2 * n + 1
         for arr, prefix in [(bathy_f, "b_"), (back_f, "k_")]:
             fm = uniform_filter(arr, size=size)
-            fsq = uniform_filter(arr ** 2, size=size)
+            fsq = uniform_filter(arr**2, size=size)
             feats[f"{prefix}fm_{size}"] = sample_raster_at_points(fm, bt, xs, ys)
             feats[f"{prefix}std_{size}"] = sample_raster_at_points(
-                np.sqrt(np.maximum(fsq - fm ** 2, 0)), bt, xs, ys
+                np.sqrt(np.maximum(fsq - fm**2, 0)), bt, xs, ys
             )
             feats[f"{prefix}tpi_{size}"] = sample_raster_at_points(arr - fm, bt, xs, ys)
 
@@ -125,8 +150,12 @@ def extract_features(
         d2y = np.gradient(dy, cell_size, axis=0)
         dxy = np.gradient(dx, cell_size, axis=0)
         feats[f"mcurv_s{sigma}"] = sample_raster_at_points((d2x + d2y) / 2, bt, xs, ys)
-        feats[f"gcurv_s{sigma}"] = sample_raster_at_points(d2x * d2y - dxy ** 2, bt, xs, ys)
-        feats[f"mslope_s{sigma}"] = sample_raster_at_points(np.sqrt(dx ** 2 + dy ** 2), bt, xs, ys)
+        feats[f"gcurv_s{sigma}"] = sample_raster_at_points(
+            d2x * d2y - dxy**2, bt, xs, ys
+        )
+        feats[f"mslope_s{sigma}"] = sample_raster_at_points(
+            np.sqrt(dx**2 + dy**2), bt, xs, ys
+        )
 
     # Aspect
     dx = np.gradient(bathy_f, cell_size, axis=1)
@@ -146,7 +175,9 @@ def extract_features(
     # Backscatter gradient
     bk_dx = np.gradient(back_f, cell_size, axis=1)
     bk_dy = np.gradient(back_f, cell_size, axis=0)
-    feats["back_grad"] = sample_raster_at_points(np.sqrt(bk_dx ** 2 + bk_dy ** 2), bkt, xs, ys)
+    feats["back_grad"] = sample_raster_at_points(
+        np.sqrt(bk_dx**2 + bk_dy**2), bkt, xs, ys
+    )
 
     # Interactions
     feats["depth_x_back"] = np.abs(feats["bathy"]) * feats["back"]
@@ -170,8 +201,8 @@ def extract_features(
 # Kriging
 # ---------------------------------------------------------------------------
 
-def _indicator_kriging_proba(xs_tr, ys_tr, y_tr, xs_te, ys_te,
-                              n_classes, max_tr=3000):
+
+def _indicator_kriging_proba(xs_tr, ys_tr, y_tr, xs_te, ys_te, n_classes, max_tr=3000):
     """Global indicator kriging."""
     rng = np.random.RandomState(42)
     n_te = len(xs_te)
@@ -184,9 +215,13 @@ def _indicator_kriging_proba(xs_tr, ys_tr, y_tr, xs_te, ys_te,
             continue
         try:
             ok = OrdinaryKriging(
-                xs_tr[sub], ys_tr[sub], indicator,
+                xs_tr[sub],
+                ys_tr[sub],
+                indicator,
                 variogram_model="exponential",
-                verbose=False, enable_plotting=False, nlags=20,
+                verbose=False,
+                enable_plotting=False,
+                nlags=20,
             )
             z_vals, _ = ok.execute("points", xs_te, ys_te)
             proba[:, c] = np.clip(z_vals, 0, 1)
@@ -195,9 +230,18 @@ def _indicator_kriging_proba(xs_tr, ys_tr, y_tr, xs_te, ys_te,
     return proba
 
 
-def _stratified_kriging_proba(xs_tr, ys_tr, y_tr, zones_tr,
-                               xs_te, ys_te, zones_te,
-                               n_classes, n_zones, max_per_zone=1500):
+def _stratified_kriging_proba(
+    xs_tr,
+    ys_tr,
+    y_tr,
+    zones_tr,
+    xs_te,
+    ys_te,
+    zones_te,
+    n_classes,
+    n_zones,
+    max_per_zone=1500,
+):
     """Indicator kriging stratified by depth zone."""
     rng = np.random.RandomState(42)
     n_te = len(xs_te)
@@ -221,9 +265,13 @@ def _stratified_kriging_proba(xs_tr, ys_tr, y_tr, zones_tr,
                 continue
             try:
                 ok = OrdinaryKriging(
-                    xs_tr[tr_idx], ys_tr[tr_idx], indicator,
+                    xs_tr[tr_idx],
+                    ys_tr[tr_idx],
+                    indicator,
                     variogram_model="exponential",
-                    verbose=False, enable_plotting=False, nlags=15,
+                    verbose=False,
+                    enable_plotting=False,
+                    nlags=15,
                 )
                 z_vals, _ = ok.execute("points", xs_te[te_idx], ys_te[te_idx])
                 proba[te_idx, c] = np.clip(z_vals, 0, 1)
@@ -236,17 +284,22 @@ def _stratified_kriging_proba(xs_tr, ys_tr, y_tr, zones_tr,
 # Main pipeline
 # ---------------------------------------------------------------------------
 
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", default="data/submission_v3.csv")
     parser.add_argument("--seed", default=42, type=int)
     parser.add_argument("--n-cv-blocks", default=10, type=int)
     parser.add_argument(
-        "--blend", default="0.60,0.15,0.10,0.15",
+        "--blend",
+        default="0.60,0.15,0.10,0.15",
         help="kriging_depth,kriging_global,catboost,lgbm weights (default: 0.60,0.15,0.10,0.15)",
     )
-    parser.add_argument("--skip-cv", action="store_true",
-                        help="Skip spatial CV (faster, just produce submission)")
+    parser.add_argument(
+        "--skip-cv",
+        action="store_true",
+        help="Skip spatial CV (faster, just produce submission)",
+    )
     args = parser.parse_args(argv)
 
     w = [float(x) for x in args.blend.split(",")]
@@ -277,7 +330,9 @@ def main(argv=None):
     ys_te = test["y"].to_numpy(float)
     coords = train[["x", "y"]].values
 
-    print(f"Train: {len(train)} rows, Test: {len(test)} rows, Classes: {list(enc.classes_)}")
+    print(
+        f"Train: {len(train)} rows, Test: {len(test)} rows, Classes: {list(enc.classes_)}"
+    )
 
     # ── Depth zones ───────────────────────────────────────────────────
     print("Computing depth zones...")
@@ -317,18 +372,25 @@ def main(argv=None):
 
     # Combined depth×backscatter zones
     from sklearn.preprocessing import StandardScaler
+
     n_cz = 8
     scaler_2d = StandardScaler()
-    feats_2d = scaler_2d.fit_transform(np.column_stack([
-        bathy_f[valid_rows[si], valid_cols[si]],
-        back_smooth[valid_rows[si], valid_cols[si]],
-    ]))
+    feats_2d = scaler_2d.fit_transform(
+        np.column_stack(
+            [
+                bathy_f[valid_rows[si], valid_cols[si]],
+                back_smooth[valid_rows[si], valid_cols[si]],
+            ]
+        )
+    )
     km_cz = KMeans(n_clusters=n_cz, random_state=42, n_init=10)
     km_cz.fit(feats_2d)
     cz_raster = np.full(bathy_f.shape, -1, dtype=np.int32)
-    cz_raster[valid_mask] = km_cz.predict(scaler_2d.transform(
-        np.column_stack([bathy_f[valid_mask], back_smooth[valid_mask]])
-    ))
+    cz_raster[valid_mask] = km_cz.predict(
+        scaler_2d.transform(
+            np.column_stack([bathy_f[valid_mask], back_smooth[valid_mask]])
+        )
+    )
 
     # Isobath depths
     isobath_depths = np.quantile(
@@ -338,14 +400,38 @@ def main(argv=None):
     # ── Extract features ──────────────────────────────────────────────
     print("Extracting features (train)...")
     X_train = extract_features(
-        xs_tr, ys_tr, bathy, back, bathy_f, back_f, back_smooth,
-        bt, bkt, cell_size, bz_raster, cz_raster, isobath_depths, depths_tr,
+        xs_tr,
+        ys_tr,
+        bathy,
+        back,
+        bathy_f,
+        back_f,
+        back_smooth,
+        bt,
+        bkt,
+        cell_size,
+        bz_raster,
+        cz_raster,
+        isobath_depths,
+        depths_tr,
     )
     print(f"  {X_train.shape[1]} features")
     print("Extracting features (test)...")
     X_test = extract_features(
-        xs_te, ys_te, bathy, back, bathy_f, back_f, back_smooth,
-        bt, bkt, cell_size, bz_raster, cz_raster, isobath_depths, depths_tr,
+        xs_te,
+        ys_te,
+        bathy,
+        back,
+        bathy_f,
+        back_f,
+        back_smooth,
+        bt,
+        bkt,
+        cell_size,
+        bz_raster,
+        cz_raster,
+        isobath_depths,
+        depths_tr,
     )
 
     med = X_train.median()
@@ -375,30 +461,54 @@ def main(argv=None):
             t0 = time.time()
 
             oof["kriging_depth"][va] = _stratified_kriging_proba(
-                xs_tr[tr], ys_tr[tr], y[tr], dz_tr[tr],
-                xs_tr[va], ys_tr[va], dz_tr[va],
-                n_classes, n_depth_zones,
+                xs_tr[tr],
+                ys_tr[tr],
+                y[tr],
+                dz_tr[tr],
+                xs_tr[va],
+                ys_tr[va],
+                dz_tr[va],
+                n_classes,
+                n_depth_zones,
             )
             oof["kriging_global"][va] = _indicator_kriging_proba(
-                xs_tr[tr], ys_tr[tr], y[tr], xs_tr[va], ys_tr[va], n_classes,
+                xs_tr[tr],
+                ys_tr[tr],
+                y[tr],
+                xs_tr[va],
+                ys_tr[va],
+                n_classes,
             )
             knn = KNeighborsClassifier(5, weights="distance")
             knn.fit(coords[tr], y[tr])
             oof["knn5"][va] = knn.predict_proba(coords[va])
 
             cb = CatBoostClassifier(
-                iterations=1000, depth=6, learning_rate=0.02,
-                l2_leaf_reg=10.0, random_seed=args.seed, verbose=0,
+                iterations=1000,
+                depth=6,
+                learning_rate=0.02,
+                l2_leaf_reg=10.0,
+                random_seed=args.seed,
+                verbose=0,
                 auto_class_weights="Balanced",
             )
             cb.fit(X_tr_clean.iloc[tr], y[tr])
             oof["catboost"][va] = cb.predict_proba(X_tr_clean.iloc[va])
 
             lgbm = LGBMClassifier(
-                n_estimators=1000, max_depth=8, learning_rate=0.02,
-                num_leaves=63, subsample=0.7, colsample_bytree=0.5,
-                min_child_samples=15, reg_alpha=2.0, reg_lambda=10.0,
-                class_weight="balanced", random_state=args.seed, n_jobs=-1, verbose=-1,
+                n_estimators=1000,
+                max_depth=8,
+                learning_rate=0.02,
+                num_leaves=63,
+                subsample=0.7,
+                colsample_bytree=0.5,
+                min_child_samples=15,
+                reg_alpha=2.0,
+                reg_lambda=10.0,
+                class_weight="balanced",
+                random_state=args.seed,
+                n_jobs=-1,
+                verbose=-1,
             )
             lgbm.fit(X_tr_clean.iloc[tr], y[tr])
             oof["lgbm"][va] = lgbm.predict_proba(X_tr_clean.iloc[va])
@@ -419,8 +529,12 @@ def main(argv=None):
             print(f"  {name:25s}: {f1:.4f}")
 
         # Blend
-        blend_oof = (w_kd * oof["kriging_depth"] + w_kg * oof["kriging_global"] +
-                     w_cb * oof["catboost"] + w_lg * oof["lgbm"])
+        blend_oof = (
+            w_kd * oof["kriging_depth"]
+            + w_kg * oof["kriging_global"]
+            + w_cb * oof["catboost"]
+            + w_lg * oof["lgbm"]
+        )
         blend_preds = enc.classes_[np.argmax(blend_oof, axis=1)]
         blend_f1 = f1_score(enc.inverse_transform(y), blend_preds, average="weighted")
         print(f"\n  Blend ({w_kd}/{w_kg}/{w_cb}/{w_lg}): {blend_f1:.4f}")
@@ -433,12 +547,18 @@ def main(argv=None):
                 lg_w = rest - cb_w
                 if lg_w < 0:
                     continue
-                b_oof = (w_kd * oof["kriging_depth"] + knn_w * oof["knn5"] +
-                         cb_w * oof["catboost"] + lg_w * oof["lgbm"])
+                b_oof = (
+                    w_kd * oof["kriging_depth"]
+                    + knn_w * oof["knn5"]
+                    + cb_w * oof["catboost"]
+                    + lg_w * oof["lgbm"]
+                )
                 f1 = f1_score(y, np.argmax(b_oof, 1), average="weighted")
                 if f1 > blend_f1:
                     blend_f1 = f1
-                    print(f"  ** Better: kd({w_kd})+knn({knn_w})+cb({cb_w:.2f})+lg({lg_w:.2f}) = {f1:.4f}")
+                    print(
+                        f"  ** Better: kd({w_kd})+knn({knn_w})+cb({cb_w:.2f})+lg({lg_w:.2f}) = {f1:.4f}"
+                    )
 
     # ── Train final models on ALL data ────────────────────────────────
     print("\nTraining final models on all training data...")
@@ -447,9 +567,15 @@ def main(argv=None):
     # Kriging (depth-stratified)
     print("  Depth-stratified kriging...")
     p_kd = _stratified_kriging_proba(
-        xs_tr, ys_tr, y, dz_tr,
-        xs_te, ys_te, dz_te,
-        n_classes, n_depth_zones,
+        xs_tr,
+        ys_tr,
+        y,
+        dz_tr,
+        xs_te,
+        ys_te,
+        dz_te,
+        n_classes,
+        n_depth_zones,
     )
 
     # Kriging (global)
@@ -459,8 +585,12 @@ def main(argv=None):
     # CatBoost
     print("  CatBoost...")
     cb_final = CatBoostClassifier(
-        iterations=1000, depth=6, learning_rate=0.02,
-        l2_leaf_reg=10.0, random_seed=args.seed, verbose=0,
+        iterations=1000,
+        depth=6,
+        learning_rate=0.02,
+        l2_leaf_reg=10.0,
+        random_seed=args.seed,
+        verbose=0,
         auto_class_weights="Balanced",
     )
     cb_final.fit(X_tr_clean, y)
@@ -469,10 +599,19 @@ def main(argv=None):
     # LightGBM
     print("  LightGBM...")
     lgbm_final = LGBMClassifier(
-        n_estimators=1000, max_depth=8, learning_rate=0.02,
-        num_leaves=63, subsample=0.7, colsample_bytree=0.5,
-        min_child_samples=15, reg_alpha=2.0, reg_lambda=10.0,
-        class_weight="balanced", random_state=args.seed, n_jobs=-1, verbose=-1,
+        n_estimators=1000,
+        max_depth=8,
+        learning_rate=0.02,
+        num_leaves=63,
+        subsample=0.7,
+        colsample_bytree=0.5,
+        min_child_samples=15,
+        reg_alpha=2.0,
+        reg_lambda=10.0,
+        class_weight="balanced",
+        random_state=args.seed,
+        n_jobs=-1,
+        verbose=-1,
     )
     lgbm_final.fit(X_tr_clean, y)
     p_lg = lgbm_final.predict_proba(X_te_clean)
@@ -506,8 +645,10 @@ def main(argv=None):
         kg = p_kg[i]
         bl = test_blend[i]
         pred = predictions[i]
-        print(f"  ID={test['ID'].iloc[i]:4d}: kriging_depth={kd}, "
-              f"global={kg}, blend={np.round(bl, 3)}, pred={pred}")
+        print(
+            f"  ID={test['ID'].iloc[i]:4d}: kriging_depth={kd}, "
+            f"global={kg}, blend={np.round(bl, 3)}, pred={pred}"
+        )
 
     return 0
 
