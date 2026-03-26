@@ -68,6 +68,10 @@ python scripts/run_fagatelebay.py --outdir outputs/fagatelebay
 See [TESTING.md](TESTING.md) for a full walkthrough with expected values and
 tips on visualising outputs in QGIS or ArcGIS Pro.
 
+For combining BTM with machine-learning classification (XGBoost / LightGBM),
+see [docs/classification-methods.md](docs/classification-methods.md) and the
+step-by-step [docs/runsheet-hybrid-kaggle.md](docs/runsheet-hybrid-kaggle.md).
+
 ## Running the tests
 
 ```bash

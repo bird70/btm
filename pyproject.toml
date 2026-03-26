@@ -37,6 +37,7 @@ btm-classify          = "btm.cli.classify:main"
 btm-run-model         = "btm.cli.run_model:main"
 btm-depth-stats       = "btm.cli.depth_statistics:main"
 btm-scale-compare     = "btm.cli.scale_comparison:main"
+btm-export-features   = "btm.cli.export_features:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

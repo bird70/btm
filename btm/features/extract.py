@@ -54,7 +54,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 if TYPE_CHECKING:
-    import pandas as pd
+    pass
 
 _log = logging.getLogger(__name__)
 
@@ -178,7 +178,6 @@ def extract_btm_features(
     ``btm_broad_x_fine_std``         broad_std × fine_std — interaction
     ===============================  =========================================
     """
-    import pandas as pd
 
     from btm.core.bpi import compute_bpi
     from btm.core.classify import classify_terrain
