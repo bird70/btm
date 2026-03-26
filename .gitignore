@@ -4,6 +4,9 @@ __pycache__/
 # C extensions
 *.so
 
+# CatBoost training cache
+catboost_info/
+
 # Packages
 *.egg
 *.egg-info
