@@ -43,7 +43,7 @@ btm-export-features --help
 
 ### Python environment
 
-Both packages require Python 3.11+.  If you are using the BTM venv:
+Both packages require Python 3.11+. If you are using the BTM venv:
 
 ```bash
 # Windows
@@ -78,10 +78,11 @@ EOF
 ```
 
 **Sanity checks:**
+
 - Training CSV must have columns `ID`, `x`, `y`, `class`.
 - Raster CRS and point coordinates must match (both projected or both
-  geographic, same EPSG).  Reproject points with GeoPandas if needed.
-- Bathymetry values should be negative (depth below sea surface).  Positive
+  geographic, same EPSG). Reproject points with GeoPandas if needed.
+- Bathymetry values should be negative (depth below sea surface). Positive
   values will not affect algorithm correctness but BPI labels will be inverted.
 
 ---
@@ -107,6 +108,7 @@ btm-export-features \
 ```
 
 This writes:
+
 - `data/train_btm.csv` — original columns + 10 `btm_*` columns
 - `data/test_btm.csv` — same structure for test points
 - `data/btm_rasters/btm_*.tif` — full-raster derivatives for inspection
@@ -118,14 +120,14 @@ This writes:
 BPI radii are in **cells**, so they depend on your survey resolution:
 
 | Raster resolution | Broad inner | Broad outer | Fine inner | Fine outer |
-|-------------------|-------------|-------------|------------|------------|
-| 1 m | 50 | 150 | 5 | 25 |
-| 5 m | 10 | 30 | 1 | 5 |
-| 10 m | 5 | 15 | 1 | 3 |
-| 25 m | 2 | 6 | 1 | 2 |
+| ----------------- | ----------- | ----------- | ---------- | ---------- |
+| 1 m               | 50          | 150         | 5          | 25         |
+| 5 m               | 10          | 30          | 1          | 5          |
+| 10 m              | 5           | 15          | 1          | 3          |
+| 25 m              | 2           | 6           | 1          | 2          |
 
 Use wider radii for detecting shelf-scale ridges/depressions; narrower radii
-for detecting individual biogenic structures.  Run `btm-scale-compare` to
+for detecting individual biogenic structures. Run `btm-scale-compare` to
 explore the effect.
 
 ---
@@ -180,6 +182,7 @@ benthic-model train \
 ```
 
 The `benthic_model` pipeline will:
+
 1. Call `extract_mbes_features()` internally to add backscatter-derived and
    TPI-based features.
 2. Call `engineer_features()` to add interaction terms.
@@ -188,8 +191,8 @@ The `benthic_model` pipeline will:
    `benthic_model`.
 
 > **How it works:** `engineer_features()` in `benthic_model` calls
-> `select_model_feature_columns()` which includes *all numeric columns not in
-> the exclusion list*.  The `btm_*` prefixed columns are numeric and not
+> `select_model_feature_columns()` which includes _all numeric columns not in
+> the exclusion list_. The `btm_*` prefixed columns are numeric and not
 > excluded, so they are automatically included in the feature matrix `X`.
 
 ### Enabling interaction terms between BTM and MBES features
@@ -263,14 +266,14 @@ benthic-model submit \
 On typical coral-reef MBES surveys the BTM derivatives are expected to rank
 highly in LightGBM feature importance:
 
-| Expected rank | Feature | Reason |
-|---------------|---------|--------|
-| Top 5 | `btm_broad_std` | Primary landscape-scale discriminator |
-| Top 5 | `btm_fine_std` | Primary local-scale discriminator |
-| Top 10 | `btm_vrm` | Biogenic structure indicator |
-| Top 10 | `btm_slope` | Confirms depth-gradient class transitions |
-| Mid | `btm_bpi_magnitude` | Combined relief signal |
-| Mid | `btm_rule_class` *(if used)* | Expert prior — very site-specific |
+| Expected rank | Feature                      | Reason                                    |
+| ------------- | ---------------------------- | ----------------------------------------- |
+| Top 5         | `btm_broad_std`              | Primary landscape-scale discriminator     |
+| Top 5         | `btm_fine_std`               | Primary local-scale discriminator         |
+| Top 10        | `btm_vrm`                    | Biogenic structure indicator              |
+| Top 10        | `btm_slope`                  | Confirms depth-gradient class transitions |
+| Mid           | `btm_bpi_magnitude`          | Combined relief signal                    |
+| Mid           | `btm_rule_class` _(if used)_ | Expert prior — very site-specific         |
 
 The backscatter and TPI features from `benthic_model` remain important; BTM
 features reduce the number of features needed to explain transitions but do
@@ -280,18 +283,18 @@ not replace acoustic information.
 
 Based on the class structure and the nature of BTM features, expect:
 
-| Scenario | Expected Δ weighted-F1 |
-|----------|------------------------|
-| Bathymetry only (no backscatter) | **+3 to +8 pp** vs TPI-only baseline |
-| With backscatter | **+1 to +4 pp** (BTM adds independently) |
-| Transition / mixed zones | Largest improvements — these are where |
-| | hard BTM thresholds fail but BPI signal is informative |
-| Homogeneous flat areas | Small or no improvement |
+| Scenario                         | Expected Δ weighted-F1                                 |
+| -------------------------------- | ------------------------------------------------------ |
+| Bathymetry only (no backscatter) | **+3 to +8 pp** vs TPI-only baseline                   |
+| With backscatter                 | **+1 to +4 pp** (BTM adds independently)               |
+| Transition / mixed zones         | Largest improvements — these are where                 |
+|                                  | hard BTM thresholds fail but BPI signal is informative |
+| Homogeneous flat areas           | Small or no improvement                                |
 
 These are estimates; actual gains depend on training set size, CRS accuracy,
-and class distribution.  Always validate with the spatial blocked CV scores.
+and class distribution. Always validate with the spatial blocked CV scores.
 
-### Why might it *not* help?
+### Why might it _not_ help?
 
 - If the habitat classes are primarily substrate-driven (hard vs soft bottom)
   rather than morphology-driven, backscatter dominates and BTM adds little.
@@ -324,10 +327,10 @@ train["x"] = gdf.geometry.x
 train["y"] = gdf.geometry.y
 ```
 
-### NaN values in btm_* columns
+### NaN values in btm\_\* columns
 
 All BTM columns default to NaN for points that land outside the raster extent
-or on nodata cells.  Check:
+or on nodata cells. Check:
 
 ```python
 btm = pd.read_csv("data/train_btm.csv")
@@ -340,7 +343,7 @@ small number of NaN points is handled automatically.
 ### Memory on large rasters
 
 For rasters wider than ~10,000 cells, the VRM and BPI computations may
-require several GB of RAM.  A tiled block-processing mode for
+require several GB of RAM. A tiled block-processing mode for
 `extract_btm_features()` is planned for a future release.
 
 ---

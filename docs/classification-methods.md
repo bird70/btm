@@ -13,15 +13,15 @@ BTM's rule-based classifier assigns a terrain class to every pixel by
 evaluating an ordered list of expert-defined rules against four derived
 rasters:
 
-| Input | Computed by |
-|-------|------------|
+| Input                        | Computed by                       |
+| ---------------------------- | --------------------------------- |
 | Broad-scale standardised BPI | `btm-bpi` → `btm-standardize-bpi` |
-| Fine-scale standardised BPI | `btm-bpi` → `btm-standardize-bpi` |
-| Slope (degrees) | `btm-slope` |
-| Depth (raw bathymetry) | input raster |
+| Fine-scale standardised BPI  | `btm-bpi` → `btm-standardize-bpi` |
+| Slope (degrees)              | `btm-slope`                       |
+| Depth (raw bathymetry)       | input raster                      |
 
-Each rule specifies an optional numeric range for each of the four inputs.  A
-pixel matches a class when **all supplied ranges are satisfied**.  Rules are
+Each rule specifies an optional numeric range for each of the four inputs. A
+pixel matches a class when **all supplied ranges are satisfied**. Rules are
 evaluated in order; the **first match wins**.
 
 ```
@@ -78,19 +78,19 @@ btm-run-model \
 `benthic_model` (see
 [niwacolours/benthic-terrain-model-kaggle](https://github.com/niwacolours/benthic-terrain-model-kaggle))
 is a supervised machine-learning classifier trained on labelled field samples
-(e.g. drop-camera or grab-sample points).  It uses gradient-boosted tree
+(e.g. drop-camera or grab-sample points). It uses gradient-boosted tree
 ensembles (XGBoost, LightGBM) to learn a mapping from per-pixel feature
 vectors to habitat classes.
 
 Default feature set from MBES surveys:
 
-| Feature group | Examples |
-|---------------|---------|
-| Raw acoustic | `bathymetry`, `backscatter` |
-| Terrain morphology | `slope`, `TPI` (square window), `rugosity` |
-| Focal statistics | `bathymetry_std_3`, `bathymetry_std_9`, focal means |
-| Spatial context | z-scores, relative position, rank features |
-| Interaction terms | `bathymetry × backscatter`, `slope × backscatter` |
+| Feature group      | Examples                                            |
+| ------------------ | --------------------------------------------------- |
+| Raw acoustic       | `bathymetry`, `backscatter`                         |
+| Terrain morphology | `slope`, `TPI` (square window), `rugosity`          |
+| Focal statistics   | `bathymetry_std_3`, `bathymetry_std_9`, focal means |
+| Spatial context    | z-scores, relative position, rank features          |
+| Interaction terms  | `bathymetry × backscatter`, `slope × backscatter`   |
 
 ### Strengths
 
@@ -139,25 +139,25 @@ BTM knowledge:                          ML learning:
 
 1. **Standardised BPI outperforms TPI for seafloor landscapes.**
    BPI's annular footprint excludes the cell's immediate neighbours, making
-   it sensitive to position relative to the *surrounding landscape* rather
-   than only the local window.  For example, a reef crest sits atop a rise
+   it sensitive to position relative to the _surrounding landscape_ rather
+   than only the local window. For example, a reef crest sits atop a rise
    whose base is outside typical TPI windows (10–30 cell radii).
 
 2. **VRM is theoretically stronger than std-based roughness.**
    VRM captures the tri-axial variance of surface normals (x, y, z
    components), which is scale-invariant and sensitive to small-scale
-   structural complexity (biogenic reefs, rock outcrop).  Rugosity based on
+   structural complexity (biogenic reefs, rock outcrop). Rugosity based on
    bathymetric std is a rougher proxy.
 
 3. **Cross-scale BPI reveals habitat nesting.**
    Broad BPI characterises landscape position (shelf ridge vs depression);
    fine BPI characterises local structure (individual pinnacle vs flat).
-   Their *product* and *magnitude* give the ML model information about
+   Their _product_ and _magnitude_ give the ML model information about
    nested terrain features that neither scale provides alone.
 
 4. **Rule-class as a spatial prior.**
    Passing the BTM CON class code as an integer feature gives the model a
-   domain-expert prior that is essentially free.  The model can learn which
+   domain-expert prior that is essentially free. The model can learn which
    BTM classes correspond to its target classes and adjust from there.
 
 ### Architecture
@@ -194,19 +194,19 @@ bathymetry_tif
 
 ### New features added to the ML feature vector
 
-| Column | Description | Why it helps |
-|--------|-------------|--------------|
-| `btm_broad_bpi` | Raw broad BPI | Landscape-scale position |
-| `btm_fine_bpi` | Raw fine BPI | Local-scale structure |
-| `btm_broad_std` | Z-normalised broad BPI ×100 | Scale-independent position signal |
-| `btm_fine_std` | Z-normalised fine BPI ×100 | Scale-independent local signal |
-| `btm_slope` | Horn (1981) slope in degrees | Cross-check against TPI-derived slope |
-| `btm_vrm` | Sappington VRM [0, 1] | Tri-axial roughness |
-| `btm_surface_ratio` | Jenness surface/planar ratio | Fine-scale complexity |
-| `btm_rule_class` | CON cascade class code (optional) | Domain expert prior |
-| `btm_bpi_magnitude` | √(broad²+fine²) | Strength of terrain relief signal |
-| `btm_broad_x_fine_std` | broad_std × fine_std | Sign-coherent multi-scale |
-| `btm_rough_total` | vrm + (surface_ratio − 1) | Unified roughness index |
+| Column                 | Description                       | Why it helps                          |
+| ---------------------- | --------------------------------- | ------------------------------------- |
+| `btm_broad_bpi`        | Raw broad BPI                     | Landscape-scale position              |
+| `btm_fine_bpi`         | Raw fine BPI                      | Local-scale structure                 |
+| `btm_broad_std`        | Z-normalised broad BPI ×100       | Scale-independent position signal     |
+| `btm_fine_std`         | Z-normalised fine BPI ×100        | Scale-independent local signal        |
+| `btm_slope`            | Horn (1981) slope in degrees      | Cross-check against TPI-derived slope |
+| `btm_vrm`              | Sappington VRM [0, 1]             | Tri-axial roughness                   |
+| `btm_surface_ratio`    | Jenness surface/planar ratio      | Fine-scale complexity                 |
+| `btm_rule_class`       | CON cascade class code (optional) | Domain expert prior                   |
+| `btm_bpi_magnitude`    | √(broad²+fine²)                   | Strength of terrain relief signal     |
+| `btm_broad_x_fine_std` | broad_std × fine_std              | Sign-coherent multi-scale             |
+| `btm_rough_total`      | vrm + (surface_ratio − 1)         | Unified roughness index               |
 
 ### When to use
 
@@ -258,7 +258,7 @@ git checkout 002-boost-weighted-f1
 pip install -e .
 ```
 
-Both run under Python 3.11+.  BTM has no conflicting dependencies with
+Both run under Python 3.11+. BTM has no conflicting dependencies with
 `benthic_model`.
 
 ---

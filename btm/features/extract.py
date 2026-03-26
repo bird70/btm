@@ -188,9 +188,7 @@ def extract_btm_features(
     from btm.io.raster import RasterDataset
 
     if include_rule_class and classification_file is None:
-        raise ValueError(
-            "classification_file is required when include_rule_class=True"
-        )
+        raise ValueError("classification_file is required when include_rule_class=True")
 
     # ------------------------------------------------------------------
     # 1. Load bathymetry

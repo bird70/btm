@@ -151,9 +151,7 @@ class TestExtractBtmFeatures:
 
     def test_include_rule_class_requires_classdict(self, sample_points):
         with pytest.raises(ValueError, match="classification_file"):
-            extract_btm_features(
-                sample_points, BATHY_TIF, include_rule_class=True
-            )
+            extract_btm_features(sample_points, BATHY_TIF, include_rule_class=True)
 
     def test_include_rule_class_with_classdict(self, sample_points):
         result = extract_btm_features(
@@ -178,7 +176,9 @@ class TestExtractBtmFeatures:
         """The output can be merged with another per-point DataFrame on ID."""
         btm = extract_btm_features(sample_points, BATHY_TIF)
         other = sample_points[["ID"]].copy()
-        other["backscatter"] = np.random.default_rng(0).uniform(-30, -10, len(sample_points))
+        other["backscatter"] = np.random.default_rng(0).uniform(
+            -30, -10, len(sample_points)
+        )
         combined = other.merge(btm.drop(columns=["x", "y"]), on="ID")
         assert len(combined) == len(sample_points)
         assert "btm_slope" in combined.columns
