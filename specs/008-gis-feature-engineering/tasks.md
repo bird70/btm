@@ -60,10 +60,10 @@
 
 - [X] T014 [US1] Implement `_add_gis_features_raw(base_df, slope_arr, bz_arr, af_arr, derived_transform, xs, ys)` in `scripts/experiment_v5.py` -- samples each derived raster at `(xs, ys)` using `sample_raster_at_points()`; applies global-median fallback for NaN; scales slope by WEIGHT_SLOPE; OHE-encodes bz (5 cols) and af (8 cols) via `pd.get_dummies`; scales OHE columns by WEIGHT_BZ and WEIGHT_AF respectively; appends all 14 new columns to `base_df`; returns augmented DataFrame
 - [X] T015 [US1] Implement `_write_submission(out_path, pred_labels, test_ids, run_name)` in `scripts/experiment_v5.py` -- writes `ID,class` CSV; asserts row count == len(test_ids) before writing
-- [ ] T016 [US1] Implement `baseline` and `run_a` phases in `main()` in `scripts/experiment_v5.py`:
+- [X] T016 [US1] Implement `baseline` and `run_a` phases in `main()` in `scripts/experiment_v5.py`:
   - baseline: build v2 feature matrix (no GIS); call `_run_spatial_block_cv(X, y, enc, train_df[["x","y"]].values, SEED, N_SPATIAL_BLOCKS)`; store `baseline_f1` and `baseline_importances`
   - run_a: build augmented feature matrix via `_add_gis_features_raw()`; call `_run_spatial_block_cv(X_aug, y, enc, train_df[["x","y"]].values, SEED, N_SPATIAL_BLOCKS)`; store `run_a_f1` and `run_a_importances`; fit final model on full train set; predict test; write `data/submission_v5_gis_features.csv`
-- [ ] T017 [US1] Run tests T010-T012 again -- confirm they now PASS (green); also manually verify `data/submission_v5_gis_features.csv` row count matches `data/test.csv`
+- [X] T017 [US1] Run tests T010-T012 again -- confirm they now PASS (green); also manually verify `data/submission_v5_gis_features.csv` row count matches `data/test.csv`
 
 **Checkpoint**: `data/submission_v5_gis_features.csv` exists; US1 tests green; `baseline_f1` and `run_a_f1` printed to stdout.
 
@@ -93,8 +93,8 @@
   - Rounds `krige_af` to nearest int, clips to [0, N_AF_CLUSTERS-1]; OHE; scale by WEIGHT_AF
   - Scales `krige_slope` by WEIGHT_SLOPE
   - Appends 14 `gis_*` columns to `base_df`; returns augmented DataFrame
-- [ ] T022 [US2] Implement `run_b` phase in `main()`: training uses the same raw-sampled GIS feature matrix as Run A (kriging is NOT applied during CV — it only applies to test-point inference); call `_run_spatial_block_cv(X_aug, y, enc, train_df[["x","y"]].values, SEED, N_SPATIAL_BLOCKS)` to produce `run_b_f1` (will equal `run_a_f1` — this is expected and documented); for the final test predictions: call `_krige_gis_features()` then `_add_gis_features_kriged()` to build kriged test feature matrix; predict with final model trained on full raw-feature train set; write `data/submission_v5_gis_features_kriging.csv`. Note: Run A vs Run B differ only in test predictions, not in CV F1 — document this in the run report.
-- [ ] T023 [US2] Run test T018 again -- confirm it now PASSES (green); spot-check that `data/submission_v5_gis_features_kriging.csv` has correct row count
+- [X] T022 [US2] Implement `run_b` phase in `main()`: training uses the same raw-sampled GIS feature matrix as Run A (kriging is NOT applied during CV — it only applies to test-point inference); call `_run_spatial_block_cv(X_aug, y, enc, train_df[["x","y"]].values, SEED, N_SPATIAL_BLOCKS)` to produce `run_b_f1` (will equal `run_a_f1` — this is expected and documented); for the final test predictions: call `_krige_gis_features()` then `_add_gis_features_kriged()` to build kriged test feature matrix; predict with final model trained on full raw-feature train set; write `data/submission_v5_gis_features_kriging.csv`. Note: Run A vs Run B differ only in test predictions, not in CV F1 — document this in the run report.
+- [X] T023 [US2] Run test T018 again -- confirm it now PASSES (green); spot-check that `data/submission_v5_gis_features_kriging.csv` has correct row count
 
 **Checkpoint**: `data/submission_v5_gis_features_kriging.csv` exists; T018 green; `run_b_f1` printed to stdout alongside `baseline_f1` and `run_a_f1`.
 
@@ -114,12 +114,12 @@
 ### Implementation for User Story 3
 
 - [X] T026 [US3] Implement `_write_run_report(out_dir, results)` in `scripts/experiment_v5.py` -- `out_dir` defaults to `_REPO / "docs"`; writes `out_dir / "run-008-gis-feature-engineering.md"`; report sections: (1) parameters table (constants, seed, n_blocks, kriging config), (2) metrics comparison table (baseline / run_a / run_b: weighted-F1, per-class F1, top-3 features by gain, wall-clock seconds), (3) note that Run A and Run B CV F1 values are equal by design (kriging applies only to test-point inference -- see spec US2/AC2), (4) best-run identification paragraph, (5) brief interpretation of whether GIS features helped vs baseline
-- [ ] T027 [US3] Implement best-run selection and `submission_v5_best.csv` copy in `main()` -- after both runs: compare `run_a_f1` and `run_b_f1`; copy the higher-scoring submission file to `data/submission_v5_best.csv`; print which run was selected and the winning F1 score
-- [ ] T028 [US3] Run full experiment: `python scripts/experiment_v5.py` -- verify all three submission CSVs exist with correct row counts; verify `docs/run-008-gis-feature-engineering.md` exists and contains the metrics table
-- [ ] T029 [US3] Run test T024 again -- confirm it now PASSES (green)
-- [ ] T030 [US3] Run full test suite: `python -m pytest tests/unit/test_experiment_v5_features.py -v` -- all 5 tests green; no ruff lint errors (`python -m ruff check scripts/experiment_v5.py tests/unit/test_experiment_v5_features.py`)
-- [ ] T031 [P] [US3] git add all new and modified files; commit with message `feat(008): GIS feature engineering experiment -- slope/bz/af 80/20/20 weighting, run A+B comparison, best submission v5`
-- [ ] T032 [US3] Create PR from `008-gis-feature-engineering` -> `main`; PR description MUST reference: (a) the weighted-F1 improvement over v4 baseline, (b) link to `docs/run-008-gis-feature-engineering.md`, (c) which of Run A or Run B was selected as best
+- [X] T027 [US3] Implement best-run selection and `submission_v5_best.csv` copy in `main()` -- after both runs: compare `run_a_f1` and `run_b_f1`; copy the higher-scoring submission file to `data/submission_v5_best.csv`; print which run was selected and the winning F1 score
+- [X] T028 [US3] Run full experiment: `python scripts/experiment_v5.py` -- verify all three submission CSVs exist with correct row counts; verify `docs/run-008-gis-feature-engineering.md` exists and contains the metrics table
+- [X] T029 [US3] Run test T024 again -- confirm it now PASSES (green)
+- [X] T030 [US3] Run full test suite: `python -m pytest tests/unit/test_experiment_v5_features.py -v` -- all 5 tests green; no ruff lint errors (`python -m ruff check scripts/experiment_v5.py tests/unit/test_experiment_v5_features.py`)
+- [X] T031 [P] [US3] git add all new and modified files; commit with message `feat(008): GIS feature engineering experiment -- slope/bz/af 80/20/20 weighting, run A+B comparison, best submission v5`
+- [X] T032 [US3] Create PR from `008-gis-feature-engineering` -> `main`; PR description MUST reference: (a) the weighted-F1 improvement over v4 baseline, (b) link to `docs/run-008-gis-feature-engineering.md`, (c) which of Run A or Run B was selected as best
 
 **Checkpoint**: All 5 unit tests green; lint passes; 3 submission CSVs and run report present; PR created.
 
@@ -127,9 +127,9 @@
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T035 [US3] Update `CHANGELOG` -- add entry for branch 008 under the appropriate version header: new files `scripts/experiment_v5.py`, `tests/unit/test_experiment_v5_features.py`, `data/submission_v5_*.csv`, `docs/run-008-gis-feature-engineering.md`; describe the GIS feature engineering experiment and weighted-F1 result
-- [ ] T033 [P] Verify `data/submission_v5_best.csv` row count matches `data/test.csv` and has no duplicate IDs: `python -c "import pandas as pd; s=pd.read_csv('data/submission_v5_best.csv'); t=pd.read_csv('data/test.csv'); assert len(s)==len(t) and s['ID'].nunique()==len(s), 'Submission mismatch'"`
-- [ ] T034 [P] Follow the quickstart in `specs/008-gis-feature-engineering/quickstart.md` from a clean terminal (no cached state) to verify the end-to-end reproduce instructions are accurate; fix any discrepancies in `quickstart.md`
+- [X] T035 [US3] Update `CHANGELOG` -- add entry for branch 008 under the appropriate version header: new files `scripts/experiment_v5.py`, `tests/unit/test_experiment_v5_features.py`, `data/submission_v5_*.csv`, `docs/run-008-gis-feature-engineering.md`; describe the GIS feature engineering experiment and weighted-F1 result
+- [X] T033 [P] Verify `data/submission_v5_best.csv` row count matches `data/test.csv` and has no duplicate IDs: `python -c "import pandas as pd; s=pd.read_csv('data/submission_v5_best.csv'); t=pd.read_csv('data/test.csv'); assert len(s)==len(t) and s['ID'].nunique()==len(s), 'Submission mismatch'"`
+- [X] T034 [P] Follow the quickstart in `specs/008-gis-feature-engineering/quickstart.md` from a clean terminal (no cached state) to verify the end-to-end reproduce instructions are accurate; fix any discrepancies in `quickstart.md`
 
 ---
 
