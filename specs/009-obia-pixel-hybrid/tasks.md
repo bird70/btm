@@ -15,9 +15,9 @@ description: "Task list for 009-obia-pixel-hybrid implementation"
 
 **Purpose**: Confirm dependencies, directory structure, and scaffold the experiment script shell.
 
-- [ ] T001 Confirm `scikit-image` is installed; add to `pyproject.toml` dependencies if absent (pyproject.toml)
-- [ ] T002 [P] Create `scripts/experiment_v6.py` with module-level docstring, imports (rasterio, numpy, scipy.ndimage, skimage.segmentation, pandas, sklearn, lightgbm, xgboost, catboost), top-level constants (BATHY_PATH, BACK_PATH, TRAIN_CSV, TEST_CSV, OUTPUT_SUBMISSION, OUTPUT_REPORT), and an empty `main()` guarded by `if __name__ == "__main__":`
-- [ ] T003 [P] Create `tests/unit/test_experiment_v6_features.py` with module-level imports and 7 empty stub test functions: `test_pb_features_all_finite`, `test_northness_eastness_range`, `test_segment_labels_shape`, `test_segment_labels_non_negative`, `test_segment_mean_size_range`, `test_ob_features_all_finite`, `test_combined_feature_count` — each raises `NotImplementedError` so they fail immediately
+- [X] T001 Confirm `scikit-image` is installed; add to `pyproject.toml` dependencies if absent (pyproject.toml)
+- [X] T002 [P] Create `scripts/experiment_v6.py` with module-level docstring, imports (rasterio, numpy, scipy.ndimage, skimage.segmentation, pandas, sklearn, lightgbm, xgboost, catboost), top-level constants (BATHY_PATH, BACK_PATH, TRAIN_CSV, TEST_CSV, OUTPUT_SUBMISSION, OUTPUT_REPORT), and an empty `main()` guarded by `if __name__ == "__main__":`
+- [X] T003 [P] Create `tests/unit/test_experiment_v6_features.py` with module-level imports and 7 empty stub test functions: `test_pb_features_all_finite`, `test_northness_eastness_range`, `test_segment_labels_shape`, `test_segment_labels_non_negative`, `test_segment_mean_size_range`, `test_ob_features_all_finite`, `test_combined_feature_count` — each raises `NotImplementedError` so they fail immediately
 
 **Checkpoint**: Imports resolve, stubs raise NotImplementedError, project structure confirmed
 
@@ -29,9 +29,9 @@ description: "Task list for 009-obia-pixel-hybrid implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `_load_rasters(bathy_path, back_path) -> tuple[np.ndarray, np.ndarray, affine.Affine, float]` in `scripts/experiment_v6.py`: open both GeoTIFFs with rasterio, read band 1 as float32, mask NoData to NaN, return (bathy_arr, back_arr, transform, cell_size_metres) — cell_size derived from `abs(transform.a)`
-- [ ] T005 [P] Reuse `_get_spatial_cv_groups(coords_xy)` from `scripts/experiment_v2.py` (copy-paste + adapt): KMeans with `n_clusters=10`, `random_state=42`, returns integer group array of same length as coords — place in `scripts/experiment_v6.py`
-- [ ] T006 [P] Reuse `get_models()` from `scripts/experiment_v2.py` (copy-paste + adapt) into `scripts/experiment_v6.py`; confirm LightGBM, XGBoost, CatBoost, RandomForest constructor calls still work with current installed versions
+- [X] T004 Implement `_load_rasters(bathy_path, back_path) -> tuple[np.ndarray, np.ndarray, affine.Affine, float]` in `scripts/experiment_v6.py`: open both GeoTIFFs with rasterio, read band 1 as float32, mask NoData to NaN, return (bathy_arr, back_arr, transform, cell_size_metres) — cell_size derived from `abs(transform.a)`
+- [X] T005 [P] Reuse `_get_spatial_cv_groups(coords_xy)` from `scripts/experiment_v2.py` (copy-paste + adapt): KMeans with `n_clusters=10`, `random_state=42`, returns integer group array of same length as coords — place in `scripts/experiment_v6.py`
+- [X] T006 [P] Reuse `get_models()` from `scripts/experiment_v2.py` (copy-paste + adapt) into `scripts/experiment_v6.py`; confirm LightGBM, XGBoost, CatBoost, RandomForest constructor calls still work with current installed versions
 
 **Checkpoint**: `_load_rasters` returns arrays + transform; `_get_spatial_cv_groups` returns 10-class groups; `get_models()` returns dict of 4 classifiers
 
@@ -45,13 +45,13 @@ description: "Task list for 009-obia-pixel-hybrid implementation"
 
 ### Tests for User Story 1 (TDD — write failing tests FIRST)
 
-- [ ] T007 [P] [US1] Fill in `test_pb_features_all_finite` in `tests/unit/test_experiment_v6_features.py`: load a 10×10 synthetic bathy array; call `_compute_pb_features(bathy, back, cell_size=0.25)`; assert output dict contains exactly the 8 keys (`depth, backscatter, slope, vrm, complexity, max_curvature, northness, eastness`) and all values are finite numpy arrays with shape (10,10) — confirm test FAILS (function not implemented)
-- [ ] T008 [P] [US1] Fill in `test_northness_eastness_range` in `tests/unit/test_experiment_v6_features.py`: same synthetic array; assert `northness` values are in [-1, 1] and `eastness` values are in [-1, 1] — confirm test FAILS
-- [ ] T009 [P] [US1] Fill in `test_combined_feature_count` in `tests/unit/test_experiment_v6_features.py`: build a minimal mock dataframe with 18 columns (8 PB names + 9 OB names + `seg_pixel_count`); assert `len(feature_cols) == 18` — confirm test FAILS (feature_cols constant not yet defined)
+- [X] T007 [P] [US1] Fill in `test_pb_features_all_finite` in `tests/unit/test_experiment_v6_features.py`: load a 10×10 synthetic bathy array; call `_compute_pb_features(bathy, back, cell_size=0.25)`; assert output dict contains exactly the 8 keys (`depth, backscatter, slope, vrm, complexity, max_curvature, northness, eastness`) and all values are finite numpy arrays with shape (10,10) — confirm test FAILS (function not implemented)
+- [X] T008 [P] [US1] Fill in `test_northness_eastness_range` in `tests/unit/test_experiment_v6_features.py`: same synthetic array; assert `northness` values are in [-1, 1] and `eastness` values are in [-1, 1] — confirm test FAILS
+- [X] T009 [P] [US1] Fill in `test_combined_feature_count` in `tests/unit/test_experiment_v6_features.py`: build a minimal mock dataframe with 18 columns (8 PB names + 9 OB names + `seg_pixel_count`); assert `len(feature_cols) == 18` — confirm test FAILS (feature_cols constant not yet defined)
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `_compute_pb_features(bathy, back, cell_size) -> dict[str, np.ndarray]` in `scripts/experiment_v6.py`:
+- [X] T010 [US1] Implement `_compute_pb_features(bathy, back, cell_size) -> dict[str, np.ndarray]` in `scripts/experiment_v6.py`:
   - `depth`: bathy array itself
   - `backscatter`: back array itself
   - `slope`: `btm.core.slope.compute_slope(bathy, cell_size)` (reuse existing btm core)
@@ -61,11 +61,11 @@ description: "Task list for 009-obia-pixel-hybrid implementation"
   - `northness`: `np.cos(np.arctan2(dz_dy, dz_dx))` where dz/dx and dz/dy from `np.gradient(bathy, cell_size)`
   - `eastness`: `np.sin(np.arctan2(dz_dy, dz_dx))`
   - NaN pixels (from NoData masking) propagate through; return dict of 8 arrays
-- [ ] T011 [US1] Define `PB_FEATURE_COLS` and `COMBINED_FEATURE_COLS` constants in `scripts/experiment_v6.py` matching the 18 feature names from plan.md; run T009 test — it should now PASS
-- [ ] T012 [US1] Implement `_extract_point_features(feature_dict, xy_coords, transform) -> pd.DataFrame` in `scripts/experiment_v6.py`: for each (x, y) point, convert to raster row/col using rasterio `rowcol(transform, xs, ys)`, index each feature array, return DataFrame with PB_FEATURE_COLS columns; clip indices to valid raster bounds
-- [ ] T013 [US1] Run T007 and T008 tests — both should now PASS; fix any issues with `_compute_pb_features` until they do
-- [ ] T014 [US1] Implement `_run_cv_config(X_train, y_train, groups, feature_cols, label) -> dict` in `scripts/experiment_v6.py`: accepts a feature matrix slice, runs `GroupKFold(n_splits=10)` CV loop with all 4 models, computes weighted F1 per fold per model, returns `{"label": label, "best_model_name": ..., "cv_f1_mean": ..., "oof_preds": ...}`
-- [ ] T015 [US1] Implement full `main()` flow for PB-only and Combined configurations in `scripts/experiment_v6.py`:
+- [X] T011 [US1] Define `PB_FEATURE_COLS` and `COMBINED_FEATURE_COLS` constants in `scripts/experiment_v6.py` matching the 18 feature names from plan.md; run T009 test — it should now PASS
+- [X] T012 [US1] Implement `_extract_point_features(feature_dict, xy_coords, transform) -> pd.DataFrame` in `scripts/experiment_v6.py`: for each (x, y) point, convert to raster row/col using rasterio `rowcol(transform, xs, ys)`, index each feature array, return DataFrame with PB_FEATURE_COLS columns; clip indices to valid raster bounds
+- [X] T013 [US1] Run T007 and T008 tests — both should now PASS; fix any issues with `_compute_pb_features` until they do
+- [X] T014 [US1] Implement `_run_cv_config(X_train, y_train, groups, feature_cols, label) -> dict` in `scripts/experiment_v6.py`: accepts a feature matrix slice, runs `GroupKFold(n_splits=10)` CV loop with all 4 models, computes weighted F1 per fold per model, returns `{"label": label, "best_model_name": ..., "cv_f1_mean": ..., "oof_preds": ...}`
+- [X] T015 [US1] Implement full `main()` flow for PB-only and Combined configurations in `scripts/experiment_v6.py`:
   1. `_load_rasters()`
   2. `_compute_pb_features()`
   3. Load `train.csv`, `test.csv` → extract coordinates
@@ -87,13 +87,13 @@ description: "Task list for 009-obia-pixel-hybrid implementation"
 
 ### Tests for User Story 2 (TDD)
 
-- [ ] T016 [P] [US2] Expand `test_pb_features_all_finite` to also assert no NaN in the 8 arrays at non-masked pixels: pass a fully-valid synthetic array (no NaN) and assert `np.all(np.isfinite(v[~np.isnan(v)]))` for each feature — confirm passes after T013
+- [X] T016 [P] [US2] Expand `test_pb_features_all_finite` to also assert no NaN in the 8 arrays at non-masked pixels: pass a fully-valid synthetic array (no NaN) and assert `np.all(np.isfinite(v[~np.isnan(v)]))` for each feature — confirm passes after T013
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Add explicit NaN-guard to `_compute_pb_features`: after computing each feature, replace any `np.inf` or `-np.inf` with `np.nan` so downstream extraction gets clean NaN rather than inf — this prevents inf from propagating into the feature table
-- [ ] T018 [US2] Add structured logging (Python `logging` module, INFO level) to `_compute_pb_features` — log array shape and nan-pixel count per feature so the run report can reference these numbers
-- [ ] T019 [US2] Re-run T016 — confirm it passes; fix any issues
+- [X] T017 [US2] Add explicit NaN-guard to `_compute_pb_features`: after computing each feature, replace any `np.inf` or `-np.inf` with `np.nan` so downstream extraction gets clean NaN rather than inf — this prevents inf from propagating into the feature table
+- [X] T018 [US2] Add structured logging (Python `logging` module, INFO level) to `_compute_pb_features` — log array shape and nan-pixel count per feature so the run report can reference these numbers
+- [X] T019 [US2] Re-run T016 — confirm it passes; fix any issues
 
 **Checkpoint**: PB features are confirmed NaN-clean at non-NoData pixels; all US2 tests pass
 
@@ -107,32 +107,32 @@ description: "Task list for 009-obia-pixel-hybrid implementation"
 
 ### Tests for User Story 3 (TDD — write failing tests FIRST)
 
-- [ ] T020 [P] [US3] Fill in `test_segment_labels_shape` in `tests/unit/test_experiment_v6_features.py`: build a 20×20 synthetic 3-channel normalised stack; call `_segment_rasters(stack)`; assert output shape == (20, 20) and dtype is integer — confirm FAILS
-- [ ] T021 [P] [US3] Fill in `test_segment_labels_non_negative` in `tests/unit/test_experiment_v6_features.py`: call `_segment_rasters(stack)` on valid input; assert `np.all(labels >= 0)` — confirm FAILS
-- [ ] T022 [P] [US3] Fill in `test_segment_mean_size_range` in `tests/unit/test_experiment_v6_features.py`: use a 200×200 synthetic stack; call `_segment_rasters(stack, n_segments=100)`; compute mean segment size as `(200*200) / n_unique_labels`; assert mean size is between 0.5× and 2× the expected size (200×200/100=400) — confirm FAILS
-- [ ] T023 [P] [US3] Fill in `test_ob_features_all_finite` in `tests/unit/test_experiment_v6_features.py`: build a small sythetic (bathy, back, vrm) + labels array; call `_compute_segment_stats(bathy, back, vrm, labels)`; assert output DataFrame has exactly 10 columns (`seg_bathy_mean, seg_bathy_std, seg_bathy_skew, seg_back_mean, seg_back_std, seg_back_skew, seg_vrm_mean, seg_vrm_std, seg_vrm_skew, seg_pixel_count`) and no NaN values — confirm FAILS
+- [X] T020 [P] [US3] Fill in `test_segment_labels_shape` in `tests/unit/test_experiment_v6_features.py`: build a 20×20 synthetic 3-channel normalised stack; call `_segment_rasters(stack)`; assert output shape == (20, 20) and dtype is integer — confirm FAILS
+- [X] T021 [P] [US3] Fill in `test_segment_labels_non_negative` in `tests/unit/test_experiment_v6_features.py`: call `_segment_rasters(stack)` on valid input; assert `np.all(labels >= 0)` — confirm FAILS
+- [X] T022 [P] [US3] Fill in `test_segment_mean_size_range` in `tests/unit/test_experiment_v6_features.py`: use a 200×200 synthetic stack; call `_segment_rasters(stack, n_segments=100)`; compute mean segment size as `(200*200) / n_unique_labels`; assert mean size is between 0.5× and 2× the expected size (200×200/100=400) — confirm FAILS
+- [X] T023 [P] [US3] Fill in `test_ob_features_all_finite` in `tests/unit/test_experiment_v6_features.py`: build a small sythetic (bathy, back, vrm) + labels array; call `_compute_segment_stats(bathy, back, vrm, labels)`; assert output DataFrame has exactly 10 columns (`seg_bathy_mean, seg_bathy_std, seg_bathy_skew, seg_back_mean, seg_back_std, seg_back_skew, seg_vrm_mean, seg_vrm_std, seg_vrm_skew, seg_pixel_count`) and no NaN values — confirm FAILS
 
 ### Implementation for User Story 3
 
-- [ ] T024 [US3] Implement `_segment_rasters(bathy, back, vrm, n_segments=4000, compactness=0.01) -> np.ndarray` in `scripts/experiment_v6.py`:
+- [X] T024 [US3] Implement `_segment_rasters(bathy, back, vrm, n_segments=4000, compactness=0.01) -> np.ndarray` in `scripts/experiment_v6.py`:
   - Normalise each channel to [0,1] using `(arr - nanmin) / (nanmax - nanmin)`, replace NaN with 0 before passing to SLIC
   - Stack to shape (H, W, 3)
   - Call `skimage.segmentation.slic(stack, n_segments=n_segments, compactness=compactness, enforce_connectivity=True, start_label=0)`
   - Return label array (H, W) int32
-- [ ] T025 [US3] Run T020, T021, T022 — all should now PASS; fix any issues
-- [ ] T026 [US3] Implement `_compute_segment_stats(bathy, back, vrm, labels) -> pd.DataFrame` in `scripts/experiment_v6.py`:
+- [X] T025 [US3] Run T020, T021, T022 — all should now PASS; fix any issues
+- [X] T026 [US3] Implement `_compute_segment_stats(bathy, back, vrm, labels) -> pd.DataFrame` in `scripts/experiment_v6.py`:
   - For each unique label: collect bathy/back/vrm pixel values within that segment (ignoring NaN)
   - Compute mean, std, skew (`scipy.stats.skew`) for each — 9 values per segment
   - Plus `seg_pixel_count` = int count of pixels in segment
   - Return DataFrame indexed by segment label, columns = OB_FEATURE_COLS (10 columns)
   - **Fallback**: if a segment has < 3 valid pixels, use the global mean for std and skew (global median for NaN-entire-segment case per spec edge case)
-- [ ] T027 [US3] Run T023 — should now PASS; fix any issues
-- [ ] T028 [US3] Implement `_assign_segment_features(point_df, labels, seg_stats_df, transform) -> pd.DataFrame` in `scripts/experiment_v6.py`:
+- [X] T027 [US3] Run T023 — should now PASS; fix any issues
+- [X] T028 [US3] Implement `_assign_segment_features(point_df, labels, seg_stats_df, transform) -> pd.DataFrame` in `scripts/experiment_v6.py`:
   - For each point: look up row/col → `segment_label = labels[row, col]`
   - Join with `seg_stats_df` to get the 10 OB features
   - If a point's segment label is not in `seg_stats_df` (raster boundary edge case), fill with global column medians
   - Return the input `point_df` with 10 new OB columns appended
-- [ ] T029 [US3] Integrate segmentation into `main()`: after PB features, compute VRM (already in T010 via `_compute_pb_features`), call `_segment_rasters(bathy, back, vrm_arr)`, call `_compute_segment_stats()`, call `_assign_segment_features()` for both train and test points, completing the 18-column feature matrices; re-run `_run_cv_config()` for OB-only (10 OB features) and Combined (18 features)
+- [X] T029 [US3] Integrate segmentation into `main()`: after PB features, compute VRM (already in T010 via `_compute_pb_features`), call `_segment_rasters(bathy, back, vrm_arr)`, call `_compute_segment_stats()`, call `_assign_segment_features()` for both train and test points, completing the 18-column feature matrices; re-run `_run_cv_config()` for OB-only (10 OB features) and Combined (18 features)
 
 **Checkpoint**: All 7 unit tests pass; `python scripts/experiment_v6.py` completes with PB, OB, and Combined CV F1 scores printed; submission CSV updated with best configuration
 
@@ -146,15 +146,15 @@ description: "Task list for 009-obia-pixel-hybrid implementation"
 
 ### Implementation for User Story 4
 
-- [ ] T030 [US4] Implement `_write_run_report(config_results, seg_params, feature_importances, best_label, output_path)` in `scripts/experiment_v6.py`:
+- [X] T030 [US4] Implement `_write_run_report(config_results, seg_params, feature_importances, best_label, output_path)` in `scripts/experiment_v6.py`:
   - Write YAML-style frontmatter (date, branch, script version)
   - Section: Segmentation parameters (n_segments, compactness, actual unique segment count, actual mean segment size in pixels and m²)
   - Section: CV results table — one row per config (PB-only, OB-only, Combined) with weighted F1 mean ± std
   - Section: Top-10 feature importances for the best model in the combined configuration (use LightGBM or RF feature_importances_ attribute; average across folds)
   - Section: Best configuration selected (with note if combined was not best, quoting the delta, per SC-002)
   - Write to `output_path`
-- [ ] T031 [US4] Call `_write_run_report()` at the end of `main()` in `scripts/experiment_v6.py`; pass actual results from `_run_cv_config()` calls
-- [ ] T032 [US4] Add an integration-style assertion in the test file: `test_report_file_exists` — after running the script (skip if environment variable `BTM_SKIP_INTEGRATION_TESTS=1`), check `docs/run-009-obia-pixel-hybrid.md` exists and contains the string "## CV Results" — add as T033 placeholder only; mark as optional/manual for CI
+- [X] T031 [US4] Call `_write_run_report()` at the end of `main()` in `scripts/experiment_v6.py`; pass actual results from `_run_cv_config()` calls
+- [X] T032 [US4] Add an integration-style assertion in the test file: `test_report_file_exists` — after running the script (skip if environment variable `BTM_SKIP_INTEGRATION_TESTS=1`), check `docs/run-009-obia-pixel-hybrid.md` exists and contains the string "## CV Results" — add as T033 placeholder only; mark as optional/manual for CI
 
 **Checkpoint**: Report file written; contains all required sections; flag present if combined is not best
 
@@ -164,12 +164,12 @@ description: "Task list for 009-obia-pixel-hybrid implementation"
 
 **Purpose**: Final validation, linting, documentation, and commit
 
-- [ ] T033 [P] Run `ruff check scripts/experiment_v6.py tests/unit/test_experiment_v6_features.py` and fix all lint errors; run `ruff format` if configured
-- [ ] T034 [P] Run full test suite `pytest tests/unit/test_experiment_v6_features.py -v` — confirm all 7 unit tests pass (not raising NotImplementedError or assertion errors)
-- [ ] T035 Run `python scripts/experiment_v6.py` end-to-end; record actual CV F1 scores; verify `data/submission_v6_best.csv` has 98 rows and correct columns; verify `docs/run-009-obia-pixel-hybrid.md` is written
-- [ ] T036 [P] Update `CHANGELOG` with a one-line entry for branch 009 describing the OBIA hybrid approach and resulting CV score
-- [ ] T037 Commit all new files (`scripts/experiment_v6.py`, `tests/unit/test_experiment_v6_features.py`, `docs/run-009-obia-pixel-hybrid.md`, `data/submission_v6_best.csv`, `CHANGELOG`) with message: `feat(009): implement OBIA+pixel hybrid experiment (experiment_v6)`
-- [ ] T038 Push branch and create PR: `gh pr create --title "009: OBIA + pixel-based hybrid classification (experiment_v6)" --body "Implements Ierodiaconou et al. 2018 OBIA+PB hybrid. See docs/run-009-obia-pixel-hybrid.md for results."`
+- [X] T033 [P] Run `ruff check scripts/experiment_v6.py tests/unit/test_experiment_v6_features.py` and fix all lint errors; run `ruff format` if configured
+- [X] T034 [P] Run full test suite `pytest tests/unit/test_experiment_v6_features.py -v` — confirm all 7 unit tests pass (not raising NotImplementedError or assertion errors)
+- [X] T035 Run `python scripts/experiment_v6.py` end-to-end; record actual CV F1 scores; verify `data/submission_v6_best.csv` has 98 rows and correct columns; verify `docs/run-009-obia-pixel-hybrid.md` is written
+- [X] T036 [P] Update `CHANGELOG` with a one-line entry for branch 009 describing the OBIA hybrid approach and resulting CV score
+- [X] T037 Commit all new files (`scripts/experiment_v6.py`, `tests/unit/test_experiment_v6_features.py`, `docs/run-009-obia-pixel-hybrid.md`, `data/submission_v6_best.csv`, `CHANGELOG`) with message: `feat(009): implement OBIA+pixel hybrid experiment (experiment_v6)`
+- [X] T038 Push branch and create PR: `gh pr create --title "009: OBIA + pixel-based hybrid classification (experiment_v6)" --body "Implements Ierodiaconou et al. 2018 OBIA+PB hybrid. See docs/run-009-obia-pixel-hybrid.md for results."`
 
 **Checkpoint**: All tasks complete, branch pushed, PR open
 
