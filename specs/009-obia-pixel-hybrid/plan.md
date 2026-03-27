@@ -119,7 +119,7 @@ E5 + E6 → E7 (spatial CV loop) → E8
 
 | Config | Features | Source Entity |
 |--------|----------|---------------|
-| **PB-only** (8) | depth, backscatter, slope, rugosity, complexity, max_curvature, northness, eastness | E2 |
+| **PB-only** (8) | depth, backscatter, slope, vrm, complexity, max_curvature, northness, eastness | E2 |
 | **OB-only** (10) | seg_bathy_{mean,std,skew}, seg_back_{mean,std,skew}, seg_vrm_{mean,std,skew}, seg_pixel_count | E4 |
 | **Combined** (18) | all PB + all OB | E2 + E4 |
 
@@ -130,12 +130,12 @@ All three configurations will be evaluated in CV to reproduce the paper's three-
 ```python
 from skimage.segmentation import slic
 
-# Normalise channels to zero mean unit variance
-seg_stack = np.stack([
-    (bathy - bathy.mean()) / bathy.std(),
-    (back  - back.mean())  / back.std(),
-    (vrm   - vrm.mean())   / vrm.std(),
-], axis=-1)
+# Normalise channels to [0, 1] using min-max (NaN-safe; tasks.md T024 authoritative)
+def _minmax(arr):
+    lo, hi = np.nanmin(arr), np.nanmax(arr)
+    return (arr - lo) / (hi - lo) if hi > lo else np.zeros_like(arr)
+
+seg_stack = np.stack([_minmax(bathy), _minmax(back), _minmax(vrm)], axis=-1)
 
 # NaN → 0 before passing to SLIC (nodata cells will be ignored post-hoc)
 seg_stack = np.nan_to_num(seg_stack, nan=0.0)
@@ -161,11 +161,15 @@ for seg_id in np.unique(labels):
         vals = arr[mask]
         valid = vals[np.isfinite(vals)]
         seg_stats[seg_id] = {
-            f'seg_{name}_mean': valid.mean(),
-            f'seg_{name}_std':  valid.std(),
-            f'seg_{name}_skew': scipy_skew(valid) if len(valid) >= 3 else 0.0,
+            f'seg_{name}_mean': valid.mean() if len(valid) >= 1 else np.nan,
+            f'seg_{name}_std':  valid.std()  if len(valid) >= 1 else np.nan,
+            # Fallback: global mean for segments with <3 valid pixels;
+            # global median for entirely-NaN segments (per spec edge case)
+            f'seg_{name}_skew': scipy_skew(valid) if len(valid) >= 3 else global_means[f'seg_{name}_skew'],
         }
     seg_stats[seg_id]['seg_pixel_count'] = mask.sum()
+# global_means pre-computed as column means across all segments with >= 3 valid pixels
+# before the per-segment loop; NaN cells resolved by global median substitution
 ```
 
 *Note*: This loop over unique segment IDs is acceptable since n_segments ≈ 4000 (not pixel-level).

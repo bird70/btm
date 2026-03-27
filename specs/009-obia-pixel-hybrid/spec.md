@@ -21,7 +21,7 @@ The combined model was statistically significantly better than either approach a
 
 ### Session 2026-03-27
 
-- Q: Should the new experiment use only the paper's 8 PB + 9 OB features, or add them on top of the existing ~114 v2 features? → A: Use only the paper's 8 PB + 9 OB features (≈17 total). The Assumptions reference to "extended" is resolved: v2's feature set is replaced, not augmented. The goal is to test the paper's methodology cleanly.
+- Q: Should the new experiment use only the paper's 8 PB + 10 OB features, or add them on top of the existing ~114 v2 features? → A: Use only the paper's 8 PB + 10 OB features (18 total). The 10 OB features are: mean/std/skewness for bathymetry, backscatter, and rugosity (9 spectral statistics) plus segment pixel count (1 shape proxy). The Assumptions reference to "extended" is resolved: v2's feature set is replaced, not augmented. The goal is to test the paper's methodology cleanly.
 - Q: What spatial cross-validation strategy makes SC-001's ≥0.72 target comparable to the existing baseline? → A: Use the same spatial block GroupKFold as experiment_v2 (10 folds, grid-cell grouping, random_state=42), ensuring direct CV F1 comparability.
 - Q: Should per-segment shape features (area, compactness, elongation) be included as additional OB predictors? → A: Include only segment pixel count (a direct proxy for object scale/area) as one additional OB feature. Full shape features are deferred; spectral statistics are the priority per the paper.
 - Q: Is there an explicit out-of-scope boundary for this feature? → A: Yes — this is a one-shot experiment script only. Library packaging, CLI interfaces, QGIS/ArcGIS plugins, and multi-site generalisation are all out of scope.
