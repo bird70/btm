@@ -1,22 +1,46 @@
+4.0-dev (branch 011-clean-knn-rf-lgb):
+
+- Root cause of v7 Kaggle failure identified: x_rel/y_rel (geographic relative
+  coordinates) dominated v7 model importance (36.6% + 11.8%) — pure spatial
+  memorisation that fails completely on unseen test locations. v7 scored the
+  lowest of all 13 submissions despite highest CV F1 (0.6075).
+- New experiment_v8.py: Clean acoustic+terrain features, NO spatial coordinates.
+  Core principle: classify based on WHAT a location sounds like, not WHERE it is.
+  21 features (no spatial leakage):
+    - PB paper (8): depth, backscatter, slope, vrm, complexity, max_curvature,
+      northness, eastness
+    - PB texture/TPI (3 new): bathy_std_9, back_std_9 (acoustic/terrain texture
+      at 2.25 m scale), tpi_9 (topographic position index — am I on a ridge?)
+    - OB SLIC (10): seg_{bathy,back,vrm}_{mean,std,skew} + seg_pixel_count
+  3 model candidates: KNN (acoustic similarity search, distance-weighted,
+    StandardScaler), RF (paper's original choice), LightGBM (modern boosting).
+  Soft-vote ensemble as 4th candidate. 10-fold spatial GroupKFold (matches v6).
+  NO SMOTE, NO interaction terms, NO z-scores.
+  CV results: pb_only RF=0.6021, combined RF=0.5996, ensemble=0.5992 (PB-only
+  best — new texture features outweigh OB noise; OB segments too large ~451 m²).
+  KNN came 3rd in pb_only (F1=0.5509) — acoustically similar search valid.
+- New data/submission_v8_best.csv (98 rows): PB-only RF prediction.
+- New docs/run-011-clean-knn-rf-lgb.md: run report.
+
 4.0-dev (branch 010-enhanced-features-lgb):
 
 - New experiment_v7.py: Enhanced feature set + fold-safe SMOTE + two-model
   ensemble (LightGBM + CatBoost). Extends the v6 OBIA+PB hybrid with insights
   from niwacolours/benthic-terrain-model-kaggle@002-boost-weighted-f1:
-    - 6 multi-scale focal std features (bathy_std/back_std at 3/5/9 cells)
-    - 2 TPI features (topographic position index at 9 and 25 cell windows)
-    - 4 interaction terms (bathy×back, slope×back, roughness ratio, relief idx)
-    - 4 spatial context features (x_rel/y_rel, depth_z, backscatter_z)
-    - Total: 34 features (8 PB + 6 focal + 2 TPI + 4 interaction + 4 spatial +
-      10 OB). Previously 18 (8 PB + 10 OB).
-  Ensemble reduced to LightGBM + CatBoost (RF and XGBoost dropped — they were
-  diluting the ensemble without measurable CV gain). LightGBM hyperparameters
-  tuned from companion repo (n_estimators=600, lr=0.03, num_leaves=31).
-  SMOTE applied fold-safe (only within CV training folds; fallback to
-  RandomOverSampler when minority count < 2). ID column now uppercase 'ID'.
-  CV results (6-split, 6-cluster KMeans): PB-only F1=0.5147, OB-only F1=0.3932,
-  Combined F1=0.6075 (combined best; CatBoost; +0.032 vs v6 combined).
-  Global Moran's I included in run report for EDA (top 12 features).
+  - 6 multi-scale focal std features (bathy_std/back_std at 3/5/9 cells)
+  - 2 TPI features (topographic position index at 9 and 25 cell windows)
+  - 4 interaction terms (bathy×back, slope×back, roughness ratio, relief idx)
+  - 4 spatial context features (x_rel/y_rel, depth_z, backscatter_z)
+  - Total: 34 features (8 PB + 6 focal + 2 TPI + 4 interaction + 4 spatial +
+    10 OB). Previously 18 (8 PB + 10 OB).
+    Ensemble reduced to LightGBM + CatBoost (RF and XGBoost dropped — they were
+    diluting the ensemble without measurable CV gain). LightGBM hyperparameters
+    tuned from companion repo (n_estimators=600, lr=0.03, num_leaves=31).
+    SMOTE applied fold-safe (only within CV training folds; fallback to
+    RandomOverSampler when minority count < 2). ID column now uppercase 'ID'.
+    CV results (6-split, 6-cluster KMeans): PB-only F1=0.5147, OB-only F1=0.3932,
+    Combined F1=0.6075 (combined best; CatBoost; +0.032 vs v6 combined).
+    Global Moran's I included in run report for EDA (top 12 features).
 - Fixed: submission CSV 'ID' column now correctly uppercase (was lowercase
   'id' in v6, causing Kaggle submission rejection).
 - New tests/unit/test_experiment_v7_features.py: 8 unit tests covering focal
@@ -28,7 +52,7 @@
   and Global Moran's I per feature.
 - New data/submission_v7_best.csv: 98-row submission with uppercase 'ID'.
 
-4.0-dev (branch 009-obia-pixel-hybrid):
+  4.0-dev (branch 009-obia-pixel-hybrid):
 
 - New experiment_v6.py: OBIA + pixel-based hybrid classification following
   Ierodiaconou et al. (2018) Marine Geodesy DOI:10.1007/s11001-017-9338-z.
@@ -46,7 +70,7 @@
 - New docs/run-009-obia-pixel-hybrid.md: run report with segmentation
   parameters, per-configuration CV F1 table, and top feature importances.
 
-4.0-dev (branch 008-gis-feature-engineering):
+  4.0-dev (branch 008-gis-feature-engineering):
 
 - New experiment_v5.py: GIS-derived feature engineering adding slope,
   backscatter zones and acoustic facies with 80/20/20 weighting on top
