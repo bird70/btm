@@ -51,7 +51,7 @@ The scientist wants to know whether applying ordinary kriging to spatially inter
 **Acceptance Scenarios**:
 
 1. **Given** the sampled slope, backscatter zone, and acoustic facies values at train points, **When** ordinary kriging is fitted per feature per spatial zone and predictions are interpolated to test points (with fallback to nearest-neighbour when a zone has fewer than 10 training points), **Then** the kriged features form a valid numeric input matrix with no missing values.
-2. **Given** the kriging-smoothed feature matrix, **When** the same ensemble model configuration is applied with spatial-block CV, **Then** the weighted-F1 is computed and stored alongside the baseline result.
+2. **Given** the kriging-smoothed GIS features at test points and the raw-sampled GIS features at train points, **When** the same ensemble model configuration is applied with spatial-block CV (CV uses raw-sampled values, as in Run A; kriging applies only at final test-point inference), **Then** the Run B weighted-F1 from CV is computed and stored alongside the Run A result for comparison. The difference between Run A and Run B manifests in the test-point predictions (and thus the Kaggle submission), not in the CV F1 values.
 3. **Given** both runs complete, **When** the run report is generated, **Then** it contains a comparison table showing: run name, weighted-F1, top-3 features by importance, and wall-clock runtime.
 
 ---
