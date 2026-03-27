@@ -1,3 +1,34 @@
+4.0-dev (branch 009-obia-pixel-hybrid):
+ - New experiment_v6.py: OBIA + pixel-based hybrid classification following
+   Ierodiaconou et al. (2018) Marine Geodesy DOI:10.1007/s11001-017-9338-z.
+   The paper used the same Refuge Cove MBES dataset and found combined PB+OB
+   achieved 83.6% OA vs 72.5% PB-only. This experiment derives 8 pixel-based
+   features (depth, backscatter, slope, VRM, complexity, max curvature,
+   northness, eastness) and 10 object-based features (SLIC segmentation →
+   per-segment mean/std/skewness of bathy/back/VRM + pixel count).
+   CV results: PB-only F1=0.5665, OB-only F1=0.3886, Combined F1=0.5758
+   (combined best; CatBoost; spatial block GroupKFold 10 folds seed=42).
+ - New tests/unit/test_experiment_v6_features.py: 7 unit tests validating
+   PB feature completeness, northness/eastness range, segment label shape
+   and non-negativity, segment mean size range, OB feature completeness,
+   and combined feature count of exactly 18.
+ - New docs/run-009-obia-pixel-hybrid.md: run report with segmentation
+   parameters, per-configuration CV F1 table, and top feature importances.
+
+4.0-dev (branch 008-gis-feature-engineering):
+ - New experiment_v5.py: GIS-derived feature engineering adding slope,
+   backscatter zones and acoustic facies with 80/20/20 weighting on top
+   of the v2 comprehensive feature set.
+ - Run A: raw point-sampled GIS features; Run B: zone-stratified kriging
+   smoothing for test-point inference (5-zone OrdinaryKriging, spherical
+   variogram, KNN fallback for small zones).
+ - New tests/unit/test_experiment_v5_features.py: 5 unit tests for the
+   GIS feature helpers (shape, weight correctness, submission format,
+   kriging no-NaN, run report completeness).
+ - New output files: data/submission_v5_gis_features.csv (Run A),
+   data/submission_v5_gis_features_kriging.csv (Run B),
+   data/submission_v5_best.csv (best of A/B).
+ - New docs/run-008-gis-feature-engineering.md: experiment metrics report.
 3.0-final:
  - ArcGIS Pro / Python 3 support added.
  - New Compare Scales of Analysis tool provides a quick approximation of the effects of scale.

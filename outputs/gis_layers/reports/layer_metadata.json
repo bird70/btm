@@ -1,0 +1,47 @@
+{
+  "created": "2026-03-26T20:31:19.831292+00:00",
+  "git_revision": "2e9d31d",
+  "branch": "007-gis-expert-annotation",
+  "crs_epsg": 28355,
+  "cell_size_m": 0.25,
+  "raster_shape": [
+    4040,
+    4743
+  ],
+  "n_train": 6256,
+  "n_test": 98,
+  "classes": [
+    "ALG",
+    "FMAT",
+    "NVB",
+    "SGAM",
+    "SGZ"
+  ],
+  "depth_zone_edges": [
+    -23.257659912109375,
+    -11.271925926208496,
+    -9.623964309692383,
+    -8.008715629577635,
+    -5.544951438903809,
+    0.9162236452102661
+  ],
+  "n_acoustic_facies": 8,
+  "n_backscatter_zones": 5,
+  "rasters": [
+    "acoustic_facies.tif",
+    "backscatter_smooth.tif",
+    "backscatter_zones.tif",
+    "depth_zones.tif",
+    "kriging_dominant.tif",
+    "mean_curvature.tif",
+    "slope.tif",
+    "vrm.tif"
+  ],
+  "gpkg_layers": [
+    "acoustic_facies_zones",
+    "depth_zones",
+    "backscatter_zones",
+    "training_points",
+    "test_points"
+  ]
+}

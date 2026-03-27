@@ -60,78 +60,110 @@ def build_parser() -> argparse.ArgumentParser:
 
     # Required
     p.add_argument(
-        "--bathy", required=True, metavar="PATH",
+        "--bathy",
+        required=True,
+        metavar="PATH",
         help="Input single-band bathymetric GeoTIFF.",
     )
     p.add_argument(
-        "--points", required=True, metavar="CSV",
+        "--points",
+        required=True,
+        metavar="CSV",
         help=(
             "Input CSV with columns ID, x, y (coordinates must match "
             "the raster CRS).  Additional columns are preserved."
         ),
     )
     p.add_argument(
-        "--output", required=True, metavar="CSV",
+        "--output",
+        required=True,
+        metavar="CSV",
         help="Output CSV path (original columns + btm_* columns).",
     )
 
     # BPI radii
     bpi = p.add_argument_group("BPI radii (in cells)")
     bpi.add_argument(
-        "--broad-inner", type=int, default=10, metavar="INT",
+        "--broad-inner",
+        type=int,
+        default=10,
+        metavar="INT",
         help="Broad BPI annulus inner radius.",
     )
     bpi.add_argument(
-        "--broad-outer", type=int, default=30, metavar="INT",
+        "--broad-outer",
+        type=int,
+        default=30,
+        metavar="INT",
         help="Broad BPI annulus outer radius.",
     )
     bpi.add_argument(
-        "--fine-inner", type=int, default=1, metavar="INT",
+        "--fine-inner",
+        type=int,
+        default=1,
+        metavar="INT",
         help="Fine BPI annulus inner radius.",
     )
     bpi.add_argument(
-        "--fine-outer", type=int, default=5, metavar="INT",
+        "--fine-outer",
+        type=int,
+        default=5,
+        metavar="INT",
         help="Fine BPI annulus outer radius.",
     )
 
     # Optional extras
     p.add_argument(
-        "--include-rule-class", action="store_true",
+        "--include-rule-class",
+        action="store_true",
         help=(
             "Add a btm_rule_class column containing the integer class code "
             "from the BTM CON cascade.  Requires --classdict."
         ),
     )
     p.add_argument(
-        "--classdict", default=None, metavar="PATH",
+        "--classdict",
+        default=None,
+        metavar="PATH",
         help="Classification dictionary (.csv, .xml, .xlsx) — required with "
-             "--include-rule-class.",
+        "--include-rule-class.",
     )
     p.add_argument(
-        "--no-interactions", action="store_true",
+        "--no-interactions",
+        action="store_true",
         help="Skip derived interaction features (bpi_magnitude, etc.).",
     )
     p.add_argument(
-        "--prefix", default="btm_", metavar="STR",
+        "--prefix",
+        default="btm_",
+        metavar="STR",
         help="Column name prefix for all BTM-derived columns.",
     )
     p.add_argument(
-        "--outdir", default=None, metavar="PATH",
+        "--outdir",
+        default=None,
+        metavar="PATH",
         help=(
             "If given, write all intermediate derivative rasters as "
             "LZW-compressed GeoTIFFs to this directory."
         ),
     )
     p.add_argument(
-        "--x-col", default="x", metavar="COL",
+        "--x-col",
+        default="x",
+        metavar="COL",
         help="Name of the x-coordinate column in --points CSV.",
     )
     p.add_argument(
-        "--y-col", default="y", metavar="COL",
+        "--y-col",
+        default="y",
+        metavar="COL",
         help="Name of the y-coordinate column in --points CSV.",
     )
     p.add_argument(
-        "--id-col", default="ID", metavar="COL",
+        "--id-col",
+        default="ID",
+        metavar="COL",
         help="Name of the identifier column in --points CSV.",
     )
 
@@ -167,9 +199,7 @@ def main(argv: list[str] | None = None) -> int:  # noqa: PLR0911
         return 2
 
     if args.include_rule_class and args.classdict is None:
-        _log.error(
-            "--include-rule-class requires --classdict to be specified"
-        )
+        _log.error("--include-rule-class requires --classdict to be specified")
         return 1
 
     if args.classdict is not None and not Path(args.classdict).exists():
@@ -197,7 +227,9 @@ def main(argv: list[str] | None = None) -> int:  # noqa: PLR0911
         if col not in points.columns:
             _log.error(
                 "Required column %r not found in %s  (columns: %s)",
-                col, points_path.name, list(points.columns),
+                col,
+                points_path.name,
+                list(points.columns),
             )
             return 3
 
@@ -254,7 +286,9 @@ def main(argv: list[str] | None = None) -> int:  # noqa: PLR0911
     btm_cols = [c for c in result.columns if c.startswith(args.prefix)]
     _log.info(
         "Wrote %d rows × %d BTM columns to %s",
-        len(result), len(btm_cols), out_path,
+        len(result),
+        len(btm_cols),
+        out_path,
     )
     print(f"Output: {out_path.resolve()}")
     print(f"BTM columns ({len(btm_cols)}): {', '.join(btm_cols)}")

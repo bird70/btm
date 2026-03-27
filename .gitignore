@@ -4,6 +4,9 @@ __pycache__/
 # C extensions
 *.so
 
+# CatBoost training cache
+catboost_info/
+
 # Packages
 *.egg
 *.egg-info
@@ -33,6 +36,11 @@ nosetests.xml
 # ignore test metadata
 tests/data/log
 tests/data/*.tif.xml
+
+# large MBES raster files (downloaded separately via Kaggle)
+data/MBES/*.tif
+data/MBES/*.tif.ovr
+data/MBES/*.tif.aux.xml
 
 # Translations
 *.mo
