@@ -1,3 +1,33 @@
+4.0-dev (branch 012-v9-catboost-lgb-texture):
+
+- Root cause of v8 Kaggle failure identified: Random Forest selected as best-CV
+  model (pb_only F1=0.6021, std=0.2975 — huge fold variance). RF does not
+  generalise as well as CatBoost for this acoustic/bathymetric data; scored ~0.47
+  on Kaggle despite highest CV F1. Lesson: high CV std (0.2975 ≈ 50% of mean F1)
+  is a red flag for poor generalisation. Prefer CatBoost (lower variance) even at
+  slightly lower mean CV F1.
+- New experiment_v9.py: Returns to v6's proven CatBoost-on-combined architecture
+  with 3 additional texture/TPI features. Key decisions:
+  - Restored COMBINED features as the default winning configuration (v6 proved
+    CatBoost+combined → Kaggle 0.7639).
+  - Added bathy_std_9, back_std_9, tpi_9 (carried over from v8 correctly this time
+    with CatBoost as the final model, not RF).
+  - Upgraded CatBoost: iterations=800, depth=7, lr=0.03 (was 400, 6, 0.05).
+  - Upgraded LightGBM: n_est=600, lr=0.03, num_leaves=31 (was 400, 0.05, 31).
+  - Added soft-vote CatBoost+LGB ensemble as 4th candidate.
+  - Dropped XGBoost (slowest; CatBoost consistently outperformed it).
+  21 features total (11 PB + 10 OB), no spatial coordinates, no SMOTE.
+  CV results (10-fold spatial GroupKFold):
+    pb_only RF=0.6021 ± 0.2975  (still selected by CV but not the winner overall)
+    ob_only CatBoost=0.3886 ± 0.2521
+    combined CatBoost=0.6256 ± 0.1664  ← BEST (+0.0498 vs v6 combined 0.5758)
+  Combined CatBoost wins — same as v6 but stronger params and 3 extra features.
+  Lower std (0.1664 vs typical 0.25+) suggests better generalisation.
+  Expected Kaggle: ~0.77–0.81 (extrapolating from v6 CV→Kaggle delta of +0.188).
+- New data/submission_v9_best.csv (98 rows, 5 classes):
+    ALG=26, FMAT=17, NVB=38, SGAM=8, SGZ=9
+- New docs/run-012-v9-catboost-lgb-texture.md: run report.
+
 4.0-dev (branch 011-clean-knn-rf-lgb):
 
 - Root cause of v7 Kaggle failure identified: x_rel/y_rel (geographic relative
@@ -7,22 +37,22 @@
 - New experiment_v8.py: Clean acoustic+terrain features, NO spatial coordinates.
   Core principle: classify based on WHAT a location sounds like, not WHERE it is.
   21 features (no spatial leakage):
-    - PB paper (8): depth, backscatter, slope, vrm, complexity, max_curvature,
-      northness, eastness
-    - PB texture/TPI (3 new): bathy_std_9, back_std_9 (acoustic/terrain texture
-      at 2.25 m scale), tpi_9 (topographic position index — am I on a ridge?)
-    - OB SLIC (10): seg_{bathy,back,vrm}_{mean,std,skew} + seg_pixel_count
-  3 model candidates: KNN (acoustic similarity search, distance-weighted,
+  - PB paper (8): depth, backscatter, slope, vrm, complexity, max_curvature,
+    northness, eastness
+  - PB texture/TPI (3 new): bathy_std_9, back_std_9 (acoustic/terrain texture
+    at 2.25 m scale), tpi_9 (topographic position index — am I on a ridge?)
+  - OB SLIC (10): seg*{bathy,back,vrm}*{mean,std,skew} + seg_pixel_count
+    3 model candidates: KNN (acoustic similarity search, distance-weighted,
     StandardScaler), RF (paper's original choice), LightGBM (modern boosting).
-  Soft-vote ensemble as 4th candidate. 10-fold spatial GroupKFold (matches v6).
-  NO SMOTE, NO interaction terms, NO z-scores.
-  CV results: pb_only RF=0.6021, combined RF=0.5996, ensemble=0.5992 (PB-only
-  best — new texture features outweigh OB noise; OB segments too large ~451 m²).
-  KNN came 3rd in pb_only (F1=0.5509) — acoustically similar search valid.
+    Soft-vote ensemble as 4th candidate. 10-fold spatial GroupKFold (matches v6).
+    NO SMOTE, NO interaction terms, NO z-scores.
+    CV results: pb_only RF=0.6021, combined RF=0.5996, ensemble=0.5992 (PB-only
+    best — new texture features outweigh OB noise; OB segments too large ~451 m²).
+    KNN came 3rd in pb_only (F1=0.5509) — acoustically similar search valid.
 - New data/submission_v8_best.csv (98 rows): PB-only RF prediction.
 - New docs/run-011-clean-knn-rf-lgb.md: run report.
 
-4.0-dev (branch 010-enhanced-features-lgb):
+  4.0-dev (branch 010-enhanced-features-lgb):
 
 - New experiment_v7.py: Enhanced feature set + fold-safe SMOTE + two-model
   ensemble (LightGBM + CatBoost). Extends the v6 OBIA+PB hybrid with insights
