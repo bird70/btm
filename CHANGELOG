@@ -1,3 +1,17 @@
+4.0-dev (branch 008-gis-feature-engineering):
+ - New experiment_v5.py: GIS-derived feature engineering adding slope,
+   backscatter zones and acoustic facies with 80/20/20 weighting on top
+   of the v2 comprehensive feature set.
+ - Run A: raw point-sampled GIS features; Run B: zone-stratified kriging
+   smoothing for test-point inference (5-zone OrdinaryKriging, spherical
+   variogram, KNN fallback for small zones).
+ - New tests/unit/test_experiment_v5_features.py: 5 unit tests for the
+   GIS feature helpers (shape, weight correctness, submission format,
+   kriging no-NaN, run report completeness).
+ - New output files: data/submission_v5_gis_features.csv (Run A),
+   data/submission_v5_gis_features_kriging.csv (Run B),
+   data/submission_v5_best.csv (best of A/B).
+ - New docs/run-008-gis-feature-engineering.md: experiment metrics report.
 3.0-final:
  - ArcGIS Pro / Python 3 support added.
  - New Compare Scales of Analysis tool provides a quick approximation of the effects of scale.

@@ -18,9 +18,9 @@
 
 **Purpose**: Repository and test infrastructure ready before any implementation.
 
-- [ ] T001 Create `scripts/experiment_v5.py` with module docstring, top-level constants (WEIGHT_SLOPE=80, WEIGHT_BZ=20, WEIGHT_AF=20, N_BZ_CLUSTERS=5, N_AF_CLUSTERS=8, SEED=42, N_SPATIAL_BLOCKS=10, KRIGING_MIN_ZONE_PTS=10), and `if __name__ == "__main__": main()` stub
-- [ ] T002 [P] Create `tests/unit/test_experiment_v5_features.py` with import stubs and five empty test function skeletons matching the plan test plan (test_add_gis_features_raw_shape, test_gis_feature_weights, test_krige_gis_features_no_nan, test_write_submission_format, test_run_report_contains_all_runs)
-- [ ] T003 [P] Verify `outputs/gis_layers/rasters/slope.tif`, `backscatter_zones.tif`, and `acoustic_facies.tif` exist and are readable; confirm CRS == EPSG:28355 and shapes match `data/MBES/bathymetry.tif` (manual check or small validation script)
+- [X] T001 Create `scripts/experiment_v5.py` with module docstring, top-level constants (WEIGHT_SLOPE=80, WEIGHT_BZ=20, WEIGHT_AF=20, N_BZ_CLUSTERS=5, N_AF_CLUSTERS=8, SEED=42, N_SPATIAL_BLOCKS=10, KRIGING_MIN_ZONE_PTS=10), and `if __name__ == "__main__": main()` stub
+- [X] T002 [P] Create `tests/unit/test_experiment_v5_features.py` with import stubs and five empty test function skeletons matching the plan test plan (test_add_gis_features_raw_shape, test_gis_feature_weights, test_krige_gis_features_no_nan, test_write_submission_format, test_run_report_contains_all_runs)
+- [X] T003 [P] Verify `outputs/gis_layers/rasters/slope.tif`, `backscatter_zones.tif`, and `acoustic_facies.tif` exist and are readable; confirm CRS == EPSG:28355 and shapes match `data/MBES/bathymetry.tif` (manual check or small validation script)
 
 **Checkpoint**: `experiment_v5.py` stub importable; test file present with failing stubs; derived rasters confirmed on disk.
 
@@ -32,12 +32,12 @@
 
 **CRITICAL**: No user story implementation can begin until this phase is complete.
 
-- [ ] T004 Implement `_load_rasters()` in `scripts/experiment_v5.py` -- loads `data/MBES/bathymetry.tif` and `data/MBES/backscatter.tif` into NumPy float32 arrays, returns `(bathy, back, bathy_f, back_f, bt, bkt, cell_size)`; mirrors `load_rasters()` in `experiment_v2.py`
-- [ ] T005 [P] Implement `_ensure_derived_rasters()` in `scripts/experiment_v5.py` -- checks existence of `outputs/gis_layers/rasters/slope.tif`, `backscatter_zones.tif`, `acoustic_facies.tif`; prints a clear message if any are missing with instruction to run `step1_prepare_gis_layers.py`; raises `FileNotFoundError` if missing (does not silently continue)
-- [ ] T006 [P] Implement `_load_derived_rasters()` in `scripts/experiment_v5.py` -- loads the three derived rasters from disk into NumPy arrays; returns `(slope_arr, bz_arr, af_arr, derived_transform)` where `derived_transform` is the affine transform from `slope.tif`
-- [ ] T007 Implement `extract_all_features(xs, ys, bathy, back, bathy_f, back_f, bt, bkt, cell_size)` in `scripts/experiment_v5.py` -- verbatim copy of the same function from `scripts/experiment_v2.py` (multi-scale focal stats, curvature, GLCM, patch stats, interactions); returns `pd.DataFrame` of ~114 base features
-- [ ] T008 [P] Implement `get_models(seed)` in `scripts/experiment_v5.py` -- verbatim copy from `scripts/experiment_v2.py`; returns dict of four ensemble model factory lambdas (lgbm, xgb, catboost, rf) with identical hyperparameters
-- [ ] T009 Implement `_run_spatial_block_cv(X, y_labels, enc, train_coords, seed, n_blocks)` in `scripts/experiment_v5.py` -- parameterised spatial-block CV loop adapted from `experiment_v2.py`; `train_coords` is a `(n, 2)` array of `[x, y]` values used for KMeans block assignment; returns `(weighted_f1, per_class_f1_dict, mean_importances_series, elapsed_seconds)`
+- [X] T004 Implement `_load_rasters()` in `scripts/experiment_v5.py` -- loads `data/MBES/bathymetry.tif` and `data/MBES/backscatter.tif` into NumPy float32 arrays, returns `(bathy, back, bathy_f, back_f, bt, bkt, cell_size)`; mirrors `load_rasters()` in `experiment_v2.py`
+- [X] T005 [P] Implement `_ensure_derived_rasters()` in `scripts/experiment_v5.py` -- checks existence of `outputs/gis_layers/rasters/slope.tif`, `backscatter_zones.tif`, `acoustic_facies.tif`; prints a clear message if any are missing with instruction to run `step1_prepare_gis_layers.py`; raises `FileNotFoundError` if missing (does not silently continue)
+- [X] T006 [P] Implement `_load_derived_rasters()` in `scripts/experiment_v5.py` -- loads the three derived rasters from disk into NumPy arrays; returns `(slope_arr, bz_arr, af_arr, derived_transform)` where `derived_transform` is the affine transform from `slope.tif`
+- [X] T007 Implement `extract_all_features(xs, ys, bathy, back, bathy_f, back_f, bt, bkt, cell_size)` in `scripts/experiment_v5.py` -- verbatim copy of the same function from `scripts/experiment_v2.py` (multi-scale focal stats, curvature, GLCM, patch stats, interactions); returns `pd.DataFrame` of ~114 base features
+- [X] T008 [P] Implement `get_models(seed)` in `scripts/experiment_v5.py` -- verbatim copy from `scripts/experiment_v2.py`; returns dict of four ensemble model factory lambdas (lgbm, xgb, catboost, rf) with identical hyperparameters
+- [X] T009 Implement `_run_spatial_block_cv(X, y_labels, enc, train_coords, seed, n_blocks)` in `scripts/experiment_v5.py` -- parameterised spatial-block CV loop adapted from `experiment_v2.py`; `train_coords` is a `(n, 2)` array of `[x, y]` values used for KMeans block assignment; returns `(weighted_f1, per_class_f1_dict, mean_importances_series, elapsed_seconds)`
 
 **Checkpoint**: Foundation helpers importable; `test_experiment_v5_features.py` can import from the module; base feature extraction produces ~114-column DataFrame (spot-check manually).
 
@@ -51,15 +51,15 @@
 
 ### Tests for User Story 1
 
-- [ ] T010 [P] [US1] Implement `test_add_gis_features_raw_shape` in `tests/unit/test_experiment_v5_features.py`: create a 10-row synthetic base DataFrame + fake slope/bz/af arrays; call `_add_gis_features_raw()`; assert output has `n_base + 14` columns and contains `gis_slope`, `gis_bz_0`, `gis_bz_4`, `gis_af_0`, `gis_af_7`
-- [ ] T011 [P] [US1] Implement `test_gis_feature_weights` in `tests/unit/test_experiment_v5_features.py`: single point, slope=1.0 -> `gis_slope == 80.0`; bz=2 -> `gis_bz_2 == 20.0` and all other `gis_bz_*` columns == 0.0; af=5 -> `gis_af_5 == 20.0`
-- [ ] T012 [P] [US1] Implement `test_write_submission_format` in `tests/unit/test_experiment_v5_features.py`: call `_write_submission(tmp_path, pred_labels, test_ids, "test_run")`; assert CSV has columns `["ID","class"]`; row count equals `len(test_ids)`; no duplicate IDs
-- [ ] T013 [US1] Run `python -m pytest tests/unit/test_experiment_v5_features.py::test_add_gis_features_raw_shape tests/unit/test_experiment_v5_features.py::test_gis_feature_weights tests/unit/test_experiment_v5_features.py::test_write_submission_format` -- confirm tests FAIL (red) before implementation
+- [X] T010 [P] [US1] Implement `test_add_gis_features_raw_shape` in `tests/unit/test_experiment_v5_features.py`: create a 10-row synthetic base DataFrame + fake slope/bz/af arrays; call `_add_gis_features_raw()`; assert output has `n_base + 14` columns and contains `gis_slope`, `gis_bz_0`, `gis_bz_4`, `gis_af_0`, `gis_af_7`
+- [X] T011 [P] [US1] Implement `test_gis_feature_weights` in `tests/unit/test_experiment_v5_features.py`: single point, slope=1.0 -> `gis_slope == 80.0`; bz=2 -> `gis_bz_2 == 20.0` and all other `gis_bz_*` columns == 0.0; af=5 -> `gis_af_5 == 20.0`
+- [X] T012 [P] [US1] Implement `test_write_submission_format` in `tests/unit/test_experiment_v5_features.py`: call `_write_submission(tmp_path, pred_labels, test_ids, "test_run")`; assert CSV has columns `["ID","class"]`; row count equals `len(test_ids)`; no duplicate IDs
+- [X] T013 [US1] Run `python -m pytest tests/unit/test_experiment_v5_features.py::test_add_gis_features_raw_shape tests/unit/test_experiment_v5_features.py::test_gis_feature_weights tests/unit/test_experiment_v5_features.py::test_write_submission_format` -- confirm tests FAIL (red) before implementation
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement `_add_gis_features_raw(base_df, slope_arr, bz_arr, af_arr, derived_transform, xs, ys)` in `scripts/experiment_v5.py` -- samples each derived raster at `(xs, ys)` using `sample_raster_at_points()`; applies global-median fallback for NaN; scales slope by WEIGHT_SLOPE; OHE-encodes bz (5 cols) and af (8 cols) via `pd.get_dummies`; scales OHE columns by WEIGHT_BZ and WEIGHT_AF respectively; appends all 14 new columns to `base_df`; returns augmented DataFrame
-- [ ] T015 [US1] Implement `_write_submission(out_path, pred_labels, test_ids, run_name)` in `scripts/experiment_v5.py` -- writes `ID,class` CSV; asserts row count == len(test_ids) before writing
+- [X] T014 [US1] Implement `_add_gis_features_raw(base_df, slope_arr, bz_arr, af_arr, derived_transform, xs, ys)` in `scripts/experiment_v5.py` -- samples each derived raster at `(xs, ys)` using `sample_raster_at_points()`; applies global-median fallback for NaN; scales slope by WEIGHT_SLOPE; OHE-encodes bz (5 cols) and af (8 cols) via `pd.get_dummies`; scales OHE columns by WEIGHT_BZ and WEIGHT_AF respectively; appends all 14 new columns to `base_df`; returns augmented DataFrame
+- [X] T015 [US1] Implement `_write_submission(out_path, pred_labels, test_ids, run_name)` in `scripts/experiment_v5.py` -- writes `ID,class` CSV; asserts row count == len(test_ids) before writing
 - [ ] T016 [US1] Implement `baseline` and `run_a` phases in `main()` in `scripts/experiment_v5.py`:
   - baseline: build v2 feature matrix (no GIS); call `_run_spatial_block_cv(X, y, enc, train_df[["x","y"]].values, SEED, N_SPATIAL_BLOCKS)`; store `baseline_f1` and `baseline_importances`
   - run_a: build augmented feature matrix via `_add_gis_features_raw()`; call `_run_spatial_block_cv(X_aug, y, enc, train_df[["x","y"]].values, SEED, N_SPATIAL_BLOCKS)`; store `run_a_f1` and `run_a_importances`; fit final model on full train set; predict test; write `data/submission_v5_gis_features.csv`
@@ -77,18 +77,18 @@
 
 ### Tests for User Story 2
 
-- [ ] T018 [P] [US2] Implement `test_krige_gis_features_no_nan` in `tests/unit/test_experiment_v5_features.py`: create 30 synthetic train points with random coords + zone values (bz: 0-4, af: 0-7, slope: float) and 10 test points; call `_krige_gis_features()`; assert result shape == (10, 3); assert no NaN values in result
-- [ ] T019 [US2] Run `python -m pytest tests/unit/test_experiment_v5_features.py::test_krige_gis_features_no_nan` -- confirm test FAILS (red) before implementation
+- [X] T018 [P] [US2] Implement `test_krige_gis_features_no_nan` in `tests/unit/test_experiment_v5_features.py`: create 30 synthetic train points with random coords + zone values (bz: 0-4, af: 0-7, slope: float) and 10 test points; call `_krige_gis_features()`; assert result shape == (10, 3); assert no NaN values in result
+- [X] T019 [US2] Run `python -m pytest tests/unit/test_experiment_v5_features.py::test_krige_gis_features_no_nan` -- confirm test FAILS (red) before implementation
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `_krige_gis_features(train_df, test_df, slope_tr, bz_tr, af_tr, slope_te_raw, bz_te_raw, af_te_raw)` in `scripts/experiment_v5.py`:
+- [X] T020 [US2] Implement `_krige_gis_features(train_df, test_df, slope_tr, bz_tr, af_tr, slope_te_raw, bz_te_raw, af_te_raw)` in `scripts/experiment_v5.py`:
   - Uses `bz_tr` as stratification zones (5 zones)
   - For each zone and each of the three GIS features (slope, bz value, af value):
     - If zone has >= KRIGING_MIN_ZONE_PTS training points: fit `OrdinaryKriging(xs_zone, ys_zone, values_zone, variogram_model=KRIGING_VARIOGRAM, nlags=KRIGING_NLAGS, weight=True)` from pykrige; predict at test points in zone
     - Else: fit `KNeighborsRegressor(n_neighbors=min(5, n_pts))` on zone train coords; predict at test coords; emit `warnings.warn(f"Zone {z}: KNN fallback ({n_pts} pts)")`
   - Returns DataFrame with columns `krige_slope`, `krige_bz`, `krige_af` for all test points (no NaN)
-- [ ] T021 [US2] Implement `_add_gis_features_kriged(base_df, kriged_df)` in `scripts/experiment_v5.py`:
+- [X] T021 [US2] Implement `_add_gis_features_kriged(base_df, kriged_df)` in `scripts/experiment_v5.py`:
   - Rounds `krige_bz` to nearest int, clips to [0, N_BZ_CLUSTERS-1]; OHE; scale by WEIGHT_BZ
   - Rounds `krige_af` to nearest int, clips to [0, N_AF_CLUSTERS-1]; OHE; scale by WEIGHT_AF
   - Scales `krige_slope` by WEIGHT_SLOPE
@@ -108,12 +108,12 @@
 
 ### Tests for User Story 3
 
-- [ ] T024 [P] [US3] Implement `test_run_report_contains_all_runs` in `tests/unit/test_experiment_v5_features.py`: create a synthetic results dict (`{"baseline": 0.70, "run_a": 0.73, "run_b": 0.75, ...}`); call `_write_run_report(out_dir=tmp_path, results=results)`; read output Markdown at `tmp_path / "run-008-gis-feature-engineering.md"`; assert all three run names and all three F1 values appear in the text
-- [ ] T025 [US3] Run `python -m pytest tests/unit/test_experiment_v5_features.py::test_run_report_contains_all_runs` -- confirm test FAILS (red) before implementation
+- [X] T024 [P] [US3] Implement `test_run_report_contains_all_runs` in `tests/unit/test_experiment_v5_features.py`: create a synthetic results dict (`{"baseline": 0.70, "run_a": 0.73, "run_b": 0.75, ...}`); call `_write_run_report(out_dir=tmp_path, results=results)`; read output Markdown at `tmp_path / "run-008-gis-feature-engineering.md"`; assert all three run names and all three F1 values appear in the text
+- [X] T025 [US3] Run `python -m pytest tests/unit/test_experiment_v5_features.py::test_run_report_contains_all_runs` -- confirm test FAILS (red) before implementation
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `_write_run_report(out_dir, results)` in `scripts/experiment_v5.py` -- `out_dir` defaults to `_REPO / "docs"`; writes `out_dir / "run-008-gis-feature-engineering.md"`; report sections: (1) parameters table (constants, seed, n_blocks, kriging config), (2) metrics comparison table (baseline / run_a / run_b: weighted-F1, per-class F1, top-3 features by gain, wall-clock seconds), (3) note that Run A and Run B CV F1 values are equal by design (kriging applies only to test-point inference -- see spec US2/AC2), (4) best-run identification paragraph, (5) brief interpretation of whether GIS features helped vs baseline
+- [X] T026 [US3] Implement `_write_run_report(out_dir, results)` in `scripts/experiment_v5.py` -- `out_dir` defaults to `_REPO / "docs"`; writes `out_dir / "run-008-gis-feature-engineering.md"`; report sections: (1) parameters table (constants, seed, n_blocks, kriging config), (2) metrics comparison table (baseline / run_a / run_b: weighted-F1, per-class F1, top-3 features by gain, wall-clock seconds), (3) note that Run A and Run B CV F1 values are equal by design (kriging applies only to test-point inference -- see spec US2/AC2), (4) best-run identification paragraph, (5) brief interpretation of whether GIS features helped vs baseline
 - [ ] T027 [US3] Implement best-run selection and `submission_v5_best.csv` copy in `main()` -- after both runs: compare `run_a_f1` and `run_b_f1`; copy the higher-scoring submission file to `data/submission_v5_best.csv`; print which run was selected and the winning F1 score
 - [ ] T028 [US3] Run full experiment: `python scripts/experiment_v5.py` -- verify all three submission CSVs exist with correct row counts; verify `docs/run-008-gis-feature-engineering.md` exists and contains the metrics table
 - [ ] T029 [US3] Run test T024 again -- confirm it now PASSES (green)
