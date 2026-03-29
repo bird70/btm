@@ -37,6 +37,8 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
+import catboost as cb
+import lightgbm as lgb
 import numpy as np
 import pandas as pd
 import rasterio
@@ -48,9 +50,6 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import f1_score
 from sklearn.model_selection import GroupKFold
 from sklearn.utils.class_weight import compute_sample_weight
-
-import lightgbm as lgb
-import catboost as cb
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -223,12 +222,14 @@ def _compute_all_features(
     depth = bathy.copy()
     bs = back.copy()
 
-    slope_deg = slope_mod.compute_slope(bathy_f, cell_size, nodata=None).astype(np.float32)
-    slope_deg[nodata_mask] = np.nan
-
-    vrm_arr = vrm_mod.compute_vrm(bathy_f, neighborhood_size=3, cell_size=cell_size).astype(
+    slope_deg = slope_mod.compute_slope(bathy_f, cell_size, nodata=None).astype(
         np.float32
     )
+    slope_deg[nodata_mask] = np.nan
+
+    vrm_arr = vrm_mod.compute_vrm(
+        bathy_f, neighborhood_size=3, cell_size=cell_size
+    ).astype(np.float32)
     vrm_arr[nodata_mask] = np.nan
 
     slope_rad = np.deg2rad(slope_deg)
@@ -255,7 +256,14 @@ def _compute_all_features(
     back_std_3 = _focal_std(back, size=3)
     back_std_5 = _focal_std(back, size=5)
     back_std_9 = _focal_std(back, size=9)
-    for arr in (bathy_std_3, bathy_std_5, bathy_std_9, back_std_3, back_std_5, back_std_9):
+    for arr in (
+        bathy_std_3,
+        bathy_std_5,
+        bathy_std_9,
+        back_std_3,
+        back_std_5,
+        back_std_9,
+    ):
         arr[nodata_mask] = np.nan
 
     # ── TPI at 2 scales (v7 new) ───────────────────────────────────────────
@@ -347,7 +355,9 @@ def _segment_rasters(
     mean_size = labels.size / n_unique
     log.info(
         "Segmentation: %d labels, mean size %.1f px (%.1f m²)",
-        n_unique, mean_size, mean_size * 0.25 * 0.25,
+        n_unique,
+        mean_size,
+        mean_size * 0.25 * 0.25,
     )
     return labels
 
@@ -399,7 +409,9 @@ def _compute_segment_stats(
         columns=OB_FEATURE_COLS,
     )
     df.index.name = "segment_label"
-    log.info("Segment stats: %d segs, NaN count: %d", len(df), int(df.isna().sum().sum()))
+    log.info(
+        "Segment stats: %d segs, NaN count: %d", len(df), int(df.isna().sum().sum())
+    )
     return df
 
 
@@ -449,7 +461,9 @@ def _assign_segment_features(
         else:
             ob_rows.append([col_medians[c] for c in OB_FEATURE_COLS])
     ob_df = pd.DataFrame(ob_rows, columns=OB_FEATURE_COLS, index=point_df.index)
-    return pd.concat([point_df.reset_index(drop=True), ob_df.reset_index(drop=True)], axis=1)
+    return pd.concat(
+        [point_df.reset_index(drop=True), ob_df.reset_index(drop=True)], axis=1
+    )
 
 
 def _add_spatial_context(
@@ -600,13 +614,18 @@ def _run_cv(
         fold_scores = []
         for tr_idx, va_idx in gkf.split(X, y_train, groups):
             preds_va = classes[np.argmax(oof_proba[va_idx], axis=1)]
-            fold_scores.append(f1_score(classes[y_train[va_idx]], preds_va, average="weighted"))
+            fold_scores.append(
+                f1_score(classes[y_train[va_idx]], preds_va, average="weighted")
+            )
 
         log.info("  [%s] %s: CV F1=%.4f ± %.4f", label, name, f1, np.std(fold_scores))
 
         if f1 > best_f1:
             best_f1, best_name, best_oof_proba, best_fold_scores = (
-                f1, name, oof_proba, fold_scores
+                f1,
+                name,
+                oof_proba,
+                fold_scores,
             )
 
     log.info("[%s] Best: %s (F1=%.4f)", label, best_name, best_f1)
@@ -724,7 +743,9 @@ def _write_run_report(
 
     lines += [""]
 
-    combined_result = next((r for r in config_results if r["label"] == "combined"), None)
+    combined_result = next(
+        (r for r in config_results if r["label"] == "combined"), None
+    )
     if combined_result and best_label != "combined":
         combined_f1 = combined_result["cv_f1_mean"]
         best_result = next(r for r in config_results if r["label"] == best_label)
@@ -738,7 +759,9 @@ def _write_run_report(
         ]
 
     if feature_importances:
-        sorted_fi = sorted(feature_importances.items(), key=lambda x: x[1], reverse=True)[:15]
+        sorted_fi = sorted(
+            feature_importances.items(), key=lambda x: x[1], reverse=True
+        )[:15]
         lines += [
             "## Top Feature Importances (Combined Config, Best Model)",
             "",
@@ -816,10 +839,16 @@ def main() -> None:
     test_df = pd.read_csv(TEST_CSV)
     log.info("Train: %d rows, Test: %d rows", len(train_df), len(test_df))
 
-    x_col = next(c for c in train_df.columns if c.lower() in ("x", "easting", "lon", "longitude"))
-    y_col = next(c for c in train_df.columns if c.lower() in ("y", "northing", "lat", "latitude"))
+    x_col = next(
+        c for c in train_df.columns if c.lower() in ("x", "easting", "lon", "longitude")
+    )
+    y_col = next(
+        c for c in train_df.columns if c.lower() in ("y", "northing", "lat", "latitude")
+    )
     label_col = next(
-        c for c in train_df.columns if c.lower() in ("class", "label", "category", "substrate")
+        c
+        for c in train_df.columns
+        if c.lower() in ("class", "label", "category", "substrate")
     )
 
     train_xy = train_df[[x_col, y_col]].values.astype(np.float64)
@@ -831,20 +860,32 @@ def main() -> None:
     y_train = train_df[label_col].map(class_to_int).values.astype(int)
 
     # ── Extract pixel features at sampled points ───────────────────────────
-    raster_cols = PB_FEATURE_COLS + FOCAL_FEATURE_COLS + TPI_FEATURE_COLS + INTERACTION_FEATURE_COLS
+    raster_cols = (
+        PB_FEATURE_COLS
+        + FOCAL_FEATURE_COLS
+        + TPI_FEATURE_COLS
+        + INTERACTION_FEATURE_COLS
+    )
     log.info("Extracting pixel features at points...")
     train_px = _extract_point_features(feat_dict, train_xy, transform, raster_cols)
     test_px = _extract_point_features(feat_dict, test_xy, transform, raster_cols)
 
     # ── Assign OB segment features ─────────────────────────────────────────
     log.info("Assigning OB segment features...")
-    train_full_raw = _assign_segment_features(train_px, labels, seg_stats_df, transform, train_xy)
-    test_full_raw = _assign_segment_features(test_px, labels, seg_stats_df, transform, test_xy)
+    train_full_raw = _assign_segment_features(
+        train_px, labels, seg_stats_df, transform, train_xy
+    )
+    test_full_raw = _assign_segment_features(
+        test_px, labels, seg_stats_df, transform, test_xy
+    )
 
     # ── Spatial context (relative coordinates + z-scores) ──────────────────
     # Compute global stats over train+test combined for z-score normalisation
     combined_for_stats = pd.concat(
-        [train_full_raw[["depth", "backscatter"]], test_full_raw[["depth", "backscatter"]]],
+        [
+            train_full_raw[["depth", "backscatter"]],
+            test_full_raw[["depth", "backscatter"]],
+        ],
         axis=0,
         ignore_index=True,
     )
@@ -898,7 +939,9 @@ def main() -> None:
     log.info("Running OB-only CV...")
     ob_result = _run_cv(X_train_all, y_train, groups, OB_FEATURE_COLS, "ob_only")
     log.info("Running Combined CV (all %d features)...", n_total_features)
-    combined_result = _run_cv(X_train_all, y_train, groups, COMBINED_FEATURE_COLS, "combined")
+    combined_result = _run_cv(
+        X_train_all, y_train, groups, COMBINED_FEATURE_COLS, "combined"
+    )
 
     config_results = [pb_result, ob_result, combined_result]
     best_result = max(config_results, key=lambda r: r["cv_f1_mean"])
@@ -950,7 +993,9 @@ def main() -> None:
         None,
     )
     if id_col is not None:
-        submission = pd.DataFrame({"ID": test_df[id_col].values, "class": test_pred_labels})
+        submission = pd.DataFrame(
+            {"ID": test_df[id_col].values, "class": test_pred_labels}
+        )
     else:
         submission = pd.DataFrame(
             {"ID": np.arange(1, len(test_pred_labels) + 1), "class": test_pred_labels}
@@ -959,7 +1004,10 @@ def main() -> None:
     OUTPUT_SUBMISSION.parent.mkdir(parents=True, exist_ok=True)
     submission.to_csv(OUTPUT_SUBMISSION, index=False)
     log.info("Submission written: %s (%d rows)", OUTPUT_SUBMISSION, len(submission))
-    log.info("Predicted class distribution:\n%s", submission["class"].value_counts().to_string())
+    log.info(
+        "Predicted class distribution:\n%s",
+        submission["class"].value_counts().to_string(),
+    )
 
     # ── Write run report ───────────────────────────────────────────────────
     t0 = datetime.now()

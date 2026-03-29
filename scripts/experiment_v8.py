@@ -56,6 +56,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
+import lightgbm as lgb
 import numpy as np
 import pandas as pd
 import rasterio
@@ -70,19 +71,18 @@ from sklearn.model_selection import GroupKFold
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
-import lightgbm as lgb
 
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
 
 BATHY_PATH = Path("data/MBES/bathymetry.tif")
-BACK_PATH  = Path("data/MBES/backscatter.tif")
-TRAIN_CSV  = Path("data/train.csv")
-TEST_CSV   = Path("data/test.csv")
+BACK_PATH = Path("data/MBES/backscatter.tif")
+TRAIN_CSV = Path("data/train.csv")
+TEST_CSV = Path("data/test.csv")
 
 OUTPUT_SUBMISSION = Path("data/submission_v8_best.csv")
-OUTPUT_REPORT     = Path("docs/run-011-clean-knn-rf-lgb.md")
+OUTPUT_REPORT = Path("docs/run-011-clean-knn-rf-lgb.md")
 
 # Paper PB features (8 from Ierodiaconou 2018) + texture/TPI (3 new, no leakage)
 PB_FEATURE_COLS = [
@@ -121,7 +121,7 @@ SLIC_N_SEGMENTS = 4000
 SLIC_COMPACTNESS = 0.01
 
 # Spatial CV (10-fold, matching v6 for direct comparability)
-CV_N_SPLITS  = 10
+CV_N_SPLITS = 10
 CV_N_CLUSTERS = 10
 CV_RANDOM_STATE = 42
 
@@ -132,6 +132,7 @@ log = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Raster loading
 # ---------------------------------------------------------------------------
+
 
 def _load_rasters(
     bathy_path: Path, back_path: Path
@@ -148,8 +149,10 @@ def _load_rasters(
             back[back == src.nodata] = np.nan
     log.info(
         "Rasters: bathy %s (%.0f%% valid) back %s (%.0f%% valid) cell=%.4f m",
-        bathy.shape, 100 * np.isfinite(bathy).mean(),
-        back.shape,  100 * np.isfinite(back).mean(),
+        bathy.shape,
+        100 * np.isfinite(bathy).mean(),
+        back.shape,
+        100 * np.isfinite(back).mean(),
         cell_size,
     )
     return bathy, back, transform, cell_size
@@ -159,12 +162,13 @@ def _load_rasters(
 # Pixel-based feature computation
 # ---------------------------------------------------------------------------
 
+
 def _focal_std(arr: np.ndarray, size: int) -> np.ndarray:
     """Local std in a square window via E[X²] – E[X]² trick."""
     a = np.nan_to_num(arr, nan=0.0).astype(np.float64)
     m1 = ndimage.uniform_filter(a, size=size)
-    m2 = ndimage.uniform_filter(a ** 2, size=size)
-    return np.sqrt(np.maximum(m2 - m1 ** 2, 0.0)).astype(np.float32)
+    m2 = ndimage.uniform_filter(a**2, size=size)
+    return np.sqrt(np.maximum(m2 - m1**2, 0.0)).astype(np.float32)
 
 
 def _compute_pb_features(
@@ -181,30 +185,35 @@ def _compute_pb_features(
 
     # ── Paper PB features ────────────────────────────────────────────────
     depth = bathy.copy()
-    bs    = back.copy()
+    bs = back.copy()
 
-    slope_deg = slope_mod.compute_slope(bathy_f, cell_size, nodata=None).astype(np.float32)
+    slope_deg = slope_mod.compute_slope(bathy_f, cell_size, nodata=None).astype(
+        np.float32
+    )
     slope_deg[nodata_mask] = np.nan
 
-    vrm_arr = vrm_mod.compute_vrm(bathy_f, neighborhood_size=3, cell_size=cell_size).astype(np.float32)
+    vrm_arr = vrm_mod.compute_vrm(
+        bathy_f, neighborhood_size=3, cell_size=cell_size
+    ).astype(np.float32)
     vrm_arr[nodata_mask] = np.nan
 
     slope_rad = np.deg2rad(slope_deg)
     with np.errstate(invalid="ignore", divide="ignore"):
-        complexity = (1.0 / np.cos(ndimage.uniform_filter(
-            np.nan_to_num(slope_rad, nan=0.0), size=3
-        ))).astype(np.float32)
+        complexity = (
+            1.0
+            / np.cos(ndimage.uniform_filter(np.nan_to_num(slope_rad, nan=0.0), size=3))
+        ).astype(np.float32)
     complexity[nodata_mask] = np.nan
 
-    max_curvature = (np.abs(ndimage.laplace(bathy_f)) / cell_size ** 2).astype(np.float32)
+    max_curvature = (np.abs(ndimage.laplace(bathy_f)) / cell_size**2).astype(np.float32)
     max_curvature[nodata_mask] = np.nan
 
     dy, dx = np.gradient(bathy_f, cell_size)
-    aspect  = np.arctan2(dy, dx)
+    aspect = np.arctan2(dy, dx)
     northness = np.cos(aspect).astype(np.float32)
-    eastness  = np.sin(aspect).astype(np.float32)
+    eastness = np.sin(aspect).astype(np.float32)
     northness[nodata_mask] = np.nan
-    eastness[nodata_mask]  = np.nan
+    eastness[nodata_mask] = np.nan
 
     # ── Texture / TPI (new, no spatial coords) ───────────────────────────
     bathy_std_9 = _focal_std(bathy, size=9)
@@ -218,17 +227,17 @@ def _compute_pb_features(
     tpi_9[nodata_mask] = np.nan
 
     features = {
-        "depth":         depth,
-        "backscatter":   bs,
-        "slope":         slope_deg,
-        "vrm":           vrm_arr,
-        "complexity":    complexity,
+        "depth": depth,
+        "backscatter": bs,
+        "slope": slope_deg,
+        "vrm": vrm_arr,
+        "complexity": complexity,
         "max_curvature": max_curvature,
-        "northness":     northness,
-        "eastness":      eastness,
-        "bathy_std_9":   bathy_std_9,
-        "back_std_9":    back_std_9,
-        "tpi_9":         tpi_9,
+        "northness": northness,
+        "eastness": eastness,
+        "bathy_std_9": bathy_std_9,
+        "back_std_9": back_std_9,
+        "tpi_9": tpi_9,
     }
     for k, v in features.items():
         v[~np.isfinite(v)] = np.nan  # guard infs
@@ -238,6 +247,7 @@ def _compute_pb_features(
 # ---------------------------------------------------------------------------
 # Segmentation + OB statistics (same as v6)
 # ---------------------------------------------------------------------------
+
 
 def _segment_rasters(
     bathy: np.ndarray,
@@ -271,30 +281,34 @@ def _compute_segment_stats(
     unique_labels = np.unique(labels)
     arrays = [("bathy", bathy), ("back", back), ("vrm", vrm)]
 
-    global_skew = {n: float(scipy_skew(a[np.isfinite(a)])) for n, a in arrays if np.isfinite(a).any()}
-    global_med  = {n: float(np.nanmedian(a)) for n, a in arrays}
+    global_skew = {
+        n: float(scipy_skew(a[np.isfinite(a)]))
+        for n, a in arrays
+        if np.isfinite(a).any()
+    }
+    global_med = {n: float(np.nanmedian(a)) for n, a in arrays}
 
     records = []
     for seg_id in unique_labels:
         mask = labels == seg_id
         row: dict = {}
         for name, arr in arrays:
-            vals  = arr[mask]
+            vals = arr[mask]
             valid = vals[np.isfinite(vals)]
-            n     = len(valid)
-            gsk   = global_skew.get(name, 0.0)
-            gmd   = global_med.get(name, 0.0)
+            n = len(valid)
+            gsk = global_skew.get(name, 0.0)
+            gmd = global_med.get(name, 0.0)
             if n == 0:
                 row[f"seg_{name}_mean"] = gmd
-                row[f"seg_{name}_std"]  = 0.0
+                row[f"seg_{name}_std"] = 0.0
                 row[f"seg_{name}_skew"] = gsk
             elif n < 3:
                 row[f"seg_{name}_mean"] = float(valid.mean())
-                row[f"seg_{name}_std"]  = float(valid.std())
+                row[f"seg_{name}_std"] = float(valid.std())
                 row[f"seg_{name}_skew"] = gsk
             else:
                 row[f"seg_{name}_mean"] = float(valid.mean())
-                row[f"seg_{name}_std"]  = float(valid.std())
+                row[f"seg_{name}_std"] = float(valid.std())
                 row[f"seg_{name}_skew"] = float(scipy_skew(valid))
         row["seg_pixel_count"] = int(mask.sum())
         records.append((seg_id, row))
@@ -313,6 +327,7 @@ def _compute_segment_stats(
 # Point-level feature extraction
 # ---------------------------------------------------------------------------
 
+
 def _extract_features_at_points(
     pb_dict: dict[str, np.ndarray],
     labels: np.ndarray,
@@ -322,8 +337,8 @@ def _extract_features_at_points(
 ) -> pd.DataFrame:
     """Sample all 21 features at (x, y) geographic coordinates."""
     xs, ys = xy_coords[:, 0], xy_coords[:, 1]
-    first  = next(iter(pb_dict.values()))
-    h, w   = first.shape
+    first = next(iter(pb_dict.values()))
+    h, w = first.shape
     rows, cols = rowcol(transform, xs, ys)
     rows = np.clip(np.array(rows), 0, h - 1)
     cols = np.clip(np.array(cols), 0, w - 1)
@@ -352,12 +367,15 @@ def _extract_features_at_points(
 # Models
 # ---------------------------------------------------------------------------
 
+
 def _get_models(classes: np.ndarray) -> dict:
     """Return individual model factories and a soft-voting ensemble."""
-    knn = Pipeline([
-        ("scaler", StandardScaler()),
-        ("clf",    KNeighborsClassifier(n_neighbors=9, weights="distance", n_jobs=-1)),
-    ])
+    knn = Pipeline(
+        [
+            ("scaler", StandardScaler()),
+            ("clf", KNeighborsClassifier(n_neighbors=9, weights="distance", n_jobs=-1)),
+        ]
+    )
     rf = RandomForestClassifier(
         n_estimators=500,
         class_weight="balanced",
@@ -383,6 +401,7 @@ def _get_models(classes: np.ndarray) -> dict:
 # Spatial CV
 # ---------------------------------------------------------------------------
 
+
 def _spatial_groups(xy: np.ndarray) -> np.ndarray:
     km = KMeans(n_clusters=CV_N_CLUSTERS, random_state=CV_RANDOM_STATE, n_init=10)
     return km.fit_predict(xy).astype(int)
@@ -397,15 +416,16 @@ def _run_spatial_cv(
     config_label: str,
 ) -> dict:
     """10-fold spatial GroupKFold; returns best model name + CV F1."""
-    gkf    = GroupKFold(n_splits=CV_N_SPLITS)
+    gkf = GroupKFold(n_splits=CV_N_SPLITS)
     models = _get_models(classes)
 
     best_name, best_f1, best_oof, best_folds = None, -1.0, None, None
 
     for name, m in models.items():
         import copy
-        n_cls   = len(classes)
-        oof     = np.zeros((len(y), n_cls), dtype=np.float32)
+
+        n_cls = len(classes)
+        oof = np.zeros((len(y), n_cls), dtype=np.float32)
         fold_f1 = []
 
         for tr_idx, va_idx in gkf.split(X, y, groups):
@@ -419,22 +439,31 @@ def _run_spatial_cv(
             elif hasattr(clf, "named_steps"):
                 inner = clf.named_steps["clf"]
                 if hasattr(inner, "classes_"):
-                    col_order = [np.where(inner.classes_ == c)[0][0] for c in range(n_cls)]
+                    col_order = [
+                        np.where(inner.classes_ == c)[0][0] for c in range(n_cls)
+                    ]
                     proba = proba[:, col_order]
             oof[va_idx] = proba
 
-        oof_preds   = np.argmax(oof, axis=1)
-        y_str       = classes[y]
-        oof_str     = classes[oof_preds]
+        oof_preds = np.argmax(oof, axis=1)
+        y_str = classes[y]
+        oof_str = classes[oof_preds]
         f1 = f1_score(y_str, oof_str, labels=classes, average="weighted")
 
         for tr_idx, va_idx in gkf.split(X, y, groups):
             va_preds = classes[np.argmax(oof[va_idx], axis=1)]
-            fold_f1.append(f1_score(classes[y[va_idx]], va_preds, labels=classes, average="weighted"))
+            fold_f1.append(
+                f1_score(
+                    classes[y[va_idx]], va_preds, labels=classes, average="weighted"
+                )
+            )
 
         log.info(
             "  [%s] %s: F1=%.4f ± %.4f",
-            config_label, name, f1, np.std(fold_f1),
+            config_label,
+            name,
+            f1,
+            np.std(fold_f1),
         )
 
         if f1 > best_f1:
@@ -442,19 +471,20 @@ def _run_spatial_cv(
 
     log.info("[%s] Best: %s F1=%.4f", config_label, best_name, best_f1)
     return {
-        "label":          config_label,
-        "best_model":     best_name,
-        "cv_f1_mean":     float(best_f1),
-        "cv_f1_std":      float(np.std(best_folds)),
-        "oof_proba":      best_oof,
-        "best_factory":   _get_models,  # re-construct when needed
-        "feature_cols":   feature_cols,
+        "label": config_label,
+        "best_model": best_name,
+        "cv_f1_mean": float(best_f1),
+        "cv_f1_std": float(np.std(best_folds)),
+        "oof_proba": best_oof,
+        "best_factory": _get_models,  # re-construct when needed
+        "feature_cols": feature_cols,
     }
 
 
 # ---------------------------------------------------------------------------
 # Soft-voting ensemble
 # ---------------------------------------------------------------------------
+
 
 def _run_ensemble_cv(
     X: np.ndarray,
@@ -465,17 +495,18 @@ def _run_ensemble_cv(
 ) -> dict:
     """Average OOF probabilities from all three models."""
     import copy
-    gkf    = GroupKFold(n_splits=CV_N_SPLITS)
-    models = _get_models(classes)
-    n_cls  = len(classes)
 
-    oof_sum  = np.zeros((len(y), n_cls), dtype=np.float32)
+    gkf = GroupKFold(n_splits=CV_N_SPLITS)
+    models = _get_models(classes)
+    n_cls = len(classes)
+
+    oof_sum = np.zeros((len(y), n_cls), dtype=np.float32)
     fold_f1 = []
 
     for tr_idx, va_idx in gkf.split(X, y, groups):
         fold_proba = np.zeros((len(va_idx), n_cls), dtype=np.float32)
         for name, m in models.items():
-            clf   = copy.deepcopy(m)
+            clf = copy.deepcopy(m)
             clf.fit(X[tr_idx], y[tr_idx])
             proba = clf.predict_proba(X[va_idx])
             fold_proba += proba
@@ -486,15 +517,17 @@ def _run_ensemble_cv(
 
     for tr_idx, va_idx in gkf.split(X, y, groups):
         va_preds = classes[np.argmax(oof_sum[va_idx], axis=1)]
-        fold_f1.append(f1_score(classes[y[va_idx]], va_preds, labels=classes, average="weighted"))
+        fold_f1.append(
+            f1_score(classes[y[va_idx]], va_preds, labels=classes, average="weighted")
+        )
 
     log.info("  [combined] ensemble (soft vote): F1=%.4f ± %.4f", f1, np.std(fold_f1))
     return {
-        "label":        "combined_ensemble",
-        "best_model":   "ensemble",
-        "cv_f1_mean":   float(f1),
-        "cv_f1_std":    float(np.std(fold_f1)),
-        "oof_proba":    oof_sum,
+        "label": "combined_ensemble",
+        "best_model": "ensemble",
+        "cv_f1_mean": float(f1),
+        "cv_f1_std": float(np.std(fold_f1)),
+        "oof_proba": oof_sum,
         "feature_cols": feature_cols,
     }
 
@@ -502,6 +535,7 @@ def _run_ensemble_cv(
 # ---------------------------------------------------------------------------
 # Run report
 # ---------------------------------------------------------------------------
+
 
 def _write_report(
     results: list[dict],
@@ -580,6 +614,7 @@ def _write_report(
 # Main
 # ---------------------------------------------------------------------------
 
+
 def main() -> None:
     log.info("=== Experiment v8: Clean Features + KNN/RF/LGB ===")
 
@@ -595,33 +630,43 @@ def main() -> None:
     log.info("Segmenting (%d target segs)...", SLIC_N_SEGMENTS)
     labels = _segment_rasters(bathy, back, vrm_arr)
     n_unique = len(np.unique(labels))
-    mean_px  = labels.size / n_unique
-    seg_params = {"n_unique": n_unique, "mean_px": mean_px, "mean_m2": mean_px * cell_size**2}
+    mean_px = labels.size / n_unique
+    seg_params = {
+        "n_unique": n_unique,
+        "mean_px": mean_px,
+        "mean_m2": mean_px * cell_size**2,
+    }
 
     log.info("Computing segment statistics...")
     seg_stats = _compute_segment_stats(bathy, back, vrm_arr, labels)
 
     # ── Load CSVs ─────────────────────────────────────────────────────────
     train_df = pd.read_csv(TRAIN_CSV)
-    test_df  = pd.read_csv(TEST_CSV)
+    test_df = pd.read_csv(TEST_CSV)
     log.info("Train: %d rows  Test: %d rows", len(train_df), len(test_df))
 
     x_col = next(c for c in train_df.columns if c.lower() in ("x", "easting"))
     y_col = next(c for c in train_df.columns if c.lower() in ("y", "northing"))
-    lbl_col = next(c for c in train_df.columns if c.lower() in ("class", "label", "substrate"))
+    lbl_col = next(
+        c for c in train_df.columns if c.lower() in ("class", "label", "substrate")
+    )
 
     train_xy = train_df[[x_col, y_col]].values.astype(np.float64)
-    test_xy  = test_df[[x_col, y_col]].values.astype(np.float64)
+    test_xy = test_df[[x_col, y_col]].values.astype(np.float64)
 
-    classes      = np.sort(train_df[lbl_col].unique())
+    classes = np.sort(train_df[lbl_col].unique())
     class_to_int = {c: i for i, c in enumerate(classes)}
-    y_train      = train_df[lbl_col].map(class_to_int).values.astype(int)
+    y_train = train_df[lbl_col].map(class_to_int).values.astype(int)
 
     # ── Feature extraction ───────────────────────────────────────────────
     log.info("Extracting features at training points...")
-    train_feat = _extract_features_at_points(pb_dict, labels, seg_stats, train_xy, transform)
+    train_feat = _extract_features_at_points(
+        pb_dict, labels, seg_stats, train_xy, transform
+    )
     log.info("Extracting features at test points...")
-    test_feat  = _extract_features_at_points(pb_dict, labels, seg_stats, test_xy, transform)
+    test_feat = _extract_features_at_points(
+        pb_dict, labels, seg_stats, test_xy, transform
+    )
 
     # Median-impute any remaining NaN (raster edge effects)
     for col in ALL_FEATURE_COLS:
@@ -629,15 +674,17 @@ def main() -> None:
         if not np.isfinite(med):
             med = 0.0
         train_feat[col] = train_feat[col].fillna(med)
-        test_feat[col]  = test_feat[col].fillna(med)
+        test_feat[col] = test_feat[col].fillna(med)
 
     X_train = train_feat[ALL_FEATURE_COLS].values.astype(np.float32)
-    X_test  = test_feat[ALL_FEATURE_COLS].values.astype(np.float32)
+    X_test = test_feat[ALL_FEATURE_COLS].values.astype(np.float32)
     log.info("Feature matrix: train %s  test %s", X_train.shape, X_test.shape)
 
     # Anti-leakage assertion — no spatial coords in features
     for forbidden in ("x_rel", "y_rel", "depth_z", "backscatter_z"):
-        assert forbidden not in ALL_FEATURE_COLS, f"LEAKY FEATURE {forbidden} in ALL_FEATURE_COLS!"
+        assert (
+            forbidden not in ALL_FEATURE_COLS
+        ), f"LEAKY FEATURE {forbidden} in ALL_FEATURE_COLS!"
 
     # ── Spatial CV groups ─────────────────────────────────────────────────
     groups = _spatial_groups(train_xy)
@@ -645,31 +692,35 @@ def main() -> None:
 
     # ── CV: individual models + ensemble ─────────────────────────────────
     log.info("Running PB-only CV (11 features)...")
-    pb_idx     = [ALL_FEATURE_COLS.index(c) for c in PB_FEATURE_COLS]
-    pb_result  = _run_spatial_cv(X_train[:, pb_idx], y_train, groups, classes,
-                                 PB_FEATURE_COLS, "pb_only")
+    pb_idx = [ALL_FEATURE_COLS.index(c) for c in PB_FEATURE_COLS]
+    pb_result = _run_spatial_cv(
+        X_train[:, pb_idx], y_train, groups, classes, PB_FEATURE_COLS, "pb_only"
+    )
 
     log.info("Running OB-only CV (10 features)...")
-    ob_idx     = [ALL_FEATURE_COLS.index(c) for c in OB_FEATURE_COLS]
-    ob_result  = _run_spatial_cv(X_train[:, ob_idx], y_train, groups, classes,
-                                 OB_FEATURE_COLS, "ob_only")
+    ob_idx = [ALL_FEATURE_COLS.index(c) for c in OB_FEATURE_COLS]
+    ob_result = _run_spatial_cv(
+        X_train[:, ob_idx], y_train, groups, classes, OB_FEATURE_COLS, "ob_only"
+    )
 
     log.info("Running combined CV (21 features) — individual models...")
-    comb_result = _run_spatial_cv(X_train, y_train, groups, classes,
-                                  ALL_FEATURE_COLS, "combined_best_single")
+    comb_result = _run_spatial_cv(
+        X_train, y_train, groups, classes, ALL_FEATURE_COLS, "combined_best_single"
+    )
 
     log.info("Running combined CV (21 features) — soft-vote ensemble...")
-    ens_result  = _run_ensemble_cv(X_train, y_train, groups, classes, ALL_FEATURE_COLS)
+    ens_result = _run_ensemble_cv(X_train, y_train, groups, classes, ALL_FEATURE_COLS)
 
     all_results = [pb_result, ob_result, comb_result, ens_result]
     best_result = max(all_results, key=lambda r: r["cv_f1_mean"])
-    best_label  = best_result["label"]
+    best_label = best_result["label"]
     log.info("Best CV config: %s  F1=%.4f", best_label, best_result["cv_f1_mean"])
 
     # ── Final model: train on full dataset, predict test ─────────────────
     import copy
+
     best_feat_cols = best_result["feature_cols"]
-    best_feat_idx  = [ALL_FEATURE_COLS.index(c) for c in best_feat_cols]
+    best_feat_idx = [ALL_FEATURE_COLS.index(c) for c in best_feat_cols]
     X_tr_best = X_train[:, best_feat_idx]
     X_te_best = X_test[:, best_feat_idx]
 
@@ -689,22 +740,32 @@ def main() -> None:
         final_clf.fit(X_tr_best, y_train)
         test_proba = final_clf.predict_proba(X_te_best)
 
-    test_pred_int    = np.argmax(test_proba, axis=1).astype(int)
+    test_pred_int = np.argmax(test_proba, axis=1).astype(int)
     test_pred_labels = classes[test_pred_int]
 
     # ── Submission CSV ────────────────────────────────────────────────────
     id_col = next((c for c in test_df.columns if c.upper() == "ID"), None)
-    submission = pd.DataFrame({
-        "ID":    test_df[id_col].values if id_col else np.arange(1, len(test_pred_labels) + 1),
-        "class": test_pred_labels,
-    })
+    submission = pd.DataFrame(
+        {
+            "ID": (
+                test_df[id_col].values
+                if id_col
+                else np.arange(1, len(test_pred_labels) + 1)
+            ),
+            "class": test_pred_labels,
+        }
+    )
     OUTPUT_SUBMISSION.parent.mkdir(parents=True, exist_ok=True)
     submission.to_csv(OUTPUT_SUBMISSION, index=False)
     log.info("Submission: %s (%d rows)", OUTPUT_SUBMISSION, len(submission))
-    log.info("Predicted class dist:\n%s", submission["class"].value_counts().to_string())
+    log.info(
+        "Predicted class dist:\n%s", submission["class"].value_counts().to_string()
+    )
 
     # ── Report ────────────────────────────────────────────────────────────
-    _write_report(all_results, best_label, seg_params, len(ALL_FEATURE_COLS), OUTPUT_REPORT)
+    _write_report(
+        all_results, best_label, seg_params, len(ALL_FEATURE_COLS), OUTPUT_REPORT
+    )
 
     log.info("=== v8 complete ===")
     for r in all_results:

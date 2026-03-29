@@ -75,15 +75,21 @@ def test_focal_std_shape_and_finite():
         b_std = _focal_std(bathy, size=size)
         bs_std = _focal_std(back, size=size)
 
-        assert b_std.shape == bathy.shape, (
-            f"bathy_std_{size} shape mismatch: expected {bathy.shape}, got {b_std.shape}"
-        )
-        assert bs_std.shape == back.shape, (
-            f"back_std_{size} shape mismatch: expected {back.shape}, got {bs_std.shape}"
-        )
-        assert np.all(np.isfinite(b_std)), f"bathy_std_{size} contains non-finite values"
-        assert np.all(np.isfinite(bs_std)), f"back_std_{size} contains non-finite values"
-        assert np.all(b_std >= 0.0), f"bathy_std_{size} has negative values (min={b_std.min()})"
+        assert (
+            b_std.shape == bathy.shape
+        ), f"bathy_std_{size} shape mismatch: expected {bathy.shape}, got {b_std.shape}"
+        assert (
+            bs_std.shape == back.shape
+        ), f"back_std_{size} shape mismatch: expected {back.shape}, got {bs_std.shape}"
+        assert np.all(
+            np.isfinite(b_std)
+        ), f"bathy_std_{size} contains non-finite values"
+        assert np.all(
+            np.isfinite(bs_std)
+        ), f"back_std_{size} contains non-finite values"
+        assert np.all(
+            b_std >= 0.0
+        ), f"bathy_std_{size} has negative values (min={b_std.min()})"
 
 
 # ---------------------------------------------------------------------------
@@ -109,9 +115,9 @@ def test_focal_std_increases_with_window():
     interior = (slice(10, 40), slice(10, 40))
     mean_3 = float(std_3[interior].mean())
     mean_9 = float(std_9[interior].mean())
-    assert mean_9 >= mean_3 * 0.9, (
-        f"std_9 ({mean_9:.4f}) should be ≥ std_3 ({mean_3:.4f}) on structured terrain"
-    )
+    assert (
+        mean_9 >= mean_3 * 0.9
+    ), f"std_9 ({mean_9:.4f}) should be ≥ std_3 ({mean_3:.4f}) on structured terrain"
 
 
 # ---------------------------------------------------------------------------
@@ -128,9 +134,9 @@ def test_tpi_range():
     # Flat terrain → TPI ≈ 0
     flat = np.full((30, 30), -15.0, dtype=np.float32)
     tpi_flat_9 = _tpi(flat, size=9)
-    assert np.allclose(tpi_flat_9, 0.0, atol=1e-4), (
-        f"TPI should be ~0 on flat terrain; max abs = {np.abs(tpi_flat_9).max()}"
-    )
+    assert np.allclose(
+        tpi_flat_9, 0.0, atol=1e-4
+    ), f"TPI should be ~0 on flat terrain; max abs = {np.abs(tpi_flat_9).max()}"
 
     # Structured terrain → finite TPI
     x, y = np.meshgrid(np.arange(30), np.arange(30))
@@ -138,7 +144,9 @@ def test_tpi_range():
     for size in (9, 25):
         tpi_out = _tpi(ramp, size=size)
         assert tpi_out.shape == ramp.shape, f"TPI size={size} shape mismatch"
-        assert np.all(np.isfinite(tpi_out)), f"TPI size={size} contains non-finite values"
+        assert np.all(
+            np.isfinite(tpi_out)
+        ), f"TPI size={size} contains non-finite values"
 
 
 # ---------------------------------------------------------------------------
@@ -168,8 +176,11 @@ def test_interaction_bathy_x_back():
     actual = bxb[finite_mask]
 
     np.testing.assert_allclose(
-        actual, expected, rtol=1e-4, atol=1e-4,
-        err_msg="bathy_x_back != depth * backscatter (within float32 tolerance)"
+        actual,
+        expected,
+        rtol=1e-4,
+        atol=1e-4,
+        err_msg="bathy_x_back != depth * backscatter (within float32 tolerance)",
     )
 
 
@@ -190,9 +201,9 @@ def test_bathy_roughness_ratio_non_negative():
     features = _compute_all_features(bathy, back, cell_size)
     ratio = features["bathy_roughness_ratio"]
     valid = ratio[np.isfinite(ratio)]
-    assert np.all(valid >= 0.0), (
-        f"bathy_roughness_ratio has negative values; min = {valid.min()}"
-    )
+    assert np.all(
+        valid >= 0.0
+    ), f"bathy_roughness_ratio has negative values; min = {valid.min()}"
 
 
 # ---------------------------------------------------------------------------
@@ -226,12 +237,12 @@ def test_smote_increases_minority():
     sgam_before = int((y == "SGAM").sum())
     sgam_after = int((y_res == "SGAM").sum())
 
-    assert sgam_after >= sgam_before, (
-        f"SMOTE should increase minority class; before={sgam_before}, after={sgam_after}"
-    )
-    assert len(X_res) > len(X), (
-        f"Resampled dataset must be larger; before={len(X)}, after={len(X_res)}"
-    )
+    assert (
+        sgam_after >= sgam_before
+    ), f"SMOTE should increase minority class; before={sgam_before}, after={sgam_after}"
+    assert len(X_res) > len(
+        X
+    ), f"Resampled dataset must be larger; before={len(X)}, after={len(X_res)}"
 
 
 # ---------------------------------------------------------------------------
@@ -289,10 +300,12 @@ def test_spatial_context_range():
     # Build synthetic combined DataFrame
     n = 20
     rng2 = np.random.default_rng(7)
-    feat_df = pd.DataFrame({
-        "depth": rng2.uniform(-40.0, -5.0, n),
-        "backscatter": rng2.uniform(-30.0, -10.0, n),
-    })
+    feat_df = pd.DataFrame(
+        {
+            "depth": rng2.uniform(-40.0, -5.0, n),
+            "backscatter": rng2.uniform(-30.0, -10.0, n),
+        }
+    )
     xy = rng2.uniform(0.0, 1000.0, (n, 2))
     all_xy = xy  # same for this test
 
@@ -311,11 +324,13 @@ def test_spatial_context_range():
 
     x_rel = df["x_rel"].values
     y_rel = df["y_rel"].values
-    assert np.all(x_rel >= -0.001) and np.all(x_rel <= 1.001), (
-        f"x_rel out of [0,1]: min={x_rel.min():.4f} max={x_rel.max():.4f}"
-    )
-    assert np.all(y_rel >= -0.001) and np.all(y_rel <= 1.001), (
-        f"y_rel out of [0,1]: min={y_rel.min():.4f} max={y_rel.max():.4f}"
-    )
+    assert np.all(x_rel >= -0.001) and np.all(
+        x_rel <= 1.001
+    ), f"x_rel out of [0,1]: min={x_rel.min():.4f} max={x_rel.max():.4f}"
+    assert np.all(y_rel >= -0.001) and np.all(
+        y_rel <= 1.001
+    ), f"y_rel out of [0,1]: min={y_rel.min():.4f} max={y_rel.max():.4f}"
     assert np.all(np.isfinite(df["depth_z"].values)), "depth_z has non-finite values"
-    assert np.all(np.isfinite(df["backscatter_z"].values)), "backscatter_z has non-finite values"
+    assert np.all(
+        np.isfinite(df["backscatter_z"].values)
+    ), "backscatter_z has non-finite values"
