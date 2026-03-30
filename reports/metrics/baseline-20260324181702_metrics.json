@@ -1,0 +1,25 @@
+{
+  "run_id": "baseline-20260324181702",
+  "run_type": "baseline",
+  "fold_scheme": "spatial_blocked",
+  "weighted_f1": 0.8026268280964464,
+  "per_class_f1": {
+    "ALG": 0.49149716508343344,
+    "FMAT": 0.7672312399920871,
+    "NVB": 0.8607756946403127,
+    "SGAM": 0.0,
+    "SGZ": 0.5581184944182406
+  },
+  "comparison": {
+    "baseline_run_id": "baseline-20260324181702",
+    "baseline_weighted_f1": 0.8026268280964464,
+    "delta_weighted_f1": 0.0,
+    "baseline_per_class_f1": {
+      "ALG": 0.49149716508343344,
+      "FMAT": 0.7672312399920871,
+      "NVB": 0.8607756946403127,
+      "SGAM": 0.0,
+      "SGZ": 0.5581184944182406
+    }
+  }
+}
