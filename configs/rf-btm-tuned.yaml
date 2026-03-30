@@ -1,0 +1,20 @@
+# R18 — RF + BTM + tuned hyperparameters
+# Tests whether non-default RF hyperparameters improve CV F1 on the BTM winner
+# feature set (R04 baseline: n_estimators=300, min_samples_leaf=2, CV=0.8024).
+seed: 42
+model_type: rf
+cv:
+  n_splits: 5
+  fold_scheme: spatial_blocked
+  random_state: 42
+  spatial_bins: 4
+model_params:
+  n_estimators: 500
+  max_features: sqrt
+  min_samples_leaf: 1
+feature_flags:
+  include_focal_stats: true
+  include_interactions: false
+  include_spatial_z_scores: true
+  include_btm_features: true
+  include_eco_features: false

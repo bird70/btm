@@ -1,0 +1,19 @@
+# R15 — RF + BTM + eco depth zones + SGAM niche indicator
+# Adds training-time eco features (btm_depth_zone ordinal 1-4, btm_sgam_niche binary)
+# derived from the training set depth distribution and SGAM habitat niche.
+# Use with train_btm_eco.csv so that raster derivatives are available for
+# the EcoFeatureTransformer. The depth zone and SGAM niche are the core
+# hypothesis: depositional seagrass occupies shallow + flat + fine-sediment niche.
+seed: 42
+model_type: rf
+cv:
+  n_splits: 5
+  fold_scheme: spatial_blocked
+  random_state: 42
+  spatial_bins: 4
+feature_flags:
+  include_focal_stats: true
+  include_interactions: false
+  include_spatial_z_scores: true
+  include_btm_features: true
+  include_eco_features: true

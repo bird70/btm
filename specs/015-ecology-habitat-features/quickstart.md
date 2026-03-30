@@ -144,12 +144,12 @@ Target: at least one eco-feature run with SGAM F1 > 0.043 (current best across a
 
 ## Eco-Feature Flag Reference
 
-| Config | `include_btm_features` | `include_eco_features` | `include_interactions` | `model_params` |
-|---|---|---|---|---|
-| `rf-btm-eco-depth.yaml` | true | true | false | — |
-| `rf-btm-eco-full.yaml` | true | true | false | — |
-| `rf-btm-interactions.yaml` | true | false | true | — |
-| `rf-btm-tuned.yaml` | true | false | false | n_estimators=500, max_features=sqrt |
+| Config                     | `include_btm_features` | `include_eco_features` | `include_interactions` | `model_params`                      |
+| -------------------------- | ---------------------- | ---------------------- | ---------------------- | ----------------------------------- |
+| `rf-btm-eco-depth.yaml`    | true                   | true                   | false                  | —                                   |
+| `rf-btm-eco-full.yaml`     | true                   | true                   | false                  | —                                   |
+| `rf-btm-interactions.yaml` | true                   | false                  | true                   | —                                   |
+| `rf-btm-tuned.yaml`        | true                   | false                  | false                  | n_estimators=500, max_features=sqrt |
 
 ---
 

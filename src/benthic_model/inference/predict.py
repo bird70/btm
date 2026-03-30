@@ -29,6 +29,15 @@ def predict_with_run(
     model = joblib.load(model_path)
     feature_cols = json.loads(feature_cols_path.read_text(encoding="utf-8"))
 
+    # T028: Load eco_thresholds.json if present in the run artifact directory.
+    eco_transformer = None
+    eco_thresholds_path = model_path.parent / "eco_thresholds.json"
+    if eco_thresholds_path.exists():
+        from benthic_model.features.eco_features import EcoFeatureTransformer
+
+        eco_thresholds = json.loads(eco_thresholds_path.read_text(encoding="utf-8"))
+        eco_transformer = EcoFeatureTransformer.from_dict(eco_thresholds)
+
     test_frame = pd.read_csv(test_csv)
     validate_coordinates(test_frame, x_col="x", y_col="y")
 
@@ -41,6 +50,10 @@ def predict_with_run(
         test_frame[cols_to_pass], bathymetry_tif, backscatter_tif
     )
     engineered = engineer_features(sampled)
+
+    # Apply eco-feature transform if this run used eco features (T028).
+    if eco_transformer is not None:
+        engineered = eco_transformer.transform(engineered)
 
     for col in feature_cols:
         if col not in engineered.columns:

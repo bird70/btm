@@ -1,0 +1,18 @@
+# R16 — RF + BTM + all eco derivatives (full eco feature set)
+# Extends R15 by also including the four raster-derived spatial derivatives
+# (btm_northness, btm_eastness, btm_max_curvature, btm_complexity) that must
+# be pre-computed via: btm-export-features --include-eco-features
+# Run with train_btm_eco.csv (contains all four raster derivatives).
+seed: 42
+model_type: rf
+cv:
+  n_splits: 5
+  fold_scheme: spatial_blocked
+  random_state: 42
+  spatial_bins: 4
+feature_flags:
+  include_focal_stats: true
+  include_interactions: false
+  include_spatial_z_scores: true
+  include_btm_features: true
+  include_eco_features: true

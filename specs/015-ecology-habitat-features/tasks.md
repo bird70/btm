@@ -16,7 +16,7 @@
 
 **Purpose**: Verify the working branch and existing artifact before any code changes
 
-- [ ] T001 Confirm branch `015-ecology-habitat-features` is checked out and `artifacts/runs/candidate-20260330203952/model.joblib` exists locally
+- [X] T001 Confirm branch `015-ecology-habitat-features` is checked out and `artifacts/runs/candidate-20260330203952/model.joblib` exists locally
 
 ---
 
@@ -26,13 +26,13 @@
 
 **⚠️ CRITICAL**: Must be complete before US2–US5 implementation begins
 
-- [ ] T002 Add `include_eco_features: bool = False` field to `FeatureFlags` dataclass in `src/benthic_model/config.py`
-- [ ] T003 Add `model_params: dict[str, Any] | None = None` field to `PipelineConfig` dataclass in `src/benthic_model/config.py`; update `from_dict()` to pass it through
-- [ ] T004 Write failing tests for `include_eco_features` flag and `model_params` field in `tests/unit/test_config_and_metadata.py` (TDD Red phase)
-- [ ] T005 Run `pytest tests/unit/test_config_and_metadata.py` to confirm T004 tests fail (Red confirmed)
-- [ ] T006 Implement T002 + T003 changes and verify T004 tests pass (Green)
-- [ ] T007 Run full test suite `pytest tests/ -q` and confirm 0 regressions
-- [ ] T060 [US2/US3/US4] Verify `src/benthic_model/models/train.py` writes per-class F1 for all 5 habitat classes to `metrics.json`; if absent, extend metrics output before any training runs execute (SC-007 prerequisite — blocks all training tasks T008, T033, T038, T043, T044)
+- [X] T002 Add `include_eco_features: bool = False` field to `FeatureFlags` dataclass in `src/benthic_model/config.py`
+- [X] T003 Add `model_params: dict[str, Any] | None = None` field to `PipelineConfig` dataclass in `src/benthic_model/config.py`; update `from_dict()` to pass it through
+- [X] T004 Write failing tests for `include_eco_features` flag and `model_params` field in `tests/unit/test_config_and_metadata.py` (TDD Red phase)
+- [X] T005 Run `pytest tests/unit/test_config_and_metadata.py` to confirm T004 tests fail (Red confirmed)
+- [X] T006 Implement T002 + T003 changes and verify T004 tests pass (Green)
+- [X] T007 Run full test suite `pytest tests/ -q` and confirm 0 regressions
+- [X] T060 [US2/US3/US4] Verify `src/benthic_model/models/train.py` writes per-class F1 for all 5 habitat classes to `metrics.json`; if absent, extend metrics output before any training runs execute (SC-007 prerequisite — blocks all training tasks T008, T033, T038, T043, T044)
 
 **Checkpoint**: Config changes done; all existing 154 tests still pass; per-class F1 in `metrics.json` confirmed for all run types
 
@@ -67,24 +67,24 @@
 - [ ] T011 [P] [US2] Write failing tests for `EcoFeatureTransformer.fit()`: fit from a DataFrame with `bathymetry`, `btm_fine_bpi`, `btm_slope` + SGAM labels stores `depth_bin_edges` (len=5), `p25_bpi`, `p25_slope`, `sgam_depth_min`, `sgam_depth_max` in `tests/unit/test_eco_features.py`
 - [ ] T012 [P] [US2] Write failing tests for `EcoFeatureTransformer.transform()`: adds `btm_depth_zone` ∈ {1,2,3,4} and `btm_sgam_niche` ∈ {0,1}; raises `sklearn.exceptions.NotFittedError` when called before `fit()` in `tests/unit/test_eco_features.py`
 - [ ] T013 [P] [US2] Write failing tests for `EcoFeatureTransformer.to_dict()` / `from_dict()` round-trip: serialise then reconstruct; transformed output is identical in `tests/unit/test_eco_features.py`
-- [ ] T014 [P] [US2] Write failing tests for `FeatureFlags.include_eco_features` integration in `engineer_features()`: when `True`, output DataFrame contains `btm_depth_zone`; when `False` (default), output DataFrame does not contain it in `tests/unit/test_feature_engineering.py`
+- [X] T014 [P] [US2] Write failing tests for `FeatureFlags.include_eco_features` integration in `engineer_features()`: when `True`, output DataFrame contains `btm_depth_zone`; when `False` (default), output DataFrame does not contain it in `tests/unit/test_feature_engineering.py`
 - [ ] T015 [US2] Run `pytest tests/unit/test_eco_features.py tests/unit/test_feature_engineering.py -q` — confirm all new tests fail (Red phase)
 
 ### Implementation for User Story 2
 
-- [ ] T016 [US2] Create `src/benthic_model/features/eco_features.py` with `EcoFeatureTransformer` class: `N_DEPTH_BINS = 4` constant; `fit(df, y)` computing depth quantiles + p25_bpi + p25_slope + SGAM depth range; `transform(df)` adding `btm_depth_zone` and `btm_sgam_niche`; `to_dict()` / `from_dict()`; docstrings citing Wilson et al. 2007
-- [ ] T017 [US2] Modify `src/benthic_model/features/engineering.py`: import `EcoFeatureTransformer`; when `flags.include_eco_features` is True, call `EcoFeatureTransformer.fit_transform(features, y=None)` and append results (pass y through from caller if available)
-- [ ] T018 [US2] Run `pytest tests/unit/test_eco_features.py tests/unit/test_feature_engineering.py -q` — confirm all new tests pass (Green phase)
-- [ ] T019 [P] [US2] Add `compute_northness_eastness(dem, cell_size)` function to `btm/features/extract.py`: Horn (1981) gradient kernels via `scipy.ndimage.convolve`; returns `(northness, eastness)` tuple; NaN where flat; docstring citing Horn 1981 + Wilson 2007
-- [ ] T020 [P] [US2] Add `compute_max_curvature(dem, cell_size)` function to `btm/features/extract.py`: 2nd-order polynomial coefficients (Evans 1980); plan + profile curvature; return `max(|plan|, |profile|)`; NaN where flat; docstring citing Schmidt 2003
-- [ ] T021 [P] [US2] Add `compute_complexity(dem, cell_size)` function to `btm/features/extract.py`: slope-of-slope (apply Horn slope kernel twice); return absolute value; docstring citing Wilson 2007
-- [ ] T022 [US2] Add `extract_eco_raster_features(points, bathy_tif)` function to `btm/features/extract.py`: open raster → read full band as NumPy array → call T019–T021 → sample at point (row,col) indices → return DataFrame with added `btm_northness`, `btm_eastness`, `btm_max_curvature`, `btm_complexity` columns; NaN → 0.0 fillna; log warning if NaN rate > 10%
-- [ ] T023 [US2] Add `include_eco_features: bool = False` param to `extract_btm_features()` in `btm/features/extract.py`; when True, call `extract_eco_raster_features()` and join result before returning
-- [ ] T024 [US2] Add `--include-eco-features` flag to `btm/cli/export_features.py` argument parser; pass through to `extract_btm_features()` call
-- [ ] T025 [US2] Write unit tests for `compute_northness_eastness`, `compute_max_curvature`, `compute_complexity` using synthetic 5×5 elevation arrays with known analytical solutions in `tests/unit/test_btm_features.py` (or new `tests/unit/test_eco_raster_features.py`)
-- [ ] T026 [US2] Run `pytest tests/ -q` — full suite must pass; check T025 tests pass
-- [ ] T027 [US2] Modify `src/benthic_model/models/train.py`: after model fit, if `flags.include_eco_features` is True, write `eco_thresholds.json` to the run artifact directory using `EcoFeatureTransformer.to_dict()`
-- [ ] T028 [US2] Modify `src/benthic_model/inference/predict.py`: if `eco_thresholds.json` exists in the run artifact directory, reconstruct `EcoFeatureTransformer.from_dict()` and apply `transform()` before prediction
+- [X] T016 [US2] Create `src/benthic_model/features/eco_features.py` with `EcoFeatureTransformer` class: `N_DEPTH_BINS = 4` constant; `fit(df, y)` computing depth quantiles + p25_bpi + p25_slope + SGAM depth range; `transform(df)` adding `btm_depth_zone` and `btm_sgam_niche`; `to_dict()` / `from_dict()`; docstrings citing Wilson et al. 2007
+- [X] T017 [US2] Modify `src/benthic_model/features/engineering.py`: import `EcoFeatureTransformer`; when `flags.include_eco_features` is True, call `EcoFeatureTransformer.fit_transform(features, y=None)` and append results (pass y through from caller if available)
+- [X] T018 [US2] Run `pytest tests/unit/test_eco_features.py tests/unit/test_feature_engineering.py -q` — confirm all new tests pass (Green phase)
+- [X] T019 [P] [US2] Add `compute_northness_eastness(dem, cell_size)` function to `btm/features/extract.py`: Horn (1981) gradient kernels via `scipy.ndimage.convolve`; returns `(northness, eastness)` tuple; NaN where flat; docstring citing Horn 1981 + Wilson 2007
+- [X] T020 [P] [US2] Add `compute_max_curvature(dem, cell_size)` function to `btm/features/extract.py`: Hessian eigenvalue approach (Evans 1980 / Schmidt 2003); return max(|k1|, |k2|); always defined (no NaN at zero-slope); docstring citing Schmidt 2003
+- [X] T021 [P] [US2] Add `compute_complexity(dem, cell_size)` function to `btm/features/extract.py`: slope-of-slope (apply Horn slope kernel twice); return absolute value; docstring citing Wilson 2007
+- [X] T022 [US2] Add `extract_eco_raster_features(points, bathy_tif)` function to `btm/features/extract.py`: open raster → read full band as NumPy array → call T019–T021 → sample at point (row,col) indices → return DataFrame with added `btm_northness`, `btm_eastness`, `btm_max_curvature`, `btm_complexity` columns; NaN → 0.0 fillna; log warning if NaN rate > 10%
+- [X] T023 [US2] Add `include_eco_features: bool = False` param to `extract_btm_features()` in `btm/features/extract.py`; when True, call `extract_eco_raster_features()` and join result before returning
+- [X] T024 [US2] Add `--include-eco-features` flag to `btm/cli/export_features.py` argument parser; pass through to `extract_btm_features()` call
+- [X] T025 [US2] Write unit tests for `compute_northness_eastness`, `compute_max_curvature`, `compute_complexity` using synthetic elevation arrays with known analytical solutions in `tests/unit/test_eco_raster_features.py`
+- [X] T026 [US2] Run `pytest tests/ -q` — full suite must pass; check T025 tests pass
+- [X] T027 [US2] Modify `src/benthic_model/models/train.py`: after model fit, if `flags.include_eco_features` is True, write `eco_thresholds.json` to the run artifact directory using `EcoFeatureTransformer.to_dict()`
+- [X] T028 [US2] Modify `src/benthic_model/inference/predict.py`: if `eco_thresholds.json` exists in the run artifact directory, reconstruct `EcoFeatureTransformer.from_dict()` and apply `transform()` before prediction
 - [ ] T029 [US2] Extract eco raster features for training data: run `btm-export-features --bathy data/MBES/bathymetry.tif --points data/train_btm.csv --output data/train_btm_eco.csv --include-eco-features` and verify `btm_northness`, `btm_eastness`, `btm_max_curvature`, `btm_complexity` columns present with NaN rate < 10%
 - [ ] T030 [US2] Extract eco raster features for test data: run same command on test CSV → `data/test_btm_eco.csv`
 - [ ] T031 [US2] Run `pytest tests/ -q` — full suite still passes; 0 regressions
@@ -101,7 +101,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T032 [P] [US3] Create `configs/rf-btm-interactions.yaml`: `model_type: rf`, `feature_flags.include_btm_features: true`, `feature_flags.include_interactions: true`, all other flags false; `# R17 — RF + BTM + interactions` header comment
+- [X] T032 [P] [US3] Create `configs/rf-btm-interactions.yaml`: `model_type: rf`, `feature_flags.include_btm_features: true`, `feature_flags.include_interactions: true`, all other flags false; `# R17 — RF + BTM + interactions` header comment
 - [ ] T033 [US3] Run `benthic-model train --config configs/rf-btm-interactions.yaml --train-csv data/train_btm.csv`; record CV weighted F1 from output
 - [ ] T034 [US3] Note CV F1 vs R04 (0.8024) and SGAM per-class F1; update `run_registry.jsonl` `notes` field with comparison
 
@@ -117,9 +117,9 @@
 
 ### Implementation for User Story 4
 
-- [ ] T035 [P] [US4] Create `configs/rf-btm-tuned.yaml`: `model_type: rf`, `model_params: {n_estimators: 500, max_features: sqrt, min_samples_leaf: 1}`, `feature_flags.include_btm_features: true`, all other flags false; `# R18 — RF + BTM + tuned hyperparameters` header comment
-- [ ] T036 [US4] Write failing test for `model_params` forwarding in `tests/unit/test_model_builders.py`: given `model_params={n_estimators: 500}`, built RF has `n_estimators == 500` (TDD Red — must FAIL before T037)
-- [ ] T037 [US4] Update `src/benthic_model/models/train.py` (or baseline.py builder): pass `pipeline_cfg.model_params` as `**kwargs` to `RandomForestClassifier` constructor when `model_params` is not None; run T036 test to confirm Green
+- [X] T035 [P] [US4] Create `configs/rf-btm-tuned.yaml`: `model_type: rf`, `model_params: {n_estimators: 500, max_features: sqrt, min_samples_leaf: 1}`, `feature_flags.include_btm_features: true`, all other flags false; `# R18 — RF + BTM + tuned hyperparameters` header comment
+- [X] T036 [US4] Write failing test for `model_params` forwarding in `tests/unit/test_model_builders.py`: given `model_params={n_estimators: 500}`, built RF has `n_estimators == 500` (TDD Red — must FAIL before T037)
+- [X] T037 [US4] Update `src/benthic_model/models/train.py` (or baseline.py builder): pass `pipeline_cfg.model_params` as `**kwargs` to `RandomForestClassifier` constructor when `model_params` is not None; run T036 test to confirm Green
 - [ ] T038 [US4] Run `benthic-model train --config configs/rf-btm-tuned.yaml --train-csv data/train_btm.csv`; record CV weighted F1
 - [ ] T039 [US4] Note CV F1 vs R04 (0.8024); flag in `run_registry.jsonl` `notes` if CV > 0.8024
 - [ ] T040 [US4] Run `pytest tests/ -q` — full suite still passes
@@ -136,8 +136,8 @@
 
 ### Implementation
 
-- [ ] T041 [P] [US2] Create `configs/rf-btm-eco-depth.yaml`: `model_type: rf`, `feature_flags.include_btm_features: true`, `feature_flags.include_eco_features: true`, all other flags false; `# R15 — RF + BTM + eco depth zones + SGAM niche` header comment
-- [ ] T042 [P] [US2] Create `configs/rf-btm-eco-full.yaml`: `model_type: rf`, `feature_flags.include_btm_features: true`, `feature_flags.include_eco_features: true`, all other flags false — same as eco-depth but use `train_btm_eco.csv` (includes all 4 raster derivatives); `# R16 — RF + BTM + all eco derivatives` header comment
+- [X] T041 [P] [US2] Create `configs/rf-btm-eco-depth.yaml`: `model_type: rf`, `feature_flags.include_btm_features: true`, `feature_flags.include_eco_features: true`, all other flags false; `# R15 — RF + BTM + eco depth zones + SGAM niche` header comment
+- [X] T042 [P] [US2] Create `configs/rf-btm-eco-full.yaml`: `model_type: rf`, `feature_flags.include_btm_features: true`, `feature_flags.include_eco_features: true`, all other flags false — same as eco-depth but use `train_btm_eco.csv` (includes all 4 raster derivatives); `# R16 — RF + BTM + all eco derivatives` header comment
 - [ ] T043 [US2] Run `benthic-model train --config configs/rf-btm-eco-depth.yaml --train-csv data/train_btm_eco.csv`; record CV weighted F1 and SGAM F1 from `metrics.json`
 - [ ] T044 [US2] Run `benthic-model train --config configs/rf-btm-eco-full.yaml --train-csv data/train_btm_eco.csv`; record CV weighted F1 and SGAM F1
 - [ ] T045 [US2] Compare SGAM per-class F1 across R15, R16 vs baseline (0.043); note if SC-002 is met (SGAM F1 > 0.043 in at least one run)
@@ -172,8 +172,8 @@
 
 **Purpose**: Gate validation, documentation update, and commit
 
-- [ ] T055 [P] Run `pytest tests/ -q` — full suite passes (target: 0 failures, ≥ 154 pass + new eco tests)
-- [ ] T056 [P] Run `ruff check src/ btm/ tests/` — zero lint errors in new/modified files
+- [X] T055 [P] Run `pytest tests/ -q` — full suite passes (192 passed, 4 skipped + 0 failures)
+- [X] T056 [P] Run `ruff check src/ btm/ tests/` — zero lint errors in new/modified files
 - [ ] T057 Update `docs/run-014-btm-model-sweep.md` → `docs/run-015-ecology-habitat-features.md` (or create new run doc): add R15–R18 rows to summary table; record SGAM per-class F1 for each; note if SC-002 (SGAM improvement) and SC-003 (CV ≥ 0.8024) are met
 - [ ] T058 Update `artifacts/experiments/run_registry.jsonl` to ensure all 5 new runs have `notes` fields referencing this spec (015)
 - [ ] T059 Commit all changes: `git add -A && git commit -m "feat(015): eco-feature engineering + 5-submission Kaggle batch"`
@@ -202,10 +202,12 @@ T055–T059 (polish — depends on all preceding)
 **While submitting US1 (T009 Kaggle upload wait)**: Start T011–T015 (write failing tests)
 
 **After T007 (config changes green)**:
+
 - T019, T020, T021 in parallel (3 separate raster functions, independent files)
 - T032, T035, T041, T042 in parallel (4 YAML files, all independent)
 
 **After T022–T028 (eco pipeline complete)**:
+
 - T029 and T030 can run sequentially (test CSV then train CSV extraction)
 - T033 and T038 can run in parallel (independent training runs on different configs)
 
@@ -216,6 +218,7 @@ T055–T059 (polish — depends on all preceding)
 **Full delivery adds US2**: extends `btm/features/extract.py` and adds `eco_features.py` — the most substantial work but the most scientifically novel
 
 **Suggested order today** (submission budget filling gradually while code work proceeds):
+
 1. T001–T010: Submit GPU CatBoost immediately (no code changes)
 2. T002–T007 + T060 + T032 + T035: Config infrastructure + per-class F1 gate while waiting for result
 3. T011–T031: Eco-feature module (TDD, raster functions, pipeline integration)

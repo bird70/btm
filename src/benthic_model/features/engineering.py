@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 def engineer_features(
     raw_features: pd.DataFrame,
     flags: "FeatureFlags | None" = None,
+    y: "pd.Series | None" = None,
 ) -> pd.DataFrame:
     features = raw_features.copy()
 
@@ -48,6 +49,15 @@ def engineer_features(
     include_spatial_z = flags is None or flags.include_spatial_z_scores
     if include_spatial_z:
         features = add_spatial_context_features(features)
+
+    include_eco = flags is not None and flags.include_eco_features
+    if include_eco:
+        from benthic_model.features.eco_features import EcoFeatureTransformer
+
+        eco = EcoFeatureTransformer()
+        eco_out = eco.fit_transform(features, y=y)
+        features["btm_depth_zone"] = eco_out["btm_depth_zone"]
+        features["btm_sgam_niche"] = eco_out["btm_sgam_niche"]
 
     features = features.replace([np.inf, -np.inf], np.nan).fillna(0.0)
     return features

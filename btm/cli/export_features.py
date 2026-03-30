@@ -134,6 +134,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="Skip derived interaction features (bpi_magnitude, etc.).",
     )
     p.add_argument(
+        "--include-eco-features",
+        action="store_true",
+        help=(
+            "Compute and append northness, eastness, max curvature, and "
+            "complexity eco-derivatives to the output CSV."
+        ),
+    )
+    p.add_argument(
         "--prefix",
         default="btm_",
         metavar="STR",
@@ -260,6 +268,7 @@ def main(argv: list[str] | None = None) -> int:  # noqa: PLR0911
             include_rule_class=args.include_rule_class,
             classification_file=args.classdict,
             include_interactions=not args.no_interactions,
+            include_eco_features=args.include_eco_features,
             btm_prefix=args.prefix,
             outdir=args.outdir,
         )

@@ -75,16 +75,16 @@ All additions follow existing module patterns without introducing new abstractio
 
 See [research.md](research.md) for full findings. Summary:
 
-| Question | Decision | Rationale |
-|---|---|---|
-| Northness/eastness formula | `northness = sin(atan2(dy, dx))`, `eastness = cos(atan2(dy, dx))` using Horn (1981) gradients | Consistent with paper Table 1 "Sinus/Cosinus of azimuthal direction"; Horn method standard in ArcGIS Spatial Analyst |
-| Max curvature computation | `max(|plan_curvature|, |profile_curvature|)` from 2nd-order polynomial fit | Schmidt et al. 2003 definition; maximum of the two principal curvatures |
-| Complexity computation | Second derivative of slope (apply slope kernel twice, or finite-diff the slope surface) | Wilson et al. 2007; Laplacian of slope |
-| Raster derivatives platform | `scipy.ndimage.convolve` with Sobel/Laplacian kernels on NumPy arrays | No arcpy dependency; reproducible on any machine with rasterio + scipy |
-| Depth zone boundaries | 4 bins at training-set quantiles (p25, p50, p75 of `bathymetry` column) computed at fit time | Equal-frequency ensures populated bins even with skewed depth distribution |
-| SGAM niche indicator threshold | p25 of `btm_fine_bpi` AND p25 of `btm_slope` in training set + depth within observed SGAM depth min/max | Data-driven; thresholds stored in run artifact for reproducibility |
-| RF hyperparameter config | Add `model_params: dict` to `PipelineConfig`; passed to RF constructor via `**kwargs` | Minimal change; avoids proliferating specialized model builder subclasses |
-| Code location for raster derivatives | Extend `btm/features/extract.py`; add `include_eco_features` param to `extract_btm_features()` | Consistent with all other raster-level BTM derivative code |
+| Question                             | Decision                                                                                                | Rationale                                                                                                            |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | --- | ----------------- | -------------------------------- | ----------------------------------------------------------------------- |
+| Northness/eastness formula           | `northness = sin(atan2(dy, dx))`, `eastness = cos(atan2(dy, dx))` using Horn (1981) gradients           | Consistent with paper Table 1 "Sinus/Cosinus of azimuthal direction"; Horn method standard in ArcGIS Spatial Analyst |
+| Max curvature computation            | `max(                                                                                                   | plan_curvature                                                                                                       | ,   | profile_curvature | )` from 2nd-order polynomial fit | Schmidt et al. 2003 definition; maximum of the two principal curvatures |
+| Complexity computation               | Second derivative of slope (apply slope kernel twice, or finite-diff the slope surface)                 | Wilson et al. 2007; Laplacian of slope                                                                               |
+| Raster derivatives platform          | `scipy.ndimage.convolve` with Sobel/Laplacian kernels on NumPy arrays                                   | No arcpy dependency; reproducible on any machine with rasterio + scipy                                               |
+| Depth zone boundaries                | 4 bins at training-set quantiles (p25, p50, p75 of `bathymetry` column) computed at fit time            | Equal-frequency ensures populated bins even with skewed depth distribution                                           |
+| SGAM niche indicator threshold       | p25 of `btm_fine_bpi` AND p25 of `btm_slope` in training set + depth within observed SGAM depth min/max | Data-driven; thresholds stored in run artifact for reproducibility                                                   |
+| RF hyperparameter config             | Add `model_params: dict` to `PipelineConfig`; passed to RF constructor via `**kwargs`                   | Minimal change; avoids proliferating specialized model builder subclasses                                            |
+| Code location for raster derivatives | Extend `btm/features/extract.py`; add `include_eco_features` param to `extract_btm_features()`          | Consistent with all other raster-level BTM derivative code                                                           |
 
 ---
 
@@ -128,14 +128,14 @@ See [contracts/eco-feature-schema.md](contracts/eco-feature-schema.md).
 
 **New columns added by this feature** (all numeric, NaN-filled to 0.0 on transform):
 
-| Column | Type | Range | Source |
-|---|---|---|---|
-| `btm_northness` | float64 | [−1, 1] | Raster extraction (Horn gradient → atan2) |
-| `btm_eastness` | float64 | [−1, 1] | Raster extraction (Horn gradient → atan2) |
-| `btm_max_curvature` | float64 | unbounded | Raster extraction (2nd-order polynomial) |
-| `btm_complexity` | float64 | ≥ 0 | Raster extraction (slope of slope) |
-| `btm_depth_zone` | int64 | {1, 2, 3, 4} | Training-time fit (quantile bins of bathymetry) |
-| `btm_sgam_niche` | int64 | {0, 1} | Training-time fit (p25 BPI + slope + SGAM depth range) |
+| Column              | Type    | Range        | Source                                                 |
+| ------------------- | ------- | ------------ | ------------------------------------------------------ |
+| `btm_northness`     | float64 | [−1, 1]      | Raster extraction (Horn gradient → atan2)              |
+| `btm_eastness`      | float64 | [−1, 1]      | Raster extraction (Horn gradient → atan2)              |
+| `btm_max_curvature` | float64 | unbounded    | Raster extraction (2nd-order polynomial)               |
+| `btm_complexity`    | float64 | ≥ 0          | Raster extraction (slope of slope)                     |
+| `btm_depth_zone`    | int64   | {1, 2, 3, 4} | Training-time fit (quantile bins of bathymetry)        |
+| `btm_sgam_niche`    | int64   | {0, 1}       | Training-time fit (p25 BPI + slope + SGAM depth range) |
 
 ### RF Hyperparameter Config
 
@@ -164,22 +164,22 @@ Run after Phase 1 artifacts are written:
 
 ## Experiment Plan (Today's Kaggle Batch)
 
-| Priority | Run | Config | Feature Set | Notes |
-|---|---|---|---|---|
-| 1 | GPU CatBoost (existing) | `candidate.yaml` + GPU | BTM winner flags | Artifact already exists — predict only |
-| 2 | RF + BTM + eco-depth | `rf-btm-eco-depth.yaml` | BTM + depth_zone + sgam_niche | Test depth signal first |
-| 3 | RF + BTM + all eco | `rf-btm-eco-full.yaml` | BTM + all 6 eco columns | Full eco-feature set |
-| 4 | RF + BTM + interactions | `rf-btm-interactions.yaml` | BTM + pairwise interactions | Revisit interactions with BTM |
-| 5 | RF + BTM tuned | `rf-btm-tuned.yaml` | BTM + tuned n_estimators/max_features | Hyperparameter sweep |
+| Priority | Run                     | Config                     | Feature Set                           | Notes                                  |
+| -------- | ----------------------- | -------------------------- | ------------------------------------- | -------------------------------------- |
+| 1        | GPU CatBoost (existing) | `candidate.yaml` + GPU     | BTM winner flags                      | Artifact already exists — predict only |
+| 2        | RF + BTM + eco-depth    | `rf-btm-eco-depth.yaml`    | BTM + depth_zone + sgam_niche         | Test depth signal first                |
+| 3        | RF + BTM + all eco      | `rf-btm-eco-full.yaml`     | BTM + all 6 eco columns               | Full eco-feature set                   |
+| 4        | RF + BTM + interactions | `rf-btm-interactions.yaml` | BTM + pairwise interactions           | Revisit interactions with BTM          |
+| 5        | RF + BTM tuned          | `rf-btm-tuned.yaml`        | BTM + tuned n_estimators/max_features | Hyperparameter sweep                   |
 
 ---
 
 ## Gate Results
 
-| Gate | Condition | Status |
-|---|---|---|
-| Constitution I (TDD) | Tests written before implementation | ✓ PLANNED — see tasks.md |
-| Constitution III (Performance) | SciPy vectorised ops, no pixel loops | ✓ PLANNED |
-| Constitution IV (Scientific accuracy) | All algorithms traced to peer-reviewed source | ✓ — see research.md |
-| SC-005 | Eco-feature NaN rate ≤ 10% | Verify after extraction |
-| SC-006 | Reproducibility — same output given same inputs | ✓ PLANNED — threshold storage in artifact |
+| Gate                                  | Condition                                       | Status                                    |
+| ------------------------------------- | ----------------------------------------------- | ----------------------------------------- |
+| Constitution I (TDD)                  | Tests written before implementation             | ✓ PLANNED — see tasks.md                  |
+| Constitution III (Performance)        | SciPy vectorised ops, no pixel loops            | ✓ PLANNED                                 |
+| Constitution IV (Scientific accuracy) | All algorithms traced to peer-reviewed source   | ✓ — see research.md                       |
+| SC-005                                | Eco-feature NaN rate ≤ 10%                      | Verify after extraction                   |
+| SC-006                                | Reproducibility — same output given same inputs | ✓ PLANNED — threshold storage in artifact |
