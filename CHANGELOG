@@ -1,52 +1,138 @@
-4.0-dev (branch 009-obia-pixel-hybrid):
- - New experiment_v6.py: OBIA + pixel-based hybrid classification following
-   Ierodiaconou et al. (2018) Marine Geodesy DOI:10.1007/s11001-017-9338-z.
-   The paper used the same Refuge Cove MBES dataset and found combined PB+OB
-   achieved 83.6% OA vs 72.5% PB-only. This experiment derives 8 pixel-based
-   features (depth, backscatter, slope, VRM, complexity, max curvature,
-   northness, eastness) and 10 object-based features (SLIC segmentation →
-   per-segment mean/std/skewness of bathy/back/VRM + pixel count).
-   CV results: PB-only F1=0.5665, OB-only F1=0.3886, Combined F1=0.5758
-   (combined best; CatBoost; spatial block GroupKFold 10 folds seed=42).
- - New tests/unit/test_experiment_v6_features.py: 7 unit tests validating
-   PB feature completeness, northness/eastness range, segment label shape
-   and non-negativity, segment mean size range, OB feature completeness,
-   and combined feature count of exactly 18.
- - New docs/run-009-obia-pixel-hybrid.md: run report with segmentation
-   parameters, per-configuration CV F1 table, and top feature importances.
+4.0-dev (branch 012-v9-catboost-lgb-texture):
 
-4.0-dev (branch 008-gis-feature-engineering):
- - New experiment_v5.py: GIS-derived feature engineering adding slope,
-   backscatter zones and acoustic facies with 80/20/20 weighting on top
-   of the v2 comprehensive feature set.
- - Run A: raw point-sampled GIS features; Run B: zone-stratified kriging
-   smoothing for test-point inference (5-zone OrdinaryKriging, spherical
-   variogram, KNN fallback for small zones).
- - New tests/unit/test_experiment_v5_features.py: 5 unit tests for the
-   GIS feature helpers (shape, weight correctness, submission format,
-   kriging no-NaN, run report completeness).
- - New output files: data/submission_v5_gis_features.csv (Run A),
-   data/submission_v5_gis_features_kriging.csv (Run B),
-   data/submission_v5_best.csv (best of A/B).
- - New docs/run-008-gis-feature-engineering.md: experiment metrics report.
-3.0-final:
- - ArcGIS Pro / Python 3 support added.
- - New Compare Scales of Analysis tool provides a quick approximation of the effects of scale.
- - Added option in Surface Area to Planar Area to use slope-corrected Planar Area as described in DuPreez (2014).
- - New Arc Chord Ratio tool which computes metrics for an area of interest as described in DuPreez (2014).
- - Added new depth statistics using SciPy, Kurtosis and Interquartile range.
- - New multiple scales tool to compute depth statistics and VRM at a range of scales from within a single tool.
- - Extensive testing on large data, includes a block-based processor for computation on larger datasets with NumPy / SciPy operations.
- - New Set Workspace tool which propagates storage settings across all tools.
- - Compression is enabled for all outputs.
-3.0-rc-7: add contact sheet, VRM scale validation
-3.0-rc-6: fix broad-scale validation error, locale issue, remove unused validator.
-3.0-rc-5: fix locale issues.
-3.0-rc-4: fix missing datatypes module in Python toolbox.
-3.0-rc-3: robustness improvements to Surface Area to Planar Area tool, updated documentation, simplify VRM script.
-3.0-rc-2: Statistical Aspect tool, Excel-based classification dictionaries.
-3.0-beta-20: handle CSV files more robustly, provide clearer error messages, fix classify bug, add new Surface Area to Planar Area tool, improvements to VRM code, internal code cleanup, Excel support.
-3.0-beta-14: move model into a Python script over ModelBuilder, complete
-top-level unit tests.
-3.0-beta-13:
- - fix regression with "classify benthic terrain" step in model; renamed from zoneclassification to classify @aa49aad.
+- Root cause of v8 Kaggle failure identified: Random Forest selected as best-CV
+  model (pb_only F1=0.6021, std=0.2975 — huge fold variance). RF does not
+  generalise as well as CatBoost for this acoustic/bathymetric data; scored ~0.47
+  on Kaggle despite highest CV F1. Lesson: high CV std (0.2975 ≈ 50% of mean F1)
+  is a red flag for poor generalisation. Prefer CatBoost (lower variance) even at
+  slightly lower mean CV F1.
+- New experiment_v9.py: Returns to v6's proven CatBoost-on-combined architecture
+  with 3 additional texture/TPI features. Key decisions:
+  - Restored COMBINED features as the default winning configuration (v6 proved
+    CatBoost+combined → Kaggle 0.7639).
+  - Added bathy_std_9, back_std_9, tpi_9 (carried over from v8 correctly this time
+    with CatBoost as the final model, not RF).
+  - Upgraded CatBoost: iterations=800, depth=7, lr=0.03 (was 400, 6, 0.05).
+  - Upgraded LightGBM: n_est=600, lr=0.03, num_leaves=31 (was 400, 0.05, 31).
+  - Added soft-vote CatBoost+LGB ensemble as 4th candidate.
+  - Dropped XGBoost (slowest; CatBoost consistently outperformed it).
+  21 features total (11 PB + 10 OB), no spatial coordinates, no SMOTE.
+  CV results (10-fold spatial GroupKFold):
+    pb_only RF=0.6021 ± 0.2975  (still selected by CV but not the winner overall)
+    ob_only CatBoost=0.3886 ± 0.2521
+    combined CatBoost=0.6256 ± 0.1664  ← BEST (+0.0498 vs v6 combined 0.5758)
+  Combined CatBoost wins — same as v6 but stronger params and 3 extra features.
+  Lower std (0.1664 vs typical 0.25+) suggests better generalisation.
+  Expected Kaggle: ~0.77–0.81 (extrapolating from v6 CV→Kaggle delta of +0.188).
+- New data/submission_v9_best.csv (98 rows, 5 classes):
+    ALG=26, FMAT=17, NVB=38, SGAM=8, SGZ=9
+- New docs/run-012-v9-catboost-lgb-texture.md: run report.
+
+4.0-dev (branch 011-clean-knn-rf-lgb):
+
+- Root cause of v7 Kaggle failure identified: x_rel/y_rel (geographic relative
+  coordinates) dominated v7 model importance (36.6% + 11.8%) — pure spatial
+  memorisation that fails completely on unseen test locations. v7 scored the
+  lowest of all 13 submissions despite highest CV F1 (0.6075).
+- New experiment_v8.py: Clean acoustic+terrain features, NO spatial coordinates.
+  Core principle: classify based on WHAT a location sounds like, not WHERE it is.
+  21 features (no spatial leakage):
+  - PB paper (8): depth, backscatter, slope, vrm, complexity, max_curvature,
+    northness, eastness
+  - PB texture/TPI (3 new): bathy_std_9, back_std_9 (acoustic/terrain texture
+    at 2.25 m scale), tpi_9 (topographic position index — am I on a ridge?)
+  - OB SLIC (10): seg*{bathy,back,vrm}*{mean,std,skew} + seg_pixel_count
+    3 model candidates: KNN (acoustic similarity search, distance-weighted,
+    StandardScaler), RF (paper's original choice), LightGBM (modern boosting).
+    Soft-vote ensemble as 4th candidate. 10-fold spatial GroupKFold (matches v6).
+    NO SMOTE, NO interaction terms, NO z-scores.
+    CV results: pb_only RF=0.6021, combined RF=0.5996, ensemble=0.5992 (PB-only
+    best — new texture features outweigh OB noise; OB segments too large ~451 m²).
+    KNN came 3rd in pb_only (F1=0.5509) — acoustically similar search valid.
+- New data/submission_v8_best.csv (98 rows): PB-only RF prediction.
+- New docs/run-011-clean-knn-rf-lgb.md: run report.
+
+  4.0-dev (branch 010-enhanced-features-lgb):
+
+- New experiment_v7.py: Enhanced feature set + fold-safe SMOTE + two-model
+  ensemble (LightGBM + CatBoost). Extends the v6 OBIA+PB hybrid with insights
+  from niwacolours/benthic-terrain-model-kaggle@002-boost-weighted-f1:
+  - 6 multi-scale focal std features (bathy_std/back_std at 3/5/9 cells)
+  - 2 TPI features (topographic position index at 9 and 25 cell windows)
+  - 4 interaction terms (bathy×back, slope×back, roughness ratio, relief idx)
+  - 4 spatial context features (x_rel/y_rel, depth_z, backscatter_z)
+  - Total: 34 features (8 PB + 6 focal + 2 TPI + 4 interaction + 4 spatial +
+    10 OB). Previously 18 (8 PB + 10 OB).
+    Ensemble reduced to LightGBM + CatBoost (RF and XGBoost dropped — they were
+    diluting the ensemble without measurable CV gain). LightGBM hyperparameters
+    tuned from companion repo (n_estimators=600, lr=0.03, num_leaves=31).
+    SMOTE applied fold-safe (only within CV training folds; fallback to
+    RandomOverSampler when minority count < 2). ID column now uppercase 'ID'.
+    CV results (6-split, 6-cluster KMeans): PB-only F1=0.5147, OB-only F1=0.3932,
+    Combined F1=0.6075 (combined best; CatBoost; +0.032 vs v6 combined).
+    Global Moran's I included in run report for EDA (top 12 features).
+- Fixed: submission CSV 'ID' column now correctly uppercase (was lowercase
+  'id' in v6, causing Kaggle submission rejection).
+- New tests/unit/test_experiment_v7_features.py: 8 unit tests covering focal
+  std shape/finiteness/monotonicity, TPI flatness property, bathy×back product,
+  roughness ratio non-negativity, SMOTE minority class growth, combined feature
+  count correctness (34 total, no duplicates), and spatial context [0-1] range.
+- New docs/run-010-enhanced-features-lgb.md: run report with feature group
+  table, segmentation parameters, CV F1 table, feature importances (top 15),
+  and Global Moran's I per feature.
+- New data/submission_v7_best.csv: 98-row submission with uppercase 'ID'.
+
+  4.0-dev (branch 009-obia-pixel-hybrid):
+
+- New experiment_v6.py: OBIA + pixel-based hybrid classification following
+  Ierodiaconou et al. (2018) Marine Geodesy DOI:10.1007/s11001-017-9338-z.
+  The paper used the same Refuge Cove MBES dataset and found combined PB+OB
+  achieved 83.6% OA vs 72.5% PB-only. This experiment derives 8 pixel-based
+  features (depth, backscatter, slope, VRM, complexity, max curvature,
+  northness, eastness) and 10 object-based features (SLIC segmentation →
+  per-segment mean/std/skewness of bathy/back/VRM + pixel count).
+  CV results: PB-only F1=0.5665, OB-only F1=0.3886, Combined F1=0.5758
+  (combined best; CatBoost; spatial block GroupKFold 10 folds seed=42).
+- New tests/unit/test_experiment_v6_features.py: 7 unit tests validating
+  PB feature completeness, northness/eastness range, segment label shape
+  and non-negativity, segment mean size range, OB feature completeness,
+  and combined feature count of exactly 18.
+- New docs/run-009-obia-pixel-hybrid.md: run report with segmentation
+  parameters, per-configuration CV F1 table, and top feature importances.
+
+  4.0-dev (branch 008-gis-feature-engineering):
+
+- New experiment_v5.py: GIS-derived feature engineering adding slope,
+  backscatter zones and acoustic facies with 80/20/20 weighting on top
+  of the v2 comprehensive feature set.
+- Run A: raw point-sampled GIS features; Run B: zone-stratified kriging
+  smoothing for test-point inference (5-zone OrdinaryKriging, spherical
+  variogram, KNN fallback for small zones).
+- New tests/unit/test_experiment_v5_features.py: 5 unit tests for the
+  GIS feature helpers (shape, weight correctness, submission format,
+  kriging no-NaN, run report completeness).
+- New output files: data/submission_v5_gis_features.csv (Run A),
+  data/submission_v5_gis_features_kriging.csv (Run B),
+  data/submission_v5_best.csv (best of A/B).
+- New docs/run-008-gis-feature-engineering.md: experiment metrics report.
+  3.0-final:
+- ArcGIS Pro / Python 3 support added.
+- New Compare Scales of Analysis tool provides a quick approximation of the effects of scale.
+- Added option in Surface Area to Planar Area to use slope-corrected Planar Area as described in DuPreez (2014).
+- New Arc Chord Ratio tool which computes metrics for an area of interest as described in DuPreez (2014).
+- Added new depth statistics using SciPy, Kurtosis and Interquartile range.
+- New multiple scales tool to compute depth statistics and VRM at a range of scales from within a single tool.
+- Extensive testing on large data, includes a block-based processor for computation on larger datasets with NumPy / SciPy operations.
+- New Set Workspace tool which propagates storage settings across all tools.
+- Compression is enabled for all outputs.
+  3.0-rc-7: add contact sheet, VRM scale validation
+  3.0-rc-6: fix broad-scale validation error, locale issue, remove unused validator.
+  3.0-rc-5: fix locale issues.
+  3.0-rc-4: fix missing datatypes module in Python toolbox.
+  3.0-rc-3: robustness improvements to Surface Area to Planar Area tool, updated documentation, simplify VRM script.
+  3.0-rc-2: Statistical Aspect tool, Excel-based classification dictionaries.
+  3.0-beta-20: handle CSV files more robustly, provide clearer error messages, fix classify bug, add new Surface Area to Planar Area tool, improvements to VRM code, internal code cleanup, Excel support.
+  3.0-beta-14: move model into a Python script over ModelBuilder, complete
+  top-level unit tests.
+  3.0-beta-13:
+- fix regression with "classify benthic terrain" step in model; renamed from zoneclassification to classify @aa49aad.

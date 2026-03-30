@@ -181,13 +181,15 @@ def _compute_pb_features(
     bs = back.copy()
 
     # slope (degrees) — use NaN-free array; nodata=None → no extra masking
-    slope_deg = slope_mod.compute_slope(bathy_f, cell_size, nodata=None).astype(np.float32)
+    slope_deg = slope_mod.compute_slope(bathy_f, cell_size, nodata=None).astype(
+        np.float32
+    )
     slope_deg[nodata_mask] = np.nan
 
     # vrm — Vector Ruggedness Measure (Sappington et al. 2007); 3×3 neighbourhood
-    vrm_arr = vrm_mod.compute_vrm(bathy_f, neighborhood_size=3, cell_size=cell_size).astype(
-        np.float32
-    )
+    vrm_arr = vrm_mod.compute_vrm(
+        bathy_f, neighborhood_size=3, cell_size=cell_size
+    ).astype(np.float32)
     vrm_arr[nodata_mask] = np.nan
 
     # complexity — surface area ratio = 1/cos(slope_rad), smoothed 3×3
@@ -448,7 +450,9 @@ def _assign_segment_features(
             ob_rows.append([col_medians[c] for c in OB_FEATURE_COLS])
 
     ob_df = pd.DataFrame(ob_rows, columns=OB_FEATURE_COLS, index=point_df.index)
-    return pd.concat([point_df.reset_index(drop=True), ob_df.reset_index(drop=True)], axis=1)
+    return pd.concat(
+        [point_df.reset_index(drop=True), ob_df.reset_index(drop=True)], axis=1
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -572,7 +576,13 @@ def _run_cv_config(
             preds_va = classes[np.argmax(oof_proba[va_idx], axis=1)]
             fold_scores.append(f1_score(y_train[va_idx], preds_va, average="weighted"))
 
-        log.info("  [%s] %s: CV weighted-F1 = %.4f ± %.4f", label, name, f1, np.std(fold_scores))
+        log.info(
+            "  [%s] %s: CV weighted-F1 = %.4f ± %.4f",
+            label,
+            name,
+            f1,
+            np.std(fold_scores),
+        )
 
         if f1 > best_f1:
             best_f1 = f1
@@ -621,7 +631,9 @@ def _write_run_report(
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
-    combined_result = next((r for r in config_results if r["label"] == "combined"), None)
+    combined_result = next(
+        (r for r in config_results if r["label"] == "combined"), None
+    )
 
     lines = [
         "---",
@@ -689,7 +701,9 @@ def _write_run_report(
 
     # Feature importances
     if feature_importances:
-        sorted_fi = sorted(feature_importances.items(), key=lambda x: x[1], reverse=True)[:10]
+        sorted_fi = sorted(
+            feature_importances.items(), key=lambda x: x[1], reverse=True
+        )[:10]
         lines += [
             "## Top Feature Importances (Combined Config, Best Model)",
             "",
@@ -762,10 +776,16 @@ def main() -> None:
     log.info("Train: %d rows, Test: %d rows", len(train_df), len(test_df))
 
     # Detect coordinate and label columns
-    x_col = next(c for c in train_df.columns if c.lower() in ("x", "easting", "lon", "longitude"))
-    y_col = next(c for c in train_df.columns if c.lower() in ("y", "northing", "lat", "latitude"))
+    x_col = next(
+        c for c in train_df.columns if c.lower() in ("x", "easting", "lon", "longitude")
+    )
+    y_col = next(
+        c for c in train_df.columns if c.lower() in ("y", "northing", "lat", "latitude")
+    )
     label_col = next(
-        c for c in train_df.columns if c.lower() in ("class", "label", "category", "substrate")
+        c
+        for c in train_df.columns
+        if c.lower() in ("class", "label", "category", "substrate")
     )
 
     train_xy = train_df[[x_col, y_col]].values.astype(np.float64)
@@ -783,8 +803,12 @@ def main() -> None:
 
     # ── Assign OB segment features ─────────────────────────────────────────
     log.info("Assigning OB segment features...")
-    train_full = _assign_segment_features(train_pb, labels, seg_stats_df, transform, train_xy)
-    test_full = _assign_segment_features(test_pb, labels, seg_stats_df, transform, test_xy)
+    train_full = _assign_segment_features(
+        train_pb, labels, seg_stats_df, transform, train_xy
+    )
+    test_full = _assign_segment_features(
+        test_pb, labels, seg_stats_df, transform, test_xy
+    )
 
     # Build combined feature matrices (N × 18)
     X_train_all = train_full[COMBINED_FEATURE_COLS].values.astype(np.float32)
@@ -813,9 +837,7 @@ def main() -> None:
     # ── Select best configuration ──────────────────────────────────────────
     best_result = max(config_results, key=lambda r: r["cv_f1_mean"])
     best_label = best_result["label"]
-    log.info(
-        "Best configuration: %s (F1=%.4f)", best_label, best_result["cv_f1_mean"]
-    )
+    log.info("Best configuration: %s (F1=%.4f)", best_label, best_result["cv_f1_mean"])
 
     # ── Train final model on full training set ─────────────────────────────
     best_feat_cols = best_result["feature_cols"]
@@ -858,10 +880,12 @@ def main() -> None:
     # Flatten prediction output (some estimators return 2-D arrays)
     test_pred_labels = np.asarray(test_pred_labels).ravel()
     if id_col is not None:
-        submission = pd.DataFrame({"id": test_df[id_col].values, "class": test_pred_labels})
+        submission = pd.DataFrame(
+            {"ID": test_df[id_col].values, "class": test_pred_labels}
+        )
     else:
         submission = pd.DataFrame(
-            {"id": np.arange(len(test_pred_labels)), "class": test_pred_labels}
+            {"ID": np.arange(len(test_pred_labels)), "class": test_pred_labels}
         )
 
     OUTPUT_SUBMISSION.parent.mkdir(parents=True, exist_ok=True)

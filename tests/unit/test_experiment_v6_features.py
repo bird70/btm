@@ -26,8 +26,8 @@ import numpy as np
 # ---------------------------------------------------------------------------
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 
-from experiment_v6 import (  # noqa: E402
-    COMBINED_FEATURE_COLS,
+from experiment_v6 import (
+    COMBINED_FEATURE_COLS,  # noqa: E402
     OB_FEATURE_COLS,
     PB_FEATURE_COLS,
     _compute_pb_features,
@@ -71,16 +71,15 @@ def test_pb_features_all_finite():
     result = _compute_pb_features(bathy, back, cell_size)
 
     # Correct key set
-    assert set(result.keys()) == set(PB_FEATURE_COLS), (
-        f"Expected keys {PB_FEATURE_COLS}, got {list(result.keys())}"
-    )
+    assert set(result.keys()) == set(
+        PB_FEATURE_COLS
+    ), f"Expected keys {PB_FEATURE_COLS}, got {list(result.keys())}"
 
     for key in PB_FEATURE_COLS:
         arr = result[key]
         assert arr.shape == (10, 10), f"Feature '{key}' shape mismatch: {arr.shape}"
         assert np.all(np.isfinite(arr)), (
-            f"Feature '{key}' has non-finite values: "
-            f"{arr[~np.isfinite(arr)][:5]}"
+            f"Feature '{key}' has non-finite values: " f"{arr[~np.isfinite(arr)][:5]}"
         )
 
 
@@ -121,9 +120,9 @@ def test_segment_labels_shape():
     labels = _segment_rasters(bathy, back, vrm_arr)
 
     assert labels.shape == (h, w), f"Expected ({h},{w}), got {labels.shape}"
-    assert np.issubdtype(labels.dtype, np.integer), (
-        f"Labels dtype should be integer, got {labels.dtype}"
-    )
+    assert np.issubdtype(
+        labels.dtype, np.integer
+    ), f"Labels dtype should be integer, got {labels.dtype}"
 
 
 # ---------------------------------------------------------------------------
@@ -168,9 +167,9 @@ def test_segment_mean_size_range():
     mean_size = (h * w) / n_unique
     expected = (h * w) / n_segs  # = 400
 
-    assert mean_size >= 0.5 * expected, (
-        f"Mean segment size {mean_size:.1f} < 0.5× expected ({0.5 * expected:.1f})"
-    )
+    assert (
+        mean_size >= 0.5 * expected
+    ), f"Mean segment size {mean_size:.1f} < 0.5× expected ({0.5 * expected:.1f})"
     # SLIC with enforce_connectivity tends to produce fewer segments than requested
     # on small synthetic rasters; allow up to 3× the naive expected size.
     assert mean_size <= 3.0 * expected, (
@@ -196,12 +195,12 @@ def test_ob_features_all_finite():
 
     seg_stats = _compute_segment_stats(bathy, back, vrm_arr, labels)
 
-    assert list(seg_stats.columns) == OB_FEATURE_COLS, (
-        f"Columns mismatch: expected {OB_FEATURE_COLS}, got {list(seg_stats.columns)}"
-    )
-    assert not seg_stats.isna().any().any(), (
-        f"NaN values found in segment stats:\n{seg_stats.isna().sum()}"
-    )
+    assert (
+        list(seg_stats.columns) == OB_FEATURE_COLS
+    ), f"Columns mismatch: expected {OB_FEATURE_COLS}, got {list(seg_stats.columns)}"
+    assert (
+        not seg_stats.isna().any().any()
+    ), f"NaN values found in segment stats:\n{seg_stats.isna().sum()}"
 
 
 # ---------------------------------------------------------------------------
@@ -211,10 +210,16 @@ def test_ob_features_all_finite():
 
 def test_combined_feature_count():
     """COMBINED_FEATURE_COLS must contain exactly 18 features (8 PB + 10 OB)."""
-    assert len(PB_FEATURE_COLS) == 8, f"PB features: expected 8, got {len(PB_FEATURE_COLS)}"
-    assert len(OB_FEATURE_COLS) == 10, f"OB features: expected 10, got {len(OB_FEATURE_COLS)}"
-    assert len(COMBINED_FEATURE_COLS) == 18, (
-        f"Combined features: expected 18, got {len(COMBINED_FEATURE_COLS)}"
-    )
+    assert (
+        len(PB_FEATURE_COLS) == 8
+    ), f"PB features: expected 8, got {len(PB_FEATURE_COLS)}"
+    assert (
+        len(OB_FEATURE_COLS) == 10
+    ), f"OB features: expected 10, got {len(OB_FEATURE_COLS)}"
+    assert (
+        len(COMBINED_FEATURE_COLS) == 18
+    ), f"Combined features: expected 18, got {len(COMBINED_FEATURE_COLS)}"
     # No duplicates
-    assert len(set(COMBINED_FEATURE_COLS)) == 18, "Duplicate feature names in COMBINED_FEATURE_COLS"
+    assert (
+        len(set(COMBINED_FEATURE_COLS)) == 18
+    ), "Duplicate feature names in COMBINED_FEATURE_COLS"
