@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 import numpy as np
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.preprocessing import LabelEncoder
@@ -20,6 +22,29 @@ except Exception:  # pragma: no cover
     CatBoostClassifier = None
 
 
+def _cuda_available() -> bool:
+    """Return True when GPU acceleration should be used.
+
+    Checks XGBoost's compile-time ``USE_CUDA`` flag as a fast proxy for
+    CUDA availability (avoids a heavyweight driver probe on every import).
+
+    Override via environment variable:
+    - ``BTM_USE_GPU=0``  — force CPU mode (useful on CPU-only machines)
+    - ``BTM_USE_GPU=1``  — force GPU mode
+    - unset / ``auto``   — auto-detect (default)
+    """
+    env = os.environ.get("BTM_USE_GPU", "auto").lower()
+    if env == "0":
+        return False
+    if env == "1":
+        return True
+    try:
+        from xgboost import build_info  # noqa: PLC0415
+        return bool(build_info().get("USE_CUDA"))
+    except Exception:
+        return False
+
+
 class CandidateXGBoostModel:
     def __init__(self, seed: int = 42) -> None:
         self._seed = seed
@@ -30,6 +55,7 @@ class CandidateXGBoostModel:
     def fit(self, X, y):
         encoded = self._encoder.fit_transform(y)
         if XGBClassifier is not None:
+            device = "cuda" if _cuda_available() else "cpu"
             self._xgb = XGBClassifier(
                 n_estimators=400,
                 max_depth=6,
@@ -39,7 +65,9 @@ class CandidateXGBoostModel:
                 objective="multi:softmax",
                 num_class=len(self._encoder.classes_),
                 random_state=self._seed,
-                n_jobs=1,
+                n_jobs=-1,        # was 1 — use all cores in CPU mode
+                tree_method="hist",
+                device=device,
             )
             self._xgb.fit(X, encoded)
         else:
@@ -65,6 +93,7 @@ class CandidateLGBMModel:
         self._seed = seed
         if LGBMClassifier is None:  # pragma: no cover
             raise ImportError("lightgbm is required for CandidateLGBMModel")
+        device = "gpu" if _cuda_available() else "cpu"
         self._model = LGBMClassifier(
             n_estimators=600,
             learning_rate=0.03,
@@ -72,6 +101,8 @@ class CandidateLGBMModel:
             class_weight="balanced",
             random_state=seed,
             verbose=-1,
+            device=device,
+            n_jobs=-1,
         )
 
     def fit(self, X, y):
@@ -93,6 +124,7 @@ class CandidateCatBoostModel:
         self._seed = seed
         if CatBoostClassifier is None:  # pragma: no cover
             raise ImportError("catboost is required for CandidateCatBoostModel")
+        task_type = "GPU" if _cuda_available() else "CPU"
         self._model = CatBoostClassifier(
             iterations=800,
             depth=7,
@@ -100,6 +132,7 @@ class CandidateCatBoostModel:
             auto_class_weights="Balanced",
             verbose=0,
             random_seed=seed,
+            task_type=task_type,
         )
 
     def fit(self, X, y):

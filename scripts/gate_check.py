@@ -1,5 +1,7 @@
 """Phase 5 gate check: SC-004 and SC-006 verification."""
+
 import sys
+
 sys.path.insert(0, "src")
 
 from benthic_model.experiment.registry import load_registry

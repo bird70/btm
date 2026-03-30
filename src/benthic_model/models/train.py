@@ -128,7 +128,9 @@ def train_and_register_run(
     validate_coordinates(frame, x_col="x", y_col="y")
     # Include any pre-computed BTM columns from a BTM-augmented CSV
     btm_passthrough = [c for c in frame.columns if c.startswith("btm_")]
-    passthrough_cols = [col for col in ["x", "y"] + btm_passthrough if col in frame.columns]
+    passthrough_cols = [
+        col for col in ["x", "y"] + btm_passthrough if col in frame.columns
+    ]
     sample_points = frame[passthrough_cols].copy()
     sample_points.insert(
         0, "ID", frame["ID"] if "ID" in frame.columns else range(1, len(frame) + 1)

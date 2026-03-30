@@ -34,8 +34,12 @@ def predict_with_run(
 
     # Include any pre-computed BTM columns from a BTM-augmented test CSV
     btm_passthrough = [c for c in test_frame.columns if c.startswith("btm_")]
-    cols_to_pass = [c for c in ["ID", "x", "y"] + btm_passthrough if c in test_frame.columns]
-    sampled = extract_mbes_features(test_frame[cols_to_pass], bathymetry_tif, backscatter_tif)
+    cols_to_pass = [
+        c for c in ["ID", "x", "y"] + btm_passthrough if c in test_frame.columns
+    ]
+    sampled = extract_mbes_features(
+        test_frame[cols_to_pass], bathymetry_tif, backscatter_tif
+    )
     engineered = engineer_features(sampled)
 
     for col in feature_cols:

@@ -3,9 +3,9 @@
 This repository is a **unified monorepo** that combines two complementary
 projects for seafloor habitat analysis:
 
-| Component | Package | Purpose |
-|-----------|---------|---------|
-| **BTM v4** | `btm` | Platform-agnostic scientific library for benthic terrain analysis (BPI, Slope, VRM, …) |
+| Component         | Package         | Purpose                                                                                                                                 |
+| ----------------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| **BTM v4**        | `btm`           | Platform-agnostic scientific library for benthic terrain analysis (BPI, Slope, VRM, …)                                                  |
 | **benthic_model** | `benthic_model` | Reproducible ML pipeline for the [NIWA Kaggle Benthic Habitat competition](https://github.com/niwacolours/benthic-terrain-model-kaggle) |
 
 Both components share the same `data/` directory (MBES bathymetry + backscatter
@@ -276,20 +276,20 @@ chat-initial-prompts/       Initial AI-assisted research chat logs
 
 Each numbered branch corresponds to a Kaggle experiment iteration:
 
-| Branch | Experiment | Key change | Best Kaggle score |
-|--------|-----------|------------|-------------------|
-| 001-btm-portable-core | BTM library extraction | ArcGIS → pure Python | — |
-| 003-btm-ml-hybrid | BTM + LightGBM | First ML submission | — |
-| 004-kaggle-hybrid-submission | BTM + LGB hybrid | v4 submission | — |
-| 005-kaggle-spatial-ensemble | Spatial ensemble | KNN + CatBoost + LGB | — |
-| 006-kaggle-kriging-ensemble | Kriging ensemble | Depth-stratified kriging | — |
-| 007-gis-expert-annotation | Human-in-the-loop | Expert annotation pass | — |
-| 008-gis-feature-engineering | GIS features | Slope/BZ/AF weighted | 0.6971 CV |
-| 009-obia-pixel-hybrid | OBIA + pixel hybrid | SLIC segmentation | **0.7639 Kaggle** |
-| 010-enhanced-features-lgb | Enhanced + SMOTE | Identified spatial leakage | — |
-| 011-clean-knn-rf-lgb | Clean no-leakage | KNN/RF/LGB, no coords | 0.47 Kaggle (RF fail) |
-| 012-v9-catboost-lgb-texture | CatBoost + texture | +bathy_std_9, tpi_9 | 0.6256 CV |
-| 013-consolidate-monorepo | **This branch** | Merged btm + btm-k | — |
+| Branch                       | Experiment             | Key change                 | Best Kaggle score     |
+| ---------------------------- | ---------------------- | -------------------------- | --------------------- |
+| 001-btm-portable-core        | BTM library extraction | ArcGIS → pure Python       | —                     |
+| 003-btm-ml-hybrid            | BTM + LightGBM         | First ML submission        | —                     |
+| 004-kaggle-hybrid-submission | BTM + LGB hybrid       | v4 submission              | —                     |
+| 005-kaggle-spatial-ensemble  | Spatial ensemble       | KNN + CatBoost + LGB       | —                     |
+| 006-kaggle-kriging-ensemble  | Kriging ensemble       | Depth-stratified kriging   | —                     |
+| 007-gis-expert-annotation    | Human-in-the-loop      | Expert annotation pass     | —                     |
+| 008-gis-feature-engineering  | GIS features           | Slope/BZ/AF weighted       | 0.6971 CV             |
+| 009-obia-pixel-hybrid        | OBIA + pixel hybrid    | SLIC segmentation          | **0.7639 Kaggle**     |
+| 010-enhanced-features-lgb    | Enhanced + SMOTE       | Identified spatial leakage | —                     |
+| 011-clean-knn-rf-lgb         | Clean no-leakage       | KNN/RF/LGB, no coords      | 0.47 Kaggle (RF fail) |
+| 012-v9-catboost-lgb-texture  | CatBoost + texture     | +bathy_std_9, tpi_9        | 0.6256 CV             |
+| 013-consolidate-monorepo     | **This branch**        | Merged btm + btm-k         | —                     |
 
 Submission CSVs are in `data/submission_v*.csv` and `submissions/submission.csv`.
 
@@ -297,26 +297,26 @@ Submission CSVs are in `data/submission_v*.csv` and `submissions/submission.csv`
 
 ## Key documentation
 
-| Document | Description |
-|----------|-------------|
-| [docs/classification-methods.md](docs/classification-methods.md) | Rule-based BTM vs ML classification |
-| [docs/runsheet-hybrid-kaggle.md](docs/runsheet-hybrid-kaggle.md) | End-to-end hybrid BTM + benthic_model |
-| [TESTING.md](TESTING.md) | BTM test walkthrough with expected values |
-| [specs/001-build-benthic-model/spec.md](specs/001-build-benthic-model/spec.md) | benthic_model feature specification |
-| [specs/001-build-benthic-model/plan.md](specs/001-build-benthic-model/plan.md) | Implementation plan |
-| [reports/metrics/final_model_summary.md](reports/metrics/final_model_summary.md) | Best model summary |
-| [data/METADATA.MD](data/METADATA.MD) | Competition dataset metadata |
+| Document                                                                         | Description                               |
+| -------------------------------------------------------------------------------- | ----------------------------------------- |
+| [docs/classification-methods.md](docs/classification-methods.md)                 | Rule-based BTM vs ML classification       |
+| [docs/runsheet-hybrid-kaggle.md](docs/runsheet-hybrid-kaggle.md)                 | End-to-end hybrid BTM + benthic_model     |
+| [TESTING.md](TESTING.md)                                                         | BTM test walkthrough with expected values |
+| [specs/001-build-benthic-model/spec.md](specs/001-build-benthic-model/spec.md)   | benthic_model feature specification       |
+| [specs/001-build-benthic-model/plan.md](specs/001-build-benthic-model/plan.md)   | Implementation plan                       |
+| [reports/metrics/final_model_summary.md](reports/metrics/final_model_summary.md) | Best model summary                        |
+| [data/METADATA.MD](data/METADATA.MD)                                             | Competition dataset metadata              |
 
 ---
 
 ## Requirements at a glance
 
-| Layer | Key packages |
-|-------|-------------|
-| BTM core | rasterio, numpy, scipy, scikit-image, openpyxl |
-| BTM + ML bridge | + pandas |
+| Layer                  | Key packages                                         |
+| ---------------------- | ---------------------------------------------------- |
+| BTM core               | rasterio, numpy, scipy, scikit-image, openpyxl       |
+| BTM + ML bridge        | + pandas                                             |
 | benthic_model pipeline | + scikit-learn, xgboost, pyyaml, matplotlib, seaborn |
-| Development | + pytest, ruff |
+| Development            | + pytest, ruff                                       |
 
 Python 3.11+ required; 3.12 used for benthic_model development.
 
