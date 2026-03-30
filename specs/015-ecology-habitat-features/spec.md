@@ -9,13 +9,13 @@
 
 The Amphibolis antarctica seagrass class (SGAM) is the hardest class to detect in the current models (per-class F1 ≤ 0.043 in all runs so far). Unlike rigid algorithmic classification (dominant BTM zone, ML rules applied uniformly), the ecology of this class imposes knowable habitat constraints directly derivable from MBES data:
 
-| Class | Substrate | Depth character | Terrain character | Distinguishing terrain signal |
-|-------|-----------|-----------------|-------------------|-------------------------------|
-| SGAM  | Fine sand / muddy sand | Shallow, sheltered | Flat to gently sloping, depositional benthic zone | Low BPI + low slope + low rugosity + specific depth window |
-| SGZ   | Fine sand / muddy sand | Shallow, sheltered | Flat, bioturbation-active | Similar to SGAM but less pronounced mounding |
-| FMAT  | Fine sand / muddy sand | Sheltered, shallow | Near-flat | Overlaps SGAM/SGZ spectrally |
-| NVB   | Coarse sand / gravel | Variable | Flat to moderate | Low backscatter variation, no biota signal |
-| ALG   | Hard substrate (granite/boulder) | Moderate depth, higher energy | High relief, rugose | High rugosity + high slope + high BPI magnitude |
+| Class | Substrate                        | Depth character               | Terrain character                                 | Distinguishing terrain signal                              |
+| ----- | -------------------------------- | ----------------------------- | ------------------------------------------------- | ---------------------------------------------------------- |
+| SGAM  | Fine sand / muddy sand           | Shallow, sheltered            | Flat to gently sloping, depositional benthic zone | Low BPI + low slope + low rugosity + specific depth window |
+| SGZ   | Fine sand / muddy sand           | Shallow, sheltered            | Flat, bioturbation-active                         | Similar to SGAM but less pronounced mounding               |
+| FMAT  | Fine sand / muddy sand           | Sheltered, shallow            | Near-flat                                         | Overlaps SGAM/SGZ spectrally                               |
+| NVB   | Coarse sand / gravel             | Variable                      | Flat to moderate                                  | Low backscatter variation, no biota signal                 |
+| ALG   | Hard substrate (granite/boulder) | Moderate depth, higher energy | High relief, rugose                               | High rugosity + high slope + high BPI magnitude            |
 
 The reference paper's Table 1 lists six spatial derivatives from MBES bathymetry used in the original study. Four of these — **northness**, **eastness**, **maximum curvature**, and **complexity** — are **not yet computed** in the current feature engineering pipeline but can be derived from the existing bathymetry raster.
 
@@ -23,7 +23,19 @@ The paper further describes a pixel-based (PB) model, object-based (OB) model, a
 
 ---
 
-## User Scenarios & Testing *(mandatory)*
+## Clarifications
+
+### Session 2026-03-31
+
+- Q: How should SGAM niche indicator thresholds ("low BPI", "low slope", "shallow depth") be defined? → A: Data-driven percentile cutoffs computed from the training set distribution (e.g., BPI < 25th percentile AND slope < 25th percentile AND depth within the observed SGAM depth range), making thresholds fully reproducible and survey-specific.
+- Q: How should `btm_depth_zone` be encoded in the feature table? → A: Ordinal integer (1 = shallowest bin, increasing with depth) — a single column preserving rank ordering, handled natively by tree-based models without column-count inflation.
+- Q: How many depth zone bins should be used and how should bin boundaries be set? → A: 4 bins at quantile (equal-frequency) boundaries derived from the training depth distribution, ensuring each bin contains training samples. Labels: 1 = very shallow, 2 = shallow, 3 = mid, 4 = deeper.
+- Q: Where should the eco-feature extraction code live in the codebase? → A: New dedicated module `src/benthic_model/features/eco_features.py`, following the existing `features/` subpackage pattern alongside `engineering.py` and `spatial_context.py`.
+- Q: How should Kaggle submissions be executed (US1, US5)? → A: Kaggle CLI (`kaggle competitions submit -f <csv> -m "<message>"`) invoked from the project root, consistent with how prior submissions were handled.
+
+---
+
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 — Submit GPU CatBoost to Kaggle (Priority: P1)
 
@@ -113,33 +125,34 @@ As a researcher, I can execute today's full daily Kaggle submission budget (5 su
 
 ---
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
 - **FR-001**: System MUST generate a prediction CSV from existing artifact `candidate-20260330203952` against `data/test.csv` in the Kaggle submission format.
-- **FR-002**: System MUST compute `btm_northness` = sin(aspect) at a 3×3 analysis window from the bathymetry raster.
-- **FR-003**: System MUST compute `btm_eastness` = cos(aspect) at a 3×3 analysis window from the bathymetry raster.
-- **FR-004**: System MUST compute `btm_max_curvature` (maximum of plan curvature and profile curvature) at a 3×3 analysis window.
-- **FR-005**: System MUST compute `btm_complexity` (second derivative of slope / rate of change of slope) at a 3×3 analysis window.
-- **FR-006**: System MUST assign a `btm_depth_zone` categorical/ordinal feature using bathymetric depth thresholds derived from the training data depth distribution.
+- **FR-002**: System MUST compute `btm_northness` = sin(aspect) at a 3×3 analysis window from the bathymetry raster. This computation MUST reside in `src/benthic_model/features/eco_features.py`.
+- **FR-003**: System MUST compute `btm_eastness` = cos(aspect) at a 3×3 analysis window from the bathymetry raster. This computation MUST reside in `src/benthic_model/features/eco_features.py`.
+- **FR-004**: System MUST compute `btm_max_curvature` (maximum of plan curvature and profile curvature) at a 3×3 analysis window. This computation MUST reside in `src/benthic_model/features/eco_features.py`.
+- **FR-005**: System MUST compute `btm_complexity` (second derivative of slope / rate of change of slope) at a 3×3 analysis window. This computation MUST reside in `src/benthic_model/features/eco_features.py`.
+- **FR-006**: System MUST assign a `btm_depth_zone` ordinal integer feature (1 = very shallow, 2 = shallow, 3 = mid, 4 = deeper) using 4 quantile-based bin boundaries computed from the training depth distribution, ensuring equal sample representation across bins. Boundaries are logged in the run artifact for reproducibility. The integer column (not one-hot) is used directly as a model input.
 - **FR-007**: System MUST support a feature flag (`eco_features: true/false`) in config YAMLs to enable/disable eco-feature columns without affecting existing feature sets.
-- **FR-008**: System MUST create at least one composite indicator feature encoding the joint low-BPI + low-slope + shallow-depth condition associated with SGAM habitat.
+- **FR-008**: System MUST create a composite indicator feature (`btm_sgam_niche`) encoding the joint condition: BPI below the 25th percentile of the training set AND slope below the 25th percentile of the training set AND depth within the observed depth range of SGAM-labelled training points. Percentile thresholds are computed from the training CSV and must be logged with each run for reproducibility.
 - **FR-009**: System MUST record per-class F1 (including SGAM class separately) in `metrics.json` for every experiment run in this spec.
 - **FR-010**: System MUST create config YAMLs for at least 4 new experiment variants using eco-features on the RF model.
 - **FR-011**: System MUST support RF hyperparameter overrides (`n_estimators`, `max_features`, `min_samples_leaf`) via config YAML.
 - **FR-012**: System MUST record all Kaggle submissions in `artifacts/experiments/kaggle_scores.csv` with date, run ID, CV F1, Kaggle F1, CV–Kaggle gap, and notes.
+- **FR-013**: All Kaggle submissions (US1, US5) MUST be executed via the Kaggle CLI (`kaggle competitions submit -f <csv_path> -m "<run_id>"`) from the project root. The CLI command used MUST be logged alongside the run ID in `kaggle_scores.csv`.
 
 ### Key Entities
 
 - **Eco-feature set**: The four new bathymetric spatial derivatives (northness, eastness, max curvature, complexity) plus depth zone and SGAM niche indicator — all computable from the existing bathymetry raster without new survey data.
-- **Depth zones**: Ecologically motivated depth bins derived from the bathymetric range of the training data (approximately 0–50 m). Exact bin boundaries are set after inspecting the depth distribution; typically 3–5 bins aligned to known ecological transitions.
-- **SGAM niche indicator**: A composite binary or continuous feature encoding the joint condition (low BPI + low slope + depth within SGAM range) directly capturing the ecological hypothesis about A. antarctica habitat.
+- **Depth zones**: 4 depth bins encoded as ordinal integers (1 = very shallow, 2 = shallow, 3 = mid, 4 = deeper), with bin boundaries set at the 25th, 50th, and 75th percentiles of bathymetric depth in the training data. Boundaries are computed at fit time and stored in the run artifact for full reproducibility.
+- **SGAM niche indicator** (`btm_sgam_niche`): A binary feature set to 1 when BPI < 25th percentile (training set) AND slope < 25th percentile (training set) AND depth falls within the observed depth range of SGAM-labelled training points. Threshold values (p25_bpi, p25_slope, sgam_depth_min, sgam_depth_max) are computed at fit time and stored in the run artifact for full reproducibility.
 - **Submission batch**: The ordered set of up to 5 Kaggle submissions for today's budget: (1) GPU CatBoost holdover, (2) RF+BTM+eco-depth zones, (3) RF+BTM+all derivatives, (4) RF+BTM+interactions, (5) RF+BTM hyperparameter tuning.
 
 ---
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 
@@ -162,4 +175,3 @@ As a researcher, I can execute today's full daily Kaggle submission budget (5 su
 - Object-based image analysis (full segmentation-based feature extraction) is explicitly out of scope for this specification. The new derivatives bring the pixel-based pipeline closer to the paper's Table 1 feature set.
 - The GPU CatBoost model may not generalise as well as its CV score suggests due to symmetric-tree behaviour differing from the test distribution. A CV–Kaggle gap larger than the RF+BTM gap of 0.007 is considered a valid finding and will be documented, not treated as a system failure.
 - Daily Kaggle submission budget is capped at 5 per day. Submission priority order follows User Story 5.
-
