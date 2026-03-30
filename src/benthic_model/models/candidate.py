@@ -40,6 +40,7 @@ def _cuda_available() -> bool:
         return True
     try:
         from xgboost import build_info  # noqa: PLC0415
+
         return bool(build_info().get("USE_CUDA"))
     except Exception:
         return False
@@ -65,7 +66,7 @@ class CandidateXGBoostModel:
                 objective="multi:softmax",
                 num_class=len(self._encoder.classes_),
                 random_state=self._seed,
-                n_jobs=-1,        # was 1 — use all cores in CPU mode
+                n_jobs=-1,  # was 1 — use all cores in CPU mode
                 tree_method="hist",
                 device=device,
             )
