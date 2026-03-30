@@ -1,0 +1,13 @@
+{
+  "run_id": "candidate-20260330065856",
+  "run_type": "candidate",
+  "weighted_f1": 0.796733260612382,
+  "per_class_f1": {
+    "ALG": 0.4140190478771312,
+    "FMAT": 0.7581377147005646,
+    "NVB": 0.8469598926032571,
+    "SGAM": 0.0,
+    "SGZ": 0.5724810698388891
+  },
+  "fold_scheme": "spatial_blocked"
+}

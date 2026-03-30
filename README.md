@@ -50,7 +50,8 @@ ML pipeline that:
 - Generates `ID,class` submission files for the Kaggle competition.
 
 Competition classes: `ALG`, `FMAT`, `NVB`, `SGAM`, `SGZ`
-Best result to date: weighted F1 **0.8026** (baseline-20260324181702, spatial blocked CV)
+Best CV result: weighted F1 **0.8024** (candidate-20260330064219, rf-btm-fine, spatial blocked CV)
+Best Kaggle public F1: **0.79518** (R04/R06 RF+BTM, run 014-btm-model-sweep) — previous best was 0.76413
 
 ### Pipeline commands
 

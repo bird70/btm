@@ -72,5 +72,5 @@ markers = [
     "benthic: benthic_model ML pipeline tests (requires benthic extras)",
 ]
 testpaths = ["tests"]
-pythonpath = ["src"]
+pythonpath = ["src", "."]
 addopts = "-ra"

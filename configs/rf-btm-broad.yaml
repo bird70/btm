@@ -1,0 +1,17 @@
+# R05 — RF on MBES core 8 + BTM broad-scale terrain features
+# Purpose: Add BTM broad-scale terrain features (broad BPI, depth-stats)
+# Train with: --train-csv data/train_btm.csv
+model_type: rf
+seed: 42
+cv:
+  n_splits: 5
+  fold_scheme: spatial_blocked
+  random_state: 42
+  spatial_bins: 4
+feature_flags:
+  include_focal_stats: false
+  include_interactions: false
+  include_spatial_z_scores: false
+  include_btm_features: true
+# BTM extraction scale: --broad-inner 10 --broad-outer 30
+# Columns: btm_broad_bpi, btm_depth_stats

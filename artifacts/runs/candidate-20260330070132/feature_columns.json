@@ -1,0 +1,12 @@
+[
+  "x",
+  "y",
+  "bathymetry",
+  "backscatter",
+  "bathymetry_x_backscatter",
+  "acoustic_hardness_proxy",
+  "relief_index",
+  "bathymetry_z",
+  "backscatter_z",
+  "bathymetry_backscatter_rank"
+]

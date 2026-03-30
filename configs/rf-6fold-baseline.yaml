@@ -1,0 +1,10 @@
+# R14 — RF baseline with 6-fold CV (CV-only; NO Kaggle submission)
+# Purpose: Test whether fold count changes the CV score vs R01 (5-fold)
+# Same feature set as baseline.yaml (all flags defaulting to None = all enabled)
+model_type: rf
+seed: 42
+cv:
+  n_splits: 6
+  fold_scheme: spatial_blocked
+  random_state: 42
+  spatial_bins: 4

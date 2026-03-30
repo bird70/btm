@@ -1,0 +1,16 @@
+# R08 — RF on MBES core 8 + BTM full + focal stats/texture
+# Purpose: Maximum feature set; primary overfitting signal test
+# Train with: --train-csv data/train_btm.csv
+model_type: rf
+seed: 42
+cv:
+  n_splits: 5
+  fold_scheme: spatial_blocked
+  random_state: 42
+  spatial_bins: 4
+feature_flags:
+  include_focal_stats: true
+  include_interactions: false
+  include_spatial_z_scores: false
+  include_btm_features: true
+# BTM extraction: full scale (fine + broad)

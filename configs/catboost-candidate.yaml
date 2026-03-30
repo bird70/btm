@@ -1,0 +1,15 @@
+# R11 — CatBoost on Phase 2 winner feature set
+# Phase 2 winner: rf-btm-full / rf-btm-fine (Kaggle=0.79518, CV=0.8024, gap=0.0072)
+# Train with: --train-csv data/train_btm.csv
+model_type: catboost
+seed: 42
+cv:
+  n_splits: 5
+  fold_scheme: spatial_blocked
+  random_state: 42
+  spatial_bins: 4
+feature_flags:
+  include_focal_stats: false
+  include_interactions: false
+  include_spatial_z_scores: false
+  include_btm_features: true
