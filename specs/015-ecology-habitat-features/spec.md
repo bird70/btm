@@ -65,7 +65,7 @@ As a researcher, I can add four new bathymetric spatial derivatives (northness, 
 
 1. **Given** the MBES bathymetry raster, **When** eco-features are extracted, **Then** `btm_northness` = sin(aspect), `btm_eastness` = cos(aspect), computed from a 3×3 analysis window, matching the reference paper specification.
 2. **Given** the MBES bathymetry raster, **When** eco-features are extracted, **Then** `btm_complexity` (rate of change of slope) and `btm_max_curvature` are computed at 3×3 neighbourhood and are non-NaN for ≥ 90% of training points.
-3. **Given** a depth raster or bathymetry column in the training CSV, **When** eco-features are extracted, **Then** `btm_depth_zone` assigns each point to one of at least 3 ecologically meaningful bins (shallow / mid / deep) based on thresholds drawn from the depth distribution of the training data.
+3. **Given** a depth raster or bathymetry column in the training CSV, **When** eco-features are extracted, **Then** `btm_depth_zone` assigns each point to one of 4 depth bins (ordinal integers 1–4 at p25/p50/p75 quantile boundaries of the training depth distribution).
 4. **Given** the full eco-feature set, **When** a Random Forest is trained, **Then** feature importances are recorded in metrics and SGAM per-class F1 is logged separately, enabling comparison to the baseline (F1 = 0.043).
 
 ---
@@ -130,12 +130,12 @@ As a researcher, I can execute today's full daily Kaggle submission budget (5 su
 ### Functional Requirements
 
 - **FR-001**: System MUST generate a prediction CSV from existing artifact `candidate-20260330203952` against `data/test.csv` in the Kaggle submission format.
-- **FR-002**: System MUST compute `btm_northness` = sin(aspect) at a 3×3 analysis window from the bathymetry raster. This computation MUST reside in `src/benthic_model/features/eco_features.py`.
-- **FR-003**: System MUST compute `btm_eastness` = cos(aspect) at a 3×3 analysis window from the bathymetry raster. This computation MUST reside in `src/benthic_model/features/eco_features.py`.
-- **FR-004**: System MUST compute `btm_max_curvature` (maximum of plan curvature and profile curvature) at a 3×3 analysis window. This computation MUST reside in `src/benthic_model/features/eco_features.py`.
-- **FR-005**: System MUST compute `btm_complexity` (second derivative of slope / rate of change of slope) at a 3×3 analysis window. This computation MUST reside in `src/benthic_model/features/eco_features.py`.
+- **FR-002**: System MUST compute `btm_northness` = sin(aspect) at a 3×3 analysis window from the bathymetry raster. This computation MUST reside in `btm/features/extract.py` (raster tier, consistent with all raster sampling in this codebase).
+- **FR-003**: System MUST compute `btm_eastness` = cos(aspect) at a 3×3 analysis window from the bathymetry raster. This computation MUST reside in `btm/features/extract.py` (raster tier).
+- **FR-004**: System MUST compute `btm_max_curvature` (maximum of plan curvature and profile curvature) at a 3×3 analysis window. This computation MUST reside in `btm/features/extract.py` (raster tier).
+- **FR-005**: System MUST compute `btm_complexity` (second derivative of slope / rate of change of slope) at a 3×3 analysis window. This computation MUST reside in `btm/features/extract.py` (raster tier). `src/benthic_model/features/eco_features.py` handles training-time transforms only (FR-006, FR-008).
 - **FR-006**: System MUST assign a `btm_depth_zone` ordinal integer feature (1 = very shallow, 2 = shallow, 3 = mid, 4 = deeper) using 4 quantile-based bin boundaries computed from the training depth distribution, ensuring equal sample representation across bins. Boundaries are logged in the run artifact for reproducibility. The integer column (not one-hot) is used directly as a model input.
-- **FR-007**: System MUST support a feature flag (`eco_features: true/false`) in config YAMLs to enable/disable eco-feature columns without affecting existing feature sets.
+- **FR-007**: System MUST support a feature flag (`include_eco_features: true/false`) in config YAMLs to enable/disable eco-feature columns without affecting existing feature sets.
 - **FR-008**: System MUST create a composite indicator feature (`btm_sgam_niche`) encoding the joint condition: BPI below the 25th percentile of the training set AND slope below the 25th percentile of the training set AND depth within the observed depth range of SGAM-labelled training points. Percentile thresholds are computed from the training CSV and must be logged with each run for reproducibility.
 - **FR-009**: System MUST record per-class F1 (including SGAM class separately) in `metrics.json` for every experiment run in this spec.
 - **FR-010**: System MUST create config YAMLs for at least 4 new experiment variants using eco-features on the RF model.

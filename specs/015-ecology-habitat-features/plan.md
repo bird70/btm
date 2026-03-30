@@ -23,7 +23,7 @@ Add ecology-informed bathymetric spatial derivatives (northness, eastness, max c
 
 - [x] **I. TDD** — Failing tests for `eco_features.py` and new `FeatureFlags.include_eco_features` will be written in `tests/unit/test_eco_features.py` before any implementation code. Red-Green-Refactor cycle enforced.
 - [x] **II. Code Quality** — ruff linting already configured; new code follows existing module conventions (PEP 8, docstrings on public functions, named constants for magic numbers like `N_DEPTH_BINS = 4`).
-- [x] **III. Performance** — Raster derivatives use SciPy `ndimage.convolve` with vectorised NumPy kernels; no Python-level pixel loops. Raster cell-size is read from the GeoTIFF metadata (not hardcoded).
+- [x] **III. Performance** — Raster derivatives use SciPy `ndimage.convolve` with vectorised NumPy kernels; no Python-level pixel loops. Raster cell-size is read from the GeoTIFF metadata (not hardcoded). **Block-based exception (documented)**: `extract_eco_raster_features()` reads the full raster band (`src.read(1)`), consistent with the pre-existing `btm/features/extract.py` pattern. Fagatele Bay bathymetry TIF is < 100 MB; implementer MUST add a size assertion (`assert size_mb < 100`) at function entry. If the raster ever exceeds 100 MB, upgrade to block-based processing via `rasterio.windows`.
 - [x] **IV. Scientific Accuracy** — Northness/eastness traced to Wilson et al. (2007) Table 1 and Horn (1981) gradient method. Curvature traced to Schmidt et al. (2003). Complexity traced to Wilson et al. (2007). References cited in `research.md` and module docstrings.
 - [x] **V. Platform Portability** — All eco-feature computation is pure Python (NumPy/SciPy/rasterio). No arcpy or QGIS dependency. Raster paths passed at call time; no hardcoded paths.
 - [x] **VI. Simplicity** — Each new module has a single responsibility: `eco_features.py` (in-pipeline transformations; depth zone + niche indicator only), raster derivative code added to `btm/features/extract.py` (consistent with where all other raster sampling lives).
@@ -67,7 +67,7 @@ tests/unit/
 
 ## Complexity Tracking
 
-No constitution violations. All additions follow existing module patterns without introducing new abstractions beyond what is required.
+All additions follow existing module patterns without introducing new abstractions beyond what is required. **Principle III deviation (documented)**: `extract_eco_raster_features()` uses a full-band raster read, matching the pre-existing `btm/features/extract.py` convention. Implementer MUST add a size assertion at function entry (`assert size_mb < 100, "Raster exceeds 100 MB; switch to block-based processing"`); if the assertion ever fails, refactor to `rasterio.windows` block iteration.
 
 ---
 

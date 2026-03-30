@@ -32,8 +32,9 @@
 - [ ] T005 Run `pytest tests/unit/test_config_and_metadata.py` to confirm T004 tests fail (Red confirmed)
 - [ ] T006 Implement T002 + T003 changes and verify T004 tests pass (Green)
 - [ ] T007 Run full test suite `pytest tests/ -q` and confirm 0 regressions
+- [ ] T060 [US2/US3/US4] Verify `src/benthic_model/models/train.py` writes per-class F1 for all 5 habitat classes to `metrics.json`; if absent, extend metrics output before any training runs execute (SC-007 prerequisite — blocks all training tasks T008, T033, T038, T043, T044)
 
-**Checkpoint**: Config changes done; all existing 154 tests still pass
+**Checkpoint**: Config changes done; all existing 154 tests still pass; per-class F1 in `metrics.json` confirmed for all run types
 
 ---
 
@@ -117,8 +118,8 @@
 ### Implementation for User Story 4
 
 - [ ] T035 [P] [US4] Create `configs/rf-btm-tuned.yaml`: `model_type: rf`, `model_params: {n_estimators: 500, max_features: sqrt, min_samples_leaf: 1}`, `feature_flags.include_btm_features: true`, all other flags false; `# R18 — RF + BTM + tuned hyperparameters` header comment
-- [ ] T036 [US4] Update `src/benthic_model/models/train.py` (or baseline.py builder): pass `pipeline_cfg.model_params` as `**kwargs` to `RandomForestClassifier` constructor when `model_params` is not None
-- [ ] T037 [US4] Write test for `model_params` forwarding in `tests/unit/test_model_builders.py`: given `model_params={n_estimators: 500}`, built RF has `n_estimators == 500`
+- [ ] T036 [US4] Write failing test for `model_params` forwarding in `tests/unit/test_model_builders.py`: given `model_params={n_estimators: 500}`, built RF has `n_estimators == 500` (TDD Red — must FAIL before T037)
+- [ ] T037 [US4] Update `src/benthic_model/models/train.py` (or baseline.py builder): pass `pipeline_cfg.model_params` as `**kwargs` to `RandomForestClassifier` constructor when `model_params` is not None; run T036 test to confirm Green
 - [ ] T038 [US4] Run `benthic-model train --config configs/rf-btm-tuned.yaml --train-csv data/train_btm.csv`; record CV weighted F1
 - [ ] T039 [US4] Note CV F1 vs R04 (0.8024); flag in `run_registry.jsonl` `notes` if CV > 0.8024
 - [ ] T040 [US4] Run `pytest tests/ -q` — full suite still passes
@@ -157,7 +158,7 @@
 - [ ] T047 [US5] Submit R15: `kaggle competitions submit -c <competition> -f data/submission_r15.csv -m "<r15_run_id> RF+BTM+eco-depth CV=<r15_cv>"`; record score in `kaggle_scores.csv`
 - [ ] T048 [US5] Generate submission CSV for R16 (eco-full): `benthic-model predict --run-id <r16_run_id> --test-csv data/test_btm_eco.csv --output data/submission_r16.csv`
 - [ ] T049 [US5] Submit R16: `kaggle competitions submit -c <competition> -f data/submission_r16.csv -m "<r16_run_id> RF+BTM+all-eco-derivatives CV=<r16_cv>"`; record score in `kaggle_scores.csv`
-- [ ] T050 [US5] Generate submission CSV for R17 (interactions): `benthic-model predict --run-id <r17_run_id> --test-csv data/train_btm.csv --output data/submission_r17.csv` (uses non-eco test CSV)
+- [ ] T050 [US5] Generate submission CSV for R17 (interactions): `benthic-model predict --run-id <r17_run_id> --test-csv data/test.csv --output data/submission_r17.csv` (uses non-eco test CSV)
 - [ ] T051 [US5] Submit R17: `kaggle competitions submit -c <competition> -f data/submission_r17.csv -m "<r17_run_id> RF+BTM+interactions CV=<r17_cv>"`; record score in `kaggle_scores.csv`
 - [ ] T052 [US5] Generate submission CSV for R18 (tuned RF): `benthic-model predict --run-id <r18_run_id> --test-csv data/test.csv --output data/submission_r18.csv`
 - [ ] T053 [US5] Submit R18: `kaggle competitions submit -c <competition> -f data/submission_r18.csv -m "<r18_run_id> RF+BTM+tuned n_estimators=500 max_features=sqrt CV=<r18_cv>"`; record score in `kaggle_scores.csv`
@@ -183,8 +184,9 @@
 
 ```
 T001
- └── T002–T007 (foundational config changes)
-       ├── T008–T010 (US1: GPU CatBoost — no code changes needed)
+ └── T002–T007, T060 (foundational config + per-class F1 gate)
+       ├── T060 (metrics.json per-class F1 gate — MUST precede all training tasks)
+       ├── T008–T010 (US1: GPU CatBoost — no code changes needed; after T060)
        ├── T011–T031 (US2: eco-feature module + raster extraction)
        │    ├── T041–T045 (US2 continued: eco-feature RF experiments — needs T029-T030)
        │    └── T046–T054 (US5: Kaggle batch — needs all training runs)
@@ -215,7 +217,7 @@ T055–T059 (polish — depends on all preceding)
 
 **Suggested order today** (submission budget filling gradually while code work proceeds):
 1. T001–T010: Submit GPU CatBoost immediately (no code changes)
-2. T002–T007 + T032 + T035: Config infrastructure while waiting for result
+2. T002–T007 + T060 + T032 + T035: Config infrastructure + per-class F1 gate while waiting for result
 3. T011–T031: Eco-feature module (TDD, raster functions, pipeline integration)
 4. T041–T054: Train eco runs + final submissions
 5. T055–T059: Polish and commit
