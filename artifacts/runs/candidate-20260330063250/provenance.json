@@ -1,0 +1,16 @@
+{
+  "run_id": "candidate-20260330063250",
+  "code_revision": "c9208ba",
+  "config_ref": "configs\\rf-texture.yaml",
+  "config_hash": "8e5c619e18b5",
+  "seed": 42,
+  "fold_scheme": "spatial_blocked",
+  "data_split_ref": "data\\train.csv",
+  "command": "train --train-csv data/train.csv --bathymetry-tif data/MBES/bathymetry.tif --backscatter-tif data/MBES/backscatter.tif --config configs/rf-texture.yaml --run-type candidate --seed 42",
+  "artifacts": {
+    "model": "artifacts\\runs\\candidate-20260330063250\\model.joblib",
+    "feature_columns": "artifacts\\runs\\candidate-20260330063250\\feature_columns.json",
+    "class_vocab": "artifacts\\runs\\candidate-20260330063250\\class_vocab.json",
+    "metrics": "artifacts\\runs\\candidate-20260330063250\\metrics.json"
+  }
+}

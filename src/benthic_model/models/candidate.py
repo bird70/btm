@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import numpy as np
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.preprocessing import LabelEncoder
 
@@ -7,6 +8,16 @@ try:
     from xgboost import XGBClassifier
 except Exception:  # pragma: no cover
     XGBClassifier = None
+
+try:
+    from lightgbm import LGBMClassifier
+except Exception:  # pragma: no cover
+    LGBMClassifier = None
+
+try:
+    from catboost import CatBoostClassifier
+except Exception:  # pragma: no cover
+    CatBoostClassifier = None
 
 
 class CandidateXGBoostModel:
@@ -45,3 +56,91 @@ class CandidateXGBoostModel:
 
 def build_candidate_model(seed: int = 42) -> CandidateXGBoostModel:
     return CandidateXGBoostModel(seed=seed)
+
+
+class CandidateLGBMModel:
+    """LightGBM multi-class classifier wrapper."""
+
+    def __init__(self, seed: int = 42) -> None:
+        self._seed = seed
+        if LGBMClassifier is None:  # pragma: no cover
+            raise ImportError("lightgbm is required for CandidateLGBMModel")
+        self._model = LGBMClassifier(
+            n_estimators=600,
+            learning_rate=0.03,
+            num_leaves=63,
+            class_weight="balanced",
+            random_state=seed,
+            verbose=-1,
+        )
+
+    def fit(self, X, y):
+        self._model.fit(X, y)
+        return self
+
+    def predict(self, X):
+        return self._model.predict(X)
+
+
+def build_lgbm_model(seed: int = 42) -> CandidateLGBMModel:
+    return CandidateLGBMModel(seed=seed)
+
+
+class CandidateCatBoostModel:
+    """CatBoost multi-class classifier wrapper."""
+
+    def __init__(self, seed: int = 42) -> None:
+        self._seed = seed
+        if CatBoostClassifier is None:  # pragma: no cover
+            raise ImportError("catboost is required for CandidateCatBoostModel")
+        self._model = CatBoostClassifier(
+            iterations=800,
+            depth=7,
+            learning_rate=0.05,
+            auto_class_weights="Balanced",
+            verbose=0,
+            random_seed=seed,
+        )
+
+    def fit(self, X, y):
+        self._model.fit(X, y)
+        return self
+
+    def predict(self, X):
+        result = np.array(self._model.predict(X)).ravel().astype(str)
+        return result
+
+
+def build_catboost_model(seed: int = 42) -> CandidateCatBoostModel:
+    return CandidateCatBoostModel(seed=seed)
+
+
+class CandidateEnsembleModel:
+    """Soft-vote ensemble of a Random Forest and a LightGBM classifier."""
+
+    def __init__(self, seed: int = 42) -> None:
+        from benthic_model.models.baseline import build_baseline_model
+
+        self._rf = build_baseline_model(seed=seed)
+        self._lgbm = CandidateLGBMModel(seed=seed)
+        self._classes: list[str] = []
+
+    def fit(self, X, y):
+        self._classes = (
+            sorted(y.unique().tolist()) if hasattr(y, "unique") else sorted(set(y))
+        )
+        self._rf.fit(X, y)
+        self._lgbm.fit(X, y)
+        return self
+
+    def predict(self, X):
+        rf_proba = self._rf.model.predict_proba(X)
+        lgbm_proba = self._lgbm._model.predict_proba(X)
+        mean_proba = (np.array(rf_proba) + np.array(lgbm_proba)) / 2.0
+        indices = np.argmax(mean_proba, axis=1)
+        classes = self._rf.model.classes_
+        return np.array(classes)[indices]
+
+
+def build_rf_lgbm_ensemble_model(seed: int = 42) -> CandidateEnsembleModel:
+    return CandidateEnsembleModel(seed=seed)

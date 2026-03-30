@@ -1,0 +1,14 @@
+{
+  "run_id": "candidate-20260330064751",
+  "status": "evaluated",
+  "drift_detected": false,
+  "tolerance": 0.01,
+  "details": [
+    {
+      "reference_run_id": "candidate-20260330063529",
+      "reference_weighted_f1": 0.8017774286008125,
+      "delta_weighted_f1": 0.0006532626187640833,
+      "within_tolerance": true
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+# R06 — RF on MBES core 8 + BTM fine + broad terrain features (full BTM set)
+# Purpose: Maximum BTM terrain feature set; watch for overfitting signal
+# Train with: --train-csv data/train_btm.csv
+model_type: rf
+seed: 42
+cv:
+  n_splits: 5
+  fold_scheme: spatial_blocked
+  random_state: 42
+  spatial_bins: 4
+feature_flags:
+  include_focal_stats: false
+  include_interactions: false
+  include_spatial_z_scores: false
+  include_btm_features: true
+# BTM extraction: --fine-inner 1 --fine-outer 5 --broad-inner 10 --broad-outer 30
+# Columns: btm_fine_bpi, btm_vrm, btm_slope, btm_broad_bpi, btm_depth_stats

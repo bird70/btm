@@ -1,0 +1,25 @@
+{
+  "run_id": "candidate-20260330070051",
+  "run_type": "candidate",
+  "fold_scheme": "spatial_blocked",
+  "weighted_f1": 0.7959862822564645,
+  "per_class_f1": {
+    "ALG": 0.4326536691168245,
+    "FMAT": 0.7564390780040237,
+    "NVB": 0.8598540631222982,
+    "SGAM": 0.0,
+    "SGZ": 0.5728612175881204
+  },
+  "comparison": {
+    "baseline_run_id": "baseline-20260330061059",
+    "baseline_weighted_f1": 0.796768022118363,
+    "delta_weighted_f1": -0.000781739861898445,
+    "baseline_per_class_f1": {
+      "ALG": 0.44011957264287843,
+      "FMAT": 0.7689039253384148,
+      "NVB": 0.8581788636133846,
+      "SGAM": 0.0,
+      "SGZ": 0.5789000232299202
+    }
+  }
+}

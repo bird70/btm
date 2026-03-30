@@ -1,0 +1,9 @@
+run_id,submission_file,kaggle_public_f1,submitted_at,message
+baseline-20260330061059,submission_R01_baseline.csv,0.73069,2026-03-30T06:15:11Z,R01 RF baseline seed=42 weighted_cv_f1=0.7968
+candidate-20260330061200,submission_R02_rf-core-only.csv,0.76256,2026-03-30T06:15:58Z,R02 RF core-only no-interactions no-focal-stats seed=42 weighted_cv_f1=0.8018
+candidate-20260330061240,submission_R03_rf-no-interactions.csv,0.76256,2026-03-30T06:16:47Z,R03 RF no-interactions with-focal-stats seed=42 weighted_cv_f1=0.8018
+candidate-20260330064219,submission_R04_btm-fine.csv,0.79518,2026-03-30T06:49:29Z,R04 RF BTM-fine no-focal-stats seed=42 weighted_cv_f1=0.8024 SGAM_f1=0.043
+candidate-20260330064319,submission_R05_btm-broad.csv,,pending,R05 RF BTM-broad no-focal-stats seed=42 weighted_cv_f1=0.8024 SGAM_f1=0.043
+candidate-20260330064710,submission_R06_btm-full.csv,0.79518,2026-03-30T06:50:03Z,R06 RF BTM-full all-btm-features seed=42 weighted_cv_f1=0.8024 SGAM_f1=0.043
+candidate-20260330063250,submission_R07_rf-texture.csv,,pending,R07 RF texture focal-stats seed=42 weighted_cv_f1=0.8018
+candidate-20260330064751,submission_R08_btm-texture.csv,,pending,R08 RF BTM-texture focal-stats+btm seed=42 weighted_cv_f1=0.8024 SGAM_f1=0.043

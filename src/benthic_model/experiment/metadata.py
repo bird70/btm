@@ -19,7 +19,11 @@ class ExperimentMetadata:
     data_split_ref: str = ""
     metric_weighted_f1: float | None = None
     metric_per_class_f1: dict[str, float] = field(default_factory=dict)
-    timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat(timespec="seconds"))
+    model_type_used: str = ""
+    feature_flags_used: dict[str, bool] = field(default_factory=dict)
+    timestamp: str = field(
+        default_factory=lambda: datetime.now(UTC).isoformat(timespec="seconds")
+    )
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

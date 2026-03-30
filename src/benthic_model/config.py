@@ -6,6 +6,8 @@ from typing import Any
 
 import yaml
 
+_ALLOWED_MODEL_TYPES = frozenset({"rf", "xgb", "lgbm", "catboost", "rf_lgbm_ensemble"})
+
 
 @dataclass(slots=True)
 class CrossValidationConfig:
@@ -16,6 +18,16 @@ class CrossValidationConfig:
 
 
 @dataclass(slots=True)
+class FeatureFlags:
+    """Controls which derived feature groups are added by engineer_features()."""
+
+    include_focal_stats: bool = True
+    include_interactions: bool = True
+    include_spatial_z_scores: bool = True
+    include_btm_features: bool = True
+
+
+@dataclass(slots=True)
 class PipelineConfig:
     data_dir: str = "data"
     artifacts_dir: str = "artifacts"
@@ -23,13 +35,31 @@ class PipelineConfig:
     submissions_dir: str = "submissions"
     seed: int = 42
     cv: CrossValidationConfig = field(default_factory=CrossValidationConfig)
+    model_type: str | None = None
+    feature_flags: FeatureFlags | None = None
+    # informational; not consumed by the pipeline
+    spatial_coords: bool = False
+
+    def __post_init__(self) -> None:
+        if self.model_type is not None and self.model_type not in _ALLOWED_MODEL_TYPES:
+            raise ValueError(
+                f"Invalid model_type {self.model_type!r}. "
+                f"Allowed values: {sorted(_ALLOWED_MODEL_TYPES)}"
+            )
 
     @classmethod
     def from_dict(cls, config: dict[str, Any]) -> PipelineConfig:
         cv_cfg = config.get("cv", {})
         cv = CrossValidationConfig(**cv_cfg)
-        payload = {k: v for k, v in config.items() if k != "cv"}
-        return cls(cv=cv, **payload)
+
+        flags_raw = config.get("feature_flags")
+        feature_flags: FeatureFlags | None = None
+        if flags_raw is not None:
+            feature_flags = FeatureFlags(**flags_raw)
+
+        ignored = {"cv", "feature_flags"}
+        payload = {k: v for k, v in config.items() if k not in ignored}
+        return cls(cv=cv, feature_flags=feature_flags, **payload)
 
     @classmethod
     def from_yaml(cls, config_path: str | Path) -> PipelineConfig:
