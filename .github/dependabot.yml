@@ -1,0 +1,30 @@
+version: 2
+updates:
+  # Python dependencies via uv (reads pyproject.toml + uv.lock)
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    groups:
+      # Bundle all ML library updates into one PR to review together
+      ml-libs:
+        patterns:
+          - "xgboost"
+          - "lightgbm"
+          - "catboost"
+          - "scikit-learn"
+          - "scipy"
+          - "numpy"
+      dev-tools:
+        patterns:
+          - "pytest*"
+          - "ruff"
+
+  # GitHub Actions workflows (if any are added later)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"

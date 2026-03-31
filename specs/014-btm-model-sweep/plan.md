@@ -279,15 +279,15 @@ implementation step:
 
 ## Execution Schedule
 
-| Day             | Implementation tasks                               | Validation                               | Actual Outcome (2026-03-30)                                      |
-| --------------- | -------------------------------------------------- | ---------------------------------------- | ---------------------------------------------------------------- |
-| Day 0 (pre-run) | A–F above (code + configs + tests)                 | All pytest tests green                   | ✓ 154 passed, 0 failed                                           |
-| Day 1           | R01, R02, R03 train+evaluate+predict; submit all 3 | Phase 1 gate: CV ≥ 0.75                  | ✓ R01=0.731, R02/R03=0.763; gap R02=0.039 ≤ 0.04 PASS           |
-| Day 1 pm        | `btm-export-features` for train+test BTM CSVs      | Verify `data/train_btm.csv` columns      | ✓ 10 BTM cols, 6256 rows; 2 all-NaN cols filled with 0           |
-| Day 2           | R04–R08 train+evaluate+predict; submit top 3       | Phase 2 gate after Day 3                 | ✓ R04/R06=0.79518 **NEW BEST**; gap=0.007 PASS; daily limit hit  |
-| Day 3           | Remaining Phase 2 submits + R13; analyse gaps      | Update Phase 3 configs with winner flags | ✓ configs updated; R13 confirmed no spatial leakage              |
+| Day             | Implementation tasks                               | Validation                               | Actual Outcome (2026-03-30)                                        |
+| --------------- | -------------------------------------------------- | ---------------------------------------- | ------------------------------------------------------------------ |
+| Day 0 (pre-run) | A–F above (code + configs + tests)                 | All pytest tests green                   | ✓ 154 passed, 0 failed                                             |
+| Day 1           | R01, R02, R03 train+evaluate+predict; submit all 3 | Phase 1 gate: CV ≥ 0.75                  | ✓ R01=0.731, R02/R03=0.763; gap R02=0.039 ≤ 0.04 PASS              |
+| Day 1 pm        | `btm-export-features` for train+test BTM CSVs      | Verify `data/train_btm.csv` columns      | ✓ 10 BTM cols, 6256 rows; 2 all-NaN cols filled with 0             |
+| Day 2           | R04–R08 train+evaluate+predict; submit top 3       | Phase 2 gate after Day 3                 | ✓ R04/R06=0.79518 **NEW BEST**; gap=0.007 PASS; daily limit hit    |
+| Day 3           | Remaining Phase 2 submits + R13; analyse gaps      | Update Phase 3 configs with winner flags | ✓ configs updated; R13 confirmed no spatial leakage                |
 | Day 4           | R09–R12 train+evaluate+predict; submit all 4       | Best Kaggle score recorded               | ✓ R09-R12 trained (CV: LGBM=0.795, XGB=0.775, CB=0.797, ENS=0.797) |
-| Day 5           | Write `docs/run-014-btm-model-sweep.md`            | README updated if new best               | ✓ doc written; README updated with Kaggle=0.79518                |
+| Day 5           | Write `docs/run-014-btm-model-sweep.md`            | README updated if new best               | ✓ doc written; README updated with Kaggle=0.79518                  |
 
 ---
 
