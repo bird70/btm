@@ -376,3 +376,61 @@ benthic-model evaluate --run-id <run_id> \
   --bathymetry /path/to/btm/data/bathymetry.tif \
   --backscatter /path/to/btm/data/backscatter.tif
 ```
+
+---
+
+## Experiment Run Registry
+
+Chronological log of all experiments run on the Kaggle-style benthic dataset.
+See `docs/` for per-run detailed write-ups.
+
+| Experiment                | Branch / Doc                                   | Feature Set                                      | Feature Count | CV F1  | Kaggle F1 | Notes                                         |
+| ------------------------- | ---------------------------------------------- | ------------------------------------------------ | ------------- | ------ | --------- | --------------------------------------------- |
+| R04                       | —                                              | BTM base (RF)                                    | ~10           | 0.8024 | 0.79518   | Best Kaggle score; reference RF+BTM baseline  |
+| R06                       | —                                              | BTM base (RF)                                    | ~10           | 0.8024 | 0.79518   | Tied R04 on leaderboard                       |
+| R09                       | run-015                                        | BTM features (CatBoost GPU)                      | ~10           | 0.8139 | 0.76153   | Highest CV but largest CV–Kaggle gap (0.052)  |
+| R15                       | [run-015](run-015-ecology-habitat-features.md) | BTM + depth zones + SGAM niche (RF)              | ~12           | 0.7916 | 0.76438   | SGAM recall 0.045 (+5% vs R04)                |
+| R16                       | [run-015](run-015-ecology-habitat-features.md) | BTM + depth zones + SGAM niche + raster eco (RF) | ~16           | 0.7916 | 0.76438   | Identical to R15; raster eco adds no signal   |
+| R17                       | [run-015](run-015-ecology-habitat-features.md) | BTM + pairwise interactions (RF)                 | ~50           | 0.7971 | 0.79518   | Tied best Kaggle; interactions add no signal  |
+| R18                       | [run-015](run-015-ecology-habitat-features.md) | BTM (RF, n_est=500, sqrt features)               | ~10           | 0.7960 | 0.76438   | Tuning degraded Kaggle score                  |
+| experiment_v10 (full)     | [run-016](run-016-multiscale-terrain.md)       | BTM multi-scale (35) + RDMV (5) + GLCM (10)      | 64            | 0.6377 | TBD       | CatBoost CPU; +11 pp vs pure BTM base         |
+| experiment_v10 (selected) | [run-016](run-016-multiscale-terrain.md)       | As above, correlation + permutation filtered     | 33            | 0.6383 | TBD       | SC-004 degradation PASS; 1/98 prediction diff |
+| experiment_v11 (combined) | [run-017](run-017-combined-multiscale-mbes.md) | BTM-33 + MBES-8 (CatBoost)                       | 41            | 0.7829 | TBD       | +14.5 pp vs BTM-only; SGAM recall 0.142       |
+| experiment_v11 (selected) | [run-017](run-017-combined-multiscale-mbes.md) | As above, permutation filtered                   | 38            | 0.7829 | TBD       | SC-004 degradation PASS; 0/98 prediction diff |
+
+### Why experiment_v10 (0.6377) is far below R04/R06 (0.8024) — two separate causes
+
+**Cause 1 — Missing MBES core 8 features (primary cause, ~+0.15 pp effect)**
+
+R04/R06 ran through the `benthic_model` pipeline, which _always_ includes the 8 MBES point-sample features derived directly from the bathymetry and backscatter rasters at each sample location:
+depth, backscatter, slope, VRM, complexity, max*curvature, northness, eastness.
+These are the strongest single predictors on this dataset (run-014 Phase 1: RF on MBES-8 alone = CV 0.797,
+Kaggle 0.731). The BTM terrain derivatives are additive on top of them, not a replacement.
+`experiment_v10` is a \_BTM-feature-only* standalone script — it never injects these MBES-8 columns.
+The 0.8024 score is therefore _not achievable_ from BTM features alone regardless of model choice.
+
+**Cause 2 — Model choice (secondary cause, ~+0.006 pp if RF used instead)**
+
+run-014 Phase 3 benchmarked all model types on the same BTM-winner feature set inside `benthic_model`:
+
+| Model                                                                              | CV F1 (same features) |
+| ---------------------------------------------------------------------------------- | --------------------- |
+| **RF** (`n_estimators=300, min_samples_leaf=2, class_weight='balanced_subsample'`) | **0.8024**            |
+| CatBoost                                                                           | 0.7965                |
+| LightGBM                                                                           | 0.7954                |
+| RF+LGBM ensemble                                                                   | 0.7967                |
+
+RF outperforms CatBoost by ~0.006 points on these features, likely because
+`class_weight='balanced_subsample'` handles the 5-class imbalance better than CatBoost's
+`auto_class_weights`. So yes — replacing CatBoost with RF in `experiment_v10` will improve
+the CV score, but by a modest 0.5–1 pp, not 14 pp.
+
+**Recommended next experiments**
+
+| Priority  | Experiment                                                                                                               | Expected gain         | Rationale                                                       |
+| --------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------- | --------------------------------------------------------------- |
+| High      | Add RF to `experiment_v10.py` as third model (`n_estimators=300, min_samples_leaf=2, class_weight='balanced_subsample'`) | +0.5–1 pp vs CatBoost | Establishes true BTM-only RF baseline with multi-scale features |
+| Very High | New experiment combining multi-scale BTM + MBES-8 features via `benthic_model` pipeline                                  | +12–15 pp estimated   | Addresses Cause 1; the correctly comparable experiment to R04   |
+
+The correct like-for-like baseline for multi-scale BTM _alone_ is BTM-base CatBoost (~0.52 CV F1),
+against which `experiment_v10` shows a genuine +11 pp gain.

@@ -5,6 +5,7 @@ import json
 import subprocess
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 import joblib
 import pandas as pd
@@ -48,7 +49,12 @@ def _config_hash(config_path: Path) -> str:
     return hashlib.sha256(content).hexdigest()[:12]
 
 
-def _build_model(run_type: str, seed: int, model_type: str | None = None):
+def _build_model(
+    run_type: str,
+    seed: int,
+    model_type: str | None = None,
+    model_params: dict[str, Any] | None = None,
+):
     resolved = model_type or ("rf" if run_type == "baseline" else "xgb")
     dispatch = {
         "rf": build_baseline_model,
@@ -59,7 +65,27 @@ def _build_model(run_type: str, seed: int, model_type: str | None = None):
     }
     if resolved not in dispatch:
         raise ValueError(f"Unknown model_type: {resolved!r}")
-    return dispatch[resolved](seed=seed)
+    model = dispatch[resolved](seed=seed)
+    # T037: Forward model_params as kwargs to the underlying RF constructor.
+    if model_params and resolved == "rf" and hasattr(model, "model"):
+        for k, v in model_params.items():
+            setattr(model.model, k, v)
+        # Re-create underlying estimator with provided params to ensure they
+        # are applied at fit time (setattr alone doesn't re-initialise the forest).
+        from sklearn.ensemble import RandomForestClassifier
+
+        current = model.model
+        model.model = RandomForestClassifier(
+            **{
+                "n_estimators": getattr(current, "n_estimators", 300),
+                "random_state": seed,
+                "n_jobs": getattr(current, "n_jobs", -1),
+                "class_weight": getattr(current, "class_weight", "balanced"),
+                "min_samples_leaf": getattr(current, "min_samples_leaf", 2),
+                **{k: v for k, v in model_params.items()},
+            }
+        )
+    return model
 
 
 def _cross_validate(
@@ -71,6 +97,7 @@ def _cross_validate(
     n_splits: int,
     seed: int,
     model_type: str | None = None,
+    model_params: dict[str, Any] | None = None,
 ) -> tuple[float, dict[str, float]]:
     if fold_scheme == "spatial_blocked":
         fold_iter = iter_spatial_blocked_folds(
@@ -88,7 +115,7 @@ def _cross_validate(
     per_class_accumulator: dict[str, list[float]] = {}
 
     for train_idx, test_idx in fold_iter:
-        model = _build_model(run_type, seed, model_type)
+        model = _build_model(run_type, seed, model_type, model_params)
         model.fit(features.iloc[train_idx], labels.iloc[train_idx])
         pred = model.predict(features.iloc[test_idx])
 
@@ -140,11 +167,11 @@ def train_and_register_run(
 
     # Load structured config for feature_flags and model_type
     pipeline_cfg = PipelineConfig.from_yaml(config_path)
-    engineered = engineer_features(sampled, flags=pipeline_cfg.feature_flags)
+    y = frame["class"].astype(str)
+    engineered = engineer_features(sampled, flags=pipeline_cfg.feature_flags, y=y)
     feature_cols = select_model_feature_columns(engineered)
 
     X = engineered[feature_cols]
-    y = frame["class"].astype(str)
 
     with config_path.open("r", encoding="utf-8") as handle:
         config_data = yaml.safe_load(handle) or {}
@@ -163,9 +190,10 @@ def train_and_register_run(
         n_splits=n_splits,
         seed=seed,
         model_type=model_type,
+        model_params=pipeline_cfg.model_params,
     )
 
-    final_model = _build_model(run_type, seed, model_type)
+    final_model = _build_model(run_type, seed, model_type, pipeline_cfg.model_params)
     final_model.fit(X, y)
 
     run_id = f"{run_type}-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
@@ -191,6 +219,20 @@ def train_and_register_run(
         "fold_scheme": fold_scheme,
     }
     metrics_path.write_text(json.dumps(metrics_payload, indent=2), encoding="utf-8")
+
+    # T027: Write eco_thresholds.json artifact when include_eco_features is active.
+    if (
+        pipeline_cfg.feature_flags is not None
+        and pipeline_cfg.feature_flags.include_eco_features
+    ):
+        from benthic_model.features.eco_features import EcoFeatureTransformer
+
+        eco_t = EcoFeatureTransformer()
+        eco_t.fit(engineered, y)
+        eco_thresholds_path = run_dir / "eco_thresholds.json"
+        eco_thresholds_path.write_text(
+            json.dumps(eco_t.to_dict(), indent=2), encoding="utf-8"
+        )
 
     provenance_path = run_dir / "provenance.json"
     provenance_payload = {

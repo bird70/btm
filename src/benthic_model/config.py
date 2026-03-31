@@ -25,6 +25,7 @@ class FeatureFlags:
     include_interactions: bool = True
     include_spatial_z_scores: bool = True
     include_btm_features: bool = True
+    include_eco_features: bool = False
 
 
 @dataclass(slots=True)
@@ -37,6 +38,7 @@ class PipelineConfig:
     cv: CrossValidationConfig = field(default_factory=CrossValidationConfig)
     model_type: str | None = None
     feature_flags: FeatureFlags | None = None
+    model_params: dict[str, Any] | None = None
     # informational; not consumed by the pipeline
     spatial_coords: bool = False
 
@@ -57,9 +59,13 @@ class PipelineConfig:
         if flags_raw is not None:
             feature_flags = FeatureFlags(**flags_raw)
 
-        ignored = {"cv", "feature_flags"}
+        model_params: dict[str, Any] | None = config.get("model_params")
+
+        ignored = {"cv", "feature_flags", "model_params"}
         payload = {k: v for k, v in config.items() if k not in ignored}
-        return cls(cv=cv, feature_flags=feature_flags, **payload)
+        return cls(
+            cv=cv, feature_flags=feature_flags, model_params=model_params, **payload
+        )
 
     @classmethod
     def from_yaml(cls, config_path: str | Path) -> PipelineConfig:

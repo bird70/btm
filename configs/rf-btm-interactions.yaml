@@ -1,0 +1,16 @@
+# R17 — RF + BTM + pairwise interactions
+# Combines the BTM winner feature set (R04, CV=0.8024) with the interaction
+# terms used in earlier runs (R02, CV=0.8018) for a controlled ablation.
+seed: 42
+model_type: rf
+cv:
+  n_splits: 5
+  fold_scheme: spatial_blocked
+  random_state: 42
+  spatial_bins: 4
+feature_flags:
+  include_focal_stats: true
+  include_interactions: true
+  include_spatial_z_scores: true
+  include_btm_features: true
+  include_eco_features: false

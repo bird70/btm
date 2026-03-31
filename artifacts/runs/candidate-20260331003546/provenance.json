@@ -1,0 +1,16 @@
+{
+  "run_id": "candidate-20260331003546",
+  "code_revision": "6ae43d8",
+  "config_ref": "configs\\rf-btm-eco-depth.yaml",
+  "config_hash": "05fb94717a62",
+  "seed": 42,
+  "fold_scheme": "spatial_blocked",
+  "data_split_ref": "data\\train_btm_eco.csv",
+  "command": "-- train --config configs/rf-btm-eco-depth.yaml --train-csv data/train_btm_eco.csv --bathymetry-tif data/MBES/bathymetry.tif --backscatter-tif data/MBES/backscatter.tif --run-type candidate --seed 42",
+  "artifacts": {
+    "model": "artifacts\\runs\\candidate-20260331003546\\model.joblib",
+    "feature_columns": "artifacts\\runs\\candidate-20260331003546\\feature_columns.json",
+    "class_vocab": "artifacts\\runs\\candidate-20260331003546\\class_vocab.json",
+    "metrics": "artifacts\\runs\\candidate-20260331003546\\metrics.json"
+  }
+}

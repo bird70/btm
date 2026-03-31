@@ -65,8 +65,13 @@ def compute_vrm(
     else:
         nodata_mask = None  # type: ignore[assignment]
 
+    # scipy.ndimage.uniform_filter propagates NaN to all neighbours.
+    # Fill nodata pixels with 0 for the focal-sum step, then restore NaN mask.
+    nan_mask = np.isnan(work)
+    work_filled = np.where(nan_mask, 0.0, work)
+
     # --- Slope and aspect via Horn kernel ---
-    dz_dx, dz_dy = _compute_gradient(work, cell_size)
+    dz_dx, dz_dy = _compute_gradient(work_filled, cell_size)
 
     slope_rad = np.arctan(np.sqrt(dz_dx**2 + dz_dy**2))
 
@@ -88,6 +93,11 @@ def compute_vrm(
     x = np.where(aspect_deg == -1, 0.0, np.sin(aspect_r)) * xy
     y = np.where(aspect_deg == -1, 0.0, np.cos(aspect_r)) * xy
     z = np.cos(slope_rad)
+
+    # Replace NaN with 0 before focal sum so uniform_filter doesn't propagate NaN
+    x = np.where(nan_mask, 0.0, x)
+    y = np.where(nan_mask, 0.0, y)
+    z = np.where(nan_mask, 0.0, z)
 
     # --- Focal sum via uniform_filter (gives mean → multiply by n²) ---
     n2 = float(neighborhood_size**2)

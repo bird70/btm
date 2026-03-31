@@ -129,3 +129,68 @@ def test_engineer_features_no_flags_unchanged_behaviour() -> None:
     features_none = engineer_features(raw, flags=None)
 
     assert set(features_no_flags.columns) == set(features_none.columns)
+
+
+# ---------------------------------------------------------------------------
+# T014: include_eco_features flag integration in engineer_features() — RED phase
+# These tests must FAIL until eco_features.py and the engineering.py hook exist.
+# ---------------------------------------------------------------------------
+
+
+def _base_raw_with_btm() -> pd.DataFrame:
+    """Raw DataFrame with BTM columns necessary for EcoFeatureTransformer."""
+    import numpy as np
+
+    rng = np.random.default_rng(7)
+    n = 20
+    return pd.DataFrame(
+        {
+            "bathymetry": rng.uniform(-25, -2, n),
+            "backscatter": rng.uniform(50, 80, n),
+            "bathymetry_std_3": rng.uniform(0.5, 2, n),
+            "backscatter_std_3": rng.uniform(0.1, 0.5, n),
+            "btm_fine_bpi": rng.normal(0, 40, n),
+            "btm_slope": rng.uniform(0, 10, n),
+            "x": rng.uniform(0, 100, n),
+            "y": rng.uniform(0, 100, n),
+        }
+    )
+
+
+def test_engineer_features_include_eco_features_true_adds_depth_zone() -> None:
+    """engineer_features() with include_eco_features=True must add btm_depth_zone."""
+    from benthic_model.config import FeatureFlags
+
+    flags = FeatureFlags(include_eco_features=True)
+    out = engineer_features(_base_raw_with_btm(), flags=flags)
+
+    assert (
+        "btm_depth_zone" in out.columns
+    ), "engineer_features() with include_eco_features=True must add btm_depth_zone"
+
+
+def test_engineer_features_include_eco_features_true_adds_sgam_niche() -> None:
+    """engineer_features() with include_eco_features=True must add btm_sgam_niche."""
+    from benthic_model.config import FeatureFlags
+
+    flags = FeatureFlags(include_eco_features=True)
+    out = engineer_features(_base_raw_with_btm(), flags=flags)
+
+    assert (
+        "btm_sgam_niche" in out.columns
+    ), "engineer_features() with include_eco_features=True must add btm_sgam_niche"
+
+
+def test_engineer_features_include_eco_features_false_omits_eco_cols() -> None:
+    """engineer_features() with include_eco_features=False (default) must NOT add eco cols."""
+    from benthic_model.config import FeatureFlags
+
+    flags = FeatureFlags(include_eco_features=False)
+    out = engineer_features(_base_raw_with_btm(), flags=flags)
+
+    assert (
+        "btm_depth_zone" not in out.columns
+    ), "btm_depth_zone must not appear when include_eco_features=False"
+    assert (
+        "btm_sgam_niche" not in out.columns
+    ), "btm_sgam_niche must not appear when include_eco_features=False"

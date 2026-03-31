@@ -1,0 +1,528 @@
+2026-04-01 06:13:12,335 INFO === Experiment v11: Combined BTM-33 + MBES-8 ===
+2026-04-01 06:13:12,335 INFO Baseline: CV=0.8024  Kaggle=0.7952  SGAM_recall=0.045
+2026-04-01 06:13:12,344 INFO Train: 6256 rows   Test: 98 rows
+2026-04-01 06:13:12,790 INFO Rasters: bathy (4040, 4743) (33% valid)  back (4040, 4743)  cell=0.2500 m
+2026-04-01 06:13:19,872 INFO MBES-8 train: 6256 rows Î 8 cols
+2026-04-01 06:13:26,687 INFO MBES-8 test: 98 rows Î 8 cols
+2026-04-01 06:13:26,763 INFO BTM-33 selected features: 33 columns
+2026-04-01 06:13:26,767 INFO Combined feature matrix: 41 columns
+2026-04-01 06:13:26,767 INFO Combined feature matrix: 41 columns
+2026-04-01 06:13:26,767 INFO Feature extraction completed in 14.4s
+2026-04-01 06:13:26,767 INFO SC-005 PASS: extraction under 15 minutes (14.4s)
+2026-04-01 06:13:27,075 INFO Combined feature cache written
+2026-04-01 06:13:27,083 INFO Feature matrix: 6256 train Î 41 features  (98 test)  extraction=14.7s
+2026-04-01 06:13:33,937 INFO   [combined] rf: CV F1=0.7712 ▒ 0.0977  (6.6s)
+2026-04-01 06:16:32,762 INFO   [combined] cat: CV F1=0.7829 ▒ 0.0861  (178.8s)
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+2026-04-01 06:17:00,705 INFO   [combined] lgb: CV F1=0.7664 ▒ 0.0874  (27.9s)
+2026-04-01 06:17:00,740 INFO   [combined] rf+cat+lgb ensemble: CV F1=0.7775 ▒ 0.0858
+2026-04-01 06:17:00,740 INFO [combined] Best: cat (CV F1=0.7829)
+2026-04-01 06:17:00,740 INFO [combined] Training times: RF=6.6s Cat=178.8s LGB=27.9s Ens=0.0s Total=213.4s
+2026-04-01 06:17:00,741 INFO   ALG recall: 0.5058 ▒ 0.3412 (15 folds)
+2026-04-01 06:17:00,742 INFO   FMAT recall: 0.6879 ▒ 0.2405 (12 folds)
+2026-04-01 06:17:00,742 INFO   NVB recall: 0.8577 ▒ 0.1339 (15 folds)
+2026-04-01 06:17:00,743 INFO   SGAM recall: 0.1420 ▒ 0.1310 (6 folds)
+2026-04-01 06:17:00,744 INFO   SGZ recall: 0.3649 ▒ 0.3080 (12 folds)
+2026-04-01 06:17:00,757 INFO Total CV training time: 213.7s
+2026-04-01 06:17:00,757 WARNING SC-001 FAIL: RF CV F1=0.7712 < 0.8024
+2026-04-01 06:17:00,757 INFO SC-002 PASS (CV): best=cat improvement=0.0117 >= 0.005
+2026-04-01 06:17:00,758 INFO SC-003 PASS: SGAM recall=0.1420 >= 0.0450
+2026-04-01 06:17:00,762 INFO Per-class metrics written: reports\metrics\cv_per_class_v11.csv
+2026-04-01 06:17:02,731 INFO Feature importance written: reports\metrics\feature_importance_v11.csv
+2026-04-01 06:17:02,731 INFO Training final cat model on full training set...
+2026-04-01 06:17:39,248 INFO Submission written: data\submission_v11.csv (98 rows)
+2026-04-01 06:17:39,251 INFO Running permutation importance feature selection...
+2026-04-01 06:17:39,296 INFO Correlation pre-filter dropped 3 features (|r| > 0.95): btm_slope, complexity, vrm
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2684: UserWarning: X has feature names, but RandomForestClassifier was fitted without feature names
+  warnings.warn(
+2026-04-01 06:18:00,052 INFO   KEEP  depth                                     importance=0.1293 ▒ 0.0022
+2026-04-01 06:18:00,052 INFO   KEEP  backscatter                               importance=0.0232 ▒ 0.0015
+2026-04-01 06:18:00,052 INFO   KEEP  slope                                     importance=0.0015 ▒ 0.0002
+2026-04-01 06:18:00,052 INFO   DROP  vrm                                       importance=0.0026 ▒ 0.0004
+2026-04-01 06:18:00,052 INFO   DROP  complexity                                importance=0.0035 ▒ 0.0003
+2026-04-01 06:18:00,052 INFO   KEEP  max_curvature                             importance=0.0012 ▒ 0.0002
+2026-04-01 06:18:00,052 INFO   KEEP  northness                                 importance=0.0007 ▒ 0.0001
+2026-04-01 06:18:00,052 INFO   KEEP  eastness                                  importance=0.0009 ▒ 0.0001
+2026-04-01 06:18:00,052 INFO   KEEP  btm_broad_bpi                             importance=0.0008 ▒ 0.0001
+2026-04-01 06:18:00,053 INFO   DROP  btm_slope                                 importance=0.0011 ▒ 0.0002
+2026-04-01 06:18:00,053 INFO   KEEP  btm_vrm                                   importance=0.0029 ▒ 0.0003
+2026-04-01 06:18:00,053 INFO   KEEP  btm_northness                             importance=0.0010 ▒ 0.0002
+2026-04-01 06:18:00,053 INFO   KEEP  btm_eastness                              importance=0.0018 ▒ 0.0001
+2026-04-01 06:18:00,053 INFO   KEEP  btm_max_curvature                         importance=0.0017 ▒ 0.0001
+2026-04-01 06:18:00,053 INFO   KEEP  btm_complexity                            importance=0.0021 ▒ 0.0002
+2026-04-01 06:18:00,053 INFO   KEEP  btm_slope_3                               importance=0.0031 ▒ 0.0007
+2026-04-01 06:18:00,053 INFO   KEEP  btm_northness_3                           importance=0.0015 ▒ 0.0002
+2026-04-01 06:18:00,053 INFO   KEEP  btm_northness_7                           importance=0.0027 ▒ 0.0006
+2026-04-01 06:18:00,053 INFO   KEEP  btm_northness_11                          importance=0.0049 ▒ 0.0002
+2026-04-01 06:18:00,053 INFO   KEEP  btm_northness_21                          importance=0.1089 ▒ 0.0011
+2026-04-01 06:18:00,053 INFO   KEEP  btm_eastness_3                            importance=0.0011 ▒ 0.0002
+2026-04-01 06:18:00,053 INFO   KEEP  btm_eastness_7                            importance=0.0013 ▒ 0.0003
+2026-04-01 06:18:00,053 INFO   KEEP  btm_eastness_11                           importance=0.0025 ▒ 0.0005
+2026-04-01 06:18:00,053 INFO   KEEP  btm_eastness_15                           importance=0.0053 ▒ 0.0009
+2026-04-01 06:18:00,053 INFO   KEEP  btm_eastness_21                           importance=0.0156 ▒ 0.0013
+2026-04-01 06:18:00,053 INFO   KEEP  btm_max_curvature_3                       importance=0.0020 ▒ 0.0002
+2026-04-01 06:18:00,053 INFO   KEEP  btm_max_curvature_11                      importance=0.0071 ▒ 0.0009
+2026-04-01 06:18:00,053 INFO   KEEP  btm_complexity_21                         importance=0.0709 ▒ 0.0019
+2026-04-01 06:18:00,053 INFO   KEEP  btm_rdmv_3                                importance=0.0009 ▒ 0.0002
+2026-04-01 06:18:00,053 INFO   KEEP  btm_rdmv_7                                importance=0.0009 ▒ 0.0002
+2026-04-01 06:18:00,053 INFO   KEEP  btm_rdmv_15                               importance=0.0012 ▒ 0.0001
+2026-04-01 06:18:00,053 INFO   KEEP  btm_glcm_contrast_3                       importance=0.0012 ▒ 0.0002
+2026-04-01 06:18:00,053 INFO   KEEP  btm_glcm_homogeneity_3                    importance=0.0017 ▒ 0.0003
+2026-04-01 06:18:00,053 INFO   KEEP  btm_glcm_contrast_7                       importance=0.0009 ▒ 0.0001
+2026-04-01 06:18:00,053 INFO   KEEP  btm_glcm_homogeneity_7                    importance=0.0019 ▒ 0.0003
+2026-04-01 06:18:00,054 INFO   KEEP  btm_glcm_contrast_11                      importance=0.0018 ▒ 0.0002
+2026-04-01 06:18:00,054 INFO   KEEP  btm_glcm_homogeneity_11                   importance=0.0017 ▒ 0.0003
+2026-04-01 06:18:00,054 INFO   KEEP  btm_glcm_contrast_15                      importance=0.0023 ▒ 0.0002
+2026-04-01 06:18:00,054 INFO   KEEP  btm_glcm_homogeneity_15                   importance=0.0020 ▒ 0.0001
+2026-04-01 06:18:00,054 INFO   KEEP  btm_glcm_contrast_21                      importance=0.0024 ▒ 0.0004
+2026-04-01 06:18:00,054 INFO   KEEP  btm_glcm_homogeneity_21                   importance=0.0037 ▒ 0.0005
+2026-04-01 06:18:00,054 INFO Feature selection: retained 38 / 41; dropped 3 (corr pre-filter or low importance)
+2026-04-01 06:18:00,055 INFO Feature selection: 41 -> 38 features
+2026-04-01 06:18:00,055 WARNING SC-004 FAIL (count): 38 > 25 features
+2026-04-01 06:18:00,056 INFO Feature selection written: reports\metrics\feature_selection_v11.csv
+2026-04-01 06:18:00,056 INFO Retained: 6 MBES-8 (['depth', 'backscatter', 'slope', 'max_curvature', 'northness', 'eastness']), 32 BTM (['btm_broad_bpi', 'btm_vrm', 'btm_northness', 'btm_eastness', 'btm_max_curvature', 'btm_complexity', 'btm_slope_3', 'btm_northness_3', 'btm_northness_7', 'btm_northness_11', 'btm_northness_21', 'btm_eastness_3', 'btm_eastness_7', 'btm_eastness_11', 'btm_eastness_15', 'btm_eastness_21', 'btm_max_curvature_3', 'btm_max_curvature_11', 'btm_complexity_21', 'btm_rdmv_3', 'btm_rdmv_7', 'btm_rdmv_15', 'btm_glcm_contrast_3', 'btm_glcm_homogeneity_3', 'btm_glcm_contrast_7', 'btm_glcm_homogeneity_7', 'btm_glcm_contrast_11', 'btm_glcm_homogeneity_11', 'btm_glcm_contrast_15', 'btm_glcm_homogeneity_15', 'btm_glcm_contrast_21', 'btm_glcm_homogeneity_21'])
+2026-04-01 06:18:07,979 INFO   [selected] rf: CV F1=0.7727 ▒ 0.0985  (7.9s)
+2026-04-01 06:20:50,207 INFO   [selected] cat: CV F1=0.7829 ▒ 0.0848  (162.2s)
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+2026-04-01 06:21:11,195 INFO   [selected] lgb: CV F1=0.7668 ▒ 0.0828  (21.0s)
+2026-04-01 06:21:11,243 INFO   [selected] rf+cat+lgb ensemble: CV F1=0.7782 ▒ 0.0855
+2026-04-01 06:21:11,243 INFO [selected] Best: cat (CV F1=0.7829)
+2026-04-01 06:21:11,243 INFO [selected] Training times: RF=7.9s Cat=162.2s LGB=21.0s Ens=0.0s Total=191.1s
+2026-04-01 06:21:11,245 INFO   ALG recall: 0.5037 ▒ 0.3477 (15 folds)
+2026-04-01 06:21:11,245 INFO   FMAT recall: 0.6846 ▒ 0.2353 (12 folds)
+2026-04-01 06:21:11,246 INFO   NVB recall: 0.8600 ▒ 0.1294 (15 folds)
+2026-04-01 06:21:11,246 INFO   SGAM recall: 0.1338 ▒ 0.1376 (6 folds)
+2026-04-01 06:21:11,247 INFO   SGZ recall: 0.3658 ▒ 0.3085 (12 folds)
+2026-04-01 06:21:11,260 INFO SC-004 CHECK: CV F1 before=0.7829 after=0.7829 degradation=-0.0000
+2026-04-01 06:21:11,260 INFO SC-004 PASS (degradation): <= 0.01
+2026-04-01 06:21:43,380 INFO Submission written: data\submission_v11_selected.csv (98 rows)
+2026-04-01 06:21:43,380 INFO Predictions changed after feature selection: 0 / 98 (0.0%)
+2026-04-01 06:21:43,380 INFO === Experiment v11 complete ===

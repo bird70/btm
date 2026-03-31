@@ -11,6 +11,7 @@
     ".specify/scripts/powershell/": true,
     "&": true,
     "New-Item": true,
-    "Out-Null": true
+    "Out-Null": true,
+    ".venv\\Scripts\\python.exe": true
   }
 }
