@@ -103,9 +103,11 @@ btm-export-features \
 ```
 
 See [docs/runsheet-hybrid-kaggle.md](docs/runsheet-hybrid-kaggle.md) for the
-full end-to-end hybrid workflow and
+full end-to-end hybrid workflow,
 [docs/classification-methods.md](docs/classification-methods.md) for a
-comparison of rule-based vs. ML classification approaches.
+comparison of rule-based vs. ML classification approaches, and
+[docs/modelling-overview.md](docs/modelling-overview.md) for a concise
+overview of all modelling strategies and their results.
 
 ---
 
