@@ -63,7 +63,9 @@ class PipelineConfig:
 
         ignored = {"cv", "feature_flags", "model_params"}
         payload = {k: v for k, v in config.items() if k not in ignored}
-        return cls(cv=cv, feature_flags=feature_flags, model_params=model_params, **payload)
+        return cls(
+            cv=cv, feature_flags=feature_flags, model_params=model_params, **payload
+        )
 
     @classmethod
     def from_yaml(cls, config_path: str | Path) -> PipelineConfig:

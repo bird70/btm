@@ -9,7 +9,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -50,9 +49,9 @@ def test_eco_transformer_fit_stores_depth_bin_edges() -> None:
     t.fit(df, y)
 
     assert hasattr(t, "depth_bin_edges_"), "fit() must set depth_bin_edges_"
-    assert len(t.depth_bin_edges_) == 5, (
-        f"Expected 5 bin edges (4 bins), got {len(t.depth_bin_edges_)}"
-    )
+    assert (
+        len(t.depth_bin_edges_) == 5
+    ), f"Expected 5 bin edges (4 bins), got {len(t.depth_bin_edges_)}"
 
 
 def test_eco_transformer_fit_stores_p25_bpi() -> None:
@@ -127,9 +126,9 @@ def test_eco_transformer_transform_adds_depth_zone() -> None:
     out = t.transform(df)
 
     assert "btm_depth_zone" in out.columns, "transform() must add btm_depth_zone"
-    assert set(out["btm_depth_zone"].unique()).issubset({1, 2, 3, 4}), (
-        f"btm_depth_zone must be in {{1,2,3,4}}, got {set(out['btm_depth_zone'].unique())}"
-    )
+    assert set(out["btm_depth_zone"].unique()).issubset(
+        {1, 2, 3, 4}
+    ), f"btm_depth_zone must be in {{1,2,3,4}}, got {set(out['btm_depth_zone'].unique())}"
 
 
 def test_eco_transformer_transform_adds_sgam_niche() -> None:
@@ -143,9 +142,9 @@ def test_eco_transformer_transform_adds_sgam_niche() -> None:
     out = t.transform(df)
 
     assert "btm_sgam_niche" in out.columns, "transform() must add btm_sgam_niche"
-    assert set(out["btm_sgam_niche"].unique()).issubset({0, 1}), (
-        f"btm_sgam_niche must be in {{0,1}}, got {set(out['btm_sgam_niche'].unique())}"
-    )
+    assert set(out["btm_sgam_niche"].unique()).issubset(
+        {0, 1}
+    ), f"btm_sgam_niche must be in {{0,1}}, got {set(out['btm_sgam_niche'].unique())}"
 
 
 def test_eco_transformer_transform_does_not_mutate_input() -> None:
@@ -192,9 +191,12 @@ def test_eco_transformer_depth_zone_covers_all_bins() -> None:
     t.fit(df, y)
     out = t.transform(df)
 
-    assert set(out["btm_depth_zone"].unique()) == {1, 2, 3, 4}, (
-        f"Expected all four zones, got {set(out['btm_depth_zone'].unique())}"
-    )
+    assert set(out["btm_depth_zone"].unique()) == {
+        1,
+        2,
+        3,
+        4,
+    }, f"Expected all four zones, got {set(out['btm_depth_zone'].unique())}"
 
 
 # ---------------------------------------------------------------------------
@@ -230,10 +232,14 @@ def test_eco_transformer_to_dict_contains_required_keys() -> None:
     t.fit(df, y)
     d = t.to_dict()
 
-    required = {"depth_bin_edges", "p25_bpi", "p25_slope", "sgam_depth_min", "sgam_depth_max"}
-    assert required.issubset(d.keys()), (
-        f"to_dict() missing keys: {required - d.keys()}"
-    )
+    required = {
+        "depth_bin_edges",
+        "p25_bpi",
+        "p25_slope",
+        "sgam_depth_min",
+        "sgam_depth_max",
+    }
+    assert required.issubset(d.keys()), f"to_dict() missing keys: {required - d.keys()}"
 
 
 def test_eco_transformer_from_dict_raises_not_fitted_when_empty() -> None:

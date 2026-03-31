@@ -164,9 +164,9 @@ def test_engineer_features_include_eco_features_true_adds_depth_zone() -> None:
     flags = FeatureFlags(include_eco_features=True)
     out = engineer_features(_base_raw_with_btm(), flags=flags)
 
-    assert "btm_depth_zone" in out.columns, (
-        "engineer_features() with include_eco_features=True must add btm_depth_zone"
-    )
+    assert (
+        "btm_depth_zone" in out.columns
+    ), "engineer_features() with include_eco_features=True must add btm_depth_zone"
 
 
 def test_engineer_features_include_eco_features_true_adds_sgam_niche() -> None:
@@ -176,9 +176,9 @@ def test_engineer_features_include_eco_features_true_adds_sgam_niche() -> None:
     flags = FeatureFlags(include_eco_features=True)
     out = engineer_features(_base_raw_with_btm(), flags=flags)
 
-    assert "btm_sgam_niche" in out.columns, (
-        "engineer_features() with include_eco_features=True must add btm_sgam_niche"
-    )
+    assert (
+        "btm_sgam_niche" in out.columns
+    ), "engineer_features() with include_eco_features=True must add btm_sgam_niche"
 
 
 def test_engineer_features_include_eco_features_false_omits_eco_cols() -> None:
@@ -188,9 +188,9 @@ def test_engineer_features_include_eco_features_false_omits_eco_cols() -> None:
     flags = FeatureFlags(include_eco_features=False)
     out = engineer_features(_base_raw_with_btm(), flags=flags)
 
-    assert "btm_depth_zone" not in out.columns, (
-        "btm_depth_zone must not appear when include_eco_features=False"
-    )
-    assert "btm_sgam_niche" not in out.columns, (
-        "btm_sgam_niche must not appear when include_eco_features=False"
-    )
+    assert (
+        "btm_depth_zone" not in out.columns
+    ), "btm_depth_zone must not appear when include_eco_features=False"
+    assert (
+        "btm_sgam_niche" not in out.columns
+    ), "btm_sgam_niche must not appear when include_eco_features=False"

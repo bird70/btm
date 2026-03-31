@@ -155,9 +155,9 @@ def test_feature_flags_has_include_eco_features_field() -> None:
     from benthic_model.config import FeatureFlags
 
     flags = FeatureFlags()
-    assert hasattr(flags, "include_eco_features"), (
-        "FeatureFlags missing 'include_eco_features' field"
-    )
+    assert hasattr(
+        flags, "include_eco_features"
+    ), "FeatureFlags missing 'include_eco_features' field"
     assert flags.include_eco_features is False
 
 

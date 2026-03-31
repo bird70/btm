@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import numpy as np
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -24,7 +23,9 @@ def _flat_dem(n: int = 5, value: float = -10.0) -> np.ndarray:
     return np.full((n, n), value, dtype=float)
 
 
-def _tilted_dem(n: int = 7, slope_degs: float = 10.0, cell_size: float = 1.0) -> np.ndarray:
+def _tilted_dem(
+    n: int = 7, slope_degs: float = 10.0, cell_size: float = 1.0
+) -> np.ndarray:
     """A planar DEM sloping east (increasing in x / col direction)."""
     slope_rad = np.radians(slope_degs)
     rise_per_cell = np.tan(slope_rad) * cell_size
@@ -79,10 +80,12 @@ def test_northness_eastness_east_sloping_dem() -> None:
     assert not np.any(np.isnan(interior_e)), "Interior eastness should not be NaN"
     # Slope descends to east: downslope aspect = east (90°)
     # eastness = sin(90°) = 1 → positive
-    assert np.all(interior_e > 0), f"Expected eastness > 0 for east-descending slope, got {interior_e}"
-    assert np.allclose(interior_n, 0.0, atol=0.1), (
-        f"Expected northness ≈ 0 for east slope, got mean={interior_n.mean():.3f}"
-    )
+    assert np.all(
+        interior_e > 0
+    ), f"Expected eastness > 0 for east-descending slope, got {interior_e}"
+    assert np.allclose(
+        interior_n, 0.0, atol=0.1
+    ), f"Expected northness ≈ 0 for east slope, got mean={interior_n.mean():.3f}"
 
 
 def test_northness_eastness_north_sloping_dem() -> None:
@@ -96,13 +99,13 @@ def test_northness_eastness_north_sloping_dem() -> None:
     interior_n = northness[2:-2, 2:-2]
 
     assert not np.any(np.isnan(interior_n))
-    assert np.allclose(interior_e, 0.0, atol=0.1), (
-        f"Expected eastness ≈ 0 for north slope, got mean={interior_e.mean():.3f}"
-    )
+    assert np.allclose(
+        interior_e, 0.0, atol=0.1
+    ), f"Expected eastness ≈ 0 for north slope, got mean={interior_e.mean():.3f}"
     # North slope → positive north gradient → northness non-zero
-    assert np.all(np.abs(interior_n) > 0.5), (
-        f"Expected |northness| > 0.5 for north slope, got {interior_n}"
-    )
+    assert np.all(
+        np.abs(interior_n) > 0.5
+    ), f"Expected |northness| > 0.5 for north slope, got {interior_n}"
 
 
 def test_northness_eastness_output_range() -> None:
@@ -116,12 +119,12 @@ def test_northness_eastness_output_range() -> None:
     valid_n = northness[~np.isnan(northness)]
     valid_e = eastness[~np.isnan(eastness)]
 
-    assert np.all(valid_n >= -1.0 - 1e-9) and np.all(valid_n <= 1.0 + 1e-9), (
-        "Northness must be in [-1, 1]"
-    )
-    assert np.all(valid_e >= -1.0 - 1e-9) and np.all(valid_e <= 1.0 + 1e-9), (
-        "Eastness must be in [-1, 1]"
-    )
+    assert np.all(valid_n >= -1.0 - 1e-9) and np.all(
+        valid_n <= 1.0 + 1e-9
+    ), "Northness must be in [-1, 1]"
+    assert np.all(valid_e >= -1.0 - 1e-9) and np.all(
+        valid_e <= 1.0 + 1e-9
+    ), "Eastness must be in [-1, 1]"
 
 
 def test_northness_eastness_returns_correct_shape() -> None:
@@ -151,9 +154,9 @@ def test_max_curvature_flat_returns_zero_or_nan() -> None:
     assert curv.shape == dem.shape
     # For a flat DEM, curvature is effectively 0; NaN is also acceptable.
     non_nan = curv[~np.isnan(curv)]
-    assert np.allclose(non_nan, 0.0, atol=1e-6), (
-        f"Flat DEM curvature should be 0, got max={np.nanmax(np.abs(curv)):.2e}"
-    )
+    assert np.allclose(
+        non_nan, 0.0, atol=1e-6
+    ), f"Flat DEM curvature should be 0, got max={np.nanmax(np.abs(curv)):.2e}"
 
 
 def test_max_curvature_planar_returns_near_zero() -> None:
@@ -165,9 +168,9 @@ def test_max_curvature_planar_returns_near_zero() -> None:
 
     interior = curv[2:-2, 2:-2]
     non_nan = interior[~np.isnan(interior)]
-    assert np.allclose(non_nan, 0.0, atol=1e-4), (
-        f"Planar DEM curvature should be ~0, got max={np.abs(non_nan).max():.2e}"
-    )
+    assert np.allclose(
+        non_nan, 0.0, atol=1e-4
+    ), f"Planar DEM curvature should be ~0, got max={np.abs(non_nan).max():.2e}"
 
 
 def test_max_curvature_bowl_is_positive() -> None:
@@ -187,9 +190,9 @@ def test_max_curvature_bowl_is_positive() -> None:
         f"Bowl centre curvature must not be NaN (got {curv[cx, cx]}). "
         "Ensure Hessian eigenvalue approach is used (not plan/profile which requires non-zero slope)."
     )
-    assert curv[cx, cx] > 0, (
-        f"Bowl centre should have positive curvature, got {curv[cx, cx]:.4f}"
-    )
+    assert (
+        curv[cx, cx] > 0
+    ), f"Bowl centre should have positive curvature, got {curv[cx, cx]:.4f}"
 
 
 def test_max_curvature_non_negative() -> None:
@@ -217,9 +220,9 @@ def test_complexity_flat_returns_near_zero() -> None:
     comp = compute_complexity(dem, cell_size=1.0)
 
     assert comp.shape == dem.shape
-    assert np.allclose(comp, 0.0, atol=1e-6), (
-        f"Flat DEM complexity should be 0, got max={comp.max():.2e}"
-    )
+    assert np.allclose(
+        comp, 0.0, atol=1e-6
+    ), f"Flat DEM complexity should be 0, got max={comp.max():.2e}"
 
 
 def test_complexity_planar_returns_near_zero_interior() -> None:
@@ -230,9 +233,9 @@ def test_complexity_planar_returns_near_zero_interior() -> None:
     comp = compute_complexity(dem, cell_size=1.0)
 
     interior = comp[2:-2, 2:-2]
-    assert np.allclose(interior, 0.0, atol=1e-4), (
-        f"Planar DEM interior complexity should be ~0, got max={interior.max():.2e}"
-    )
+    assert np.allclose(
+        interior, 0.0, atol=1e-4
+    ), f"Planar DEM interior complexity should be ~0, got max={interior.max():.2e}"
 
 
 def test_complexity_non_negative() -> None:
@@ -257,6 +260,6 @@ def test_complexity_rough_surface_higher_than_flat() -> None:
     comp_flat = compute_complexity(flat, cell_size=1.0)
     comp_rough = compute_complexity(rough, cell_size=1.0)
 
-    assert comp_rough.mean() > comp_flat.mean(), (
-        "Rough surface should have higher mean complexity than flat surface"
-    )
+    assert (
+        comp_rough.mean() > comp_flat.mean()
+    ), "Rough surface should have higher mean complexity than flat surface"

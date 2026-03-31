@@ -376,7 +376,7 @@ def compute_northness_eastness(
     aspect = np.arctan2(dz_dx, -dz_dy)  # CW from north, downslope direction
 
     northness = np.cos(aspect)  # 1 for north-facing, -1 for south-facing
-    eastness = np.sin(aspect)   # 1 for east-facing, -1 for west-facing
+    eastness = np.sin(aspect)  # 1 for east-facing, -1 for west-facing
 
     northness[flat] = np.nan
     eastness[flat] = np.nan

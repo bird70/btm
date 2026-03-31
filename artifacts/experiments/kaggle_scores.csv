@@ -7,3 +7,8 @@ candidate-20260330064319,submission_R05_btm-broad.csv,,pending,R05 RF BTM-broad 
 candidate-20260330064710,submission_R06_btm-full.csv,0.79518,2026-03-30T06:50:03Z,R06 RF BTM-full all-btm-features seed=42 weighted_cv_f1=0.8024 SGAM_f1=0.043
 candidate-20260330063250,submission_R07_rf-texture.csv,,pending,R07 RF texture focal-stats seed=42 weighted_cv_f1=0.8018
 candidate-20260330064751,submission_R08_btm-texture.csv,,pending,R08 RF BTM-texture focal-stats+btm seed=42 weighted_cv_f1=0.8024 SGAM_f1=0.043
+candidate-20260330203952,submission_R05_catboost_gpu.csv,0.76153,2026-03-31T00:19:50Z,R09 CatBoost GPU task_type=GPU symmetric-trees seed=42 weighted_cv_f1=0.8139 SGAM_f1=0.000
+candidate-20260331003412,submission_R17_candidate-20260331003412.csv,0.79518,2026-03-31T00:38:05Z,R17 RF+BTM+interactions seed=42 weighted_cv_f1=0.7971 SGAM_f1=0.031
+candidate-20260331003510,submission_R18_candidate-20260331003510.csv,0.76438,2026-03-31T00:38:23Z,R18 RF+BTM+tuned n_estimators=500 max_features=sqrt seed=42 weighted_cv_f1=0.7960 SGAM_f1=0.000
+candidate-20260331003546,submission_R15_candidate-20260331003546.csv,0.76438,2026-03-31T00:38:44Z,R15 RF+BTM+eco-depth depth-zones+sgam-niche seed=42 weighted_cv_f1=0.7916 SGAM_f1=0.045
+candidate-20260331003626,submission_R16_candidate-20260331003626.csv,0.76438,2026-03-31T00:39:04Z,R16 RF+BTM+eco-full depth-zones+sgam-niche+raster-eco seed=42 weighted_cv_f1=0.7916 SGAM_f1=0.045

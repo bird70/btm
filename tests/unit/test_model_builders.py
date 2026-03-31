@@ -87,28 +87,40 @@ def test_build_model_with_model_params_forwards_n_estimators() -> None:
     """_build_model with model_params={n_estimators: 500} must produce RF with 500 trees (T036)."""
     from benthic_model.models.train import _build_model
 
-    model = _build_model(run_type="baseline", seed=42, model_type="rf", model_params={"n_estimators": 500})
-    assert hasattr(model, "model"), "Expected model wrapper with .model attribute"
-    assert model.model.n_estimators == 500, (
-        f"Expected n_estimators=500, got {model.model.n_estimators}"
+    model = _build_model(
+        run_type="baseline",
+        seed=42,
+        model_type="rf",
+        model_params={"n_estimators": 500},
     )
+    assert hasattr(model, "model"), "Expected model wrapper with .model attribute"
+    assert (
+        model.model.n_estimators == 500
+    ), f"Expected n_estimators=500, got {model.model.n_estimators}"
 
 
 def test_build_model_with_model_params_forwards_min_samples_leaf() -> None:
     """model_params min_samples_leaf is forwarded to the RF constructor."""
     from benthic_model.models.train import _build_model
 
-    model = _build_model(run_type="baseline", seed=42, model_type="rf", model_params={"min_samples_leaf": 3})
-    assert model.model.min_samples_leaf == 3, (
-        f"Expected min_samples_leaf=3, got {model.model.min_samples_leaf}"
+    model = _build_model(
+        run_type="baseline",
+        seed=42,
+        model_type="rf",
+        model_params={"min_samples_leaf": 3},
     )
+    assert (
+        model.model.min_samples_leaf == 3
+    ), f"Expected min_samples_leaf=3, got {model.model.min_samples_leaf}"
 
 
 def test_build_model_without_model_params_uses_defaults() -> None:
     """When model_params is None, RF uses default n_estimators=300."""
     from benthic_model.models.train import _build_model
 
-    model = _build_model(run_type="baseline", seed=42, model_type="rf", model_params=None)
-    assert model.model.n_estimators == 300, (
-        f"Expected default n_estimators=300, got {model.model.n_estimators}"
+    model = _build_model(
+        run_type="baseline", seed=42, model_type="rf", model_params=None
     )
+    assert (
+        model.model.n_estimators == 300
+    ), f"Expected default n_estimators=300, got {model.model.n_estimators}"
