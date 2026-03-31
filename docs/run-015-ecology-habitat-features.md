@@ -8,13 +8,13 @@
 
 ## Summary
 
-| Run | Config                  | Model | Feature Set                              | CV F1      | SGAM CV F1 | Kaggle F1       | CV–Kaggle Gap |
-| --- | ----------------------- | ----- | ---------------------------------------- | ---------- | ---------- | --------------- | ------------- |
-| R09 | catboost-candidate      | CatBoost GPU   | BTM features                    | 0.8139     | 0.000      | 0.76153         | 0.052         |
-| R17 | rf-btm-interactions     | RF    | BTM + pairwise interactions              | 0.7971     | 0.031      | **0.79518**     | 0.008         |
-| R18 | rf-btm-tuned            | RF    | BTM (n_estimators=500, max_features=sqrt) | 0.7960     | 0.000      | 0.76438         | 0.032         |
-| R15 | rf-btm-eco-depth        | RF    | BTM + depth zones + SGAM niche          | 0.7916     | **0.045**  | 0.76438         | 0.028         |
-| R16 | rf-btm-eco-full         | RF    | BTM + depth zones + SGAM niche + raster eco | 0.7916 | **0.045**  | 0.76438         | 0.028         |
+| Run | Config              | Model        | Feature Set                                 | CV F1  | SGAM CV F1 | Kaggle F1   | CV–Kaggle Gap |
+| --- | ------------------- | ------------ | ------------------------------------------- | ------ | ---------- | ----------- | ------------- |
+| R09 | catboost-candidate  | CatBoost GPU | BTM features                                | 0.8139 | 0.000      | 0.76153     | 0.052         |
+| R17 | rf-btm-interactions | RF           | BTM + pairwise interactions                 | 0.7971 | 0.031      | **0.79518** | 0.008         |
+| R18 | rf-btm-tuned        | RF           | BTM (n_estimators=500, max_features=sqrt)   | 0.7960 | 0.000      | 0.76438     | 0.032         |
+| R15 | rf-btm-eco-depth    | RF           | BTM + depth zones + SGAM niche              | 0.7916 | **0.045**  | 0.76438     | 0.028         |
+| R16 | rf-btm-eco-full     | RF           | BTM + depth zones + SGAM niche + raster eco | 0.7916 | **0.045**  | 0.76438     | 0.028         |
 
 ---
 
@@ -50,10 +50,10 @@
 
 ## Gate Results
 
-| Gate   | Condition                                                | Result                                    |
-| ------ | -------------------------------------------------------- | ----------------------------------------- |
-| SC-002 | At least one eco-feature run with SGAM CV F1 > 0.043    | ✓ PASS (R15 SGAM=0.045, R16 SGAM=0.045)  |
-| SC-006 | All Kaggle scores ≥ 0.65                                 | ✓ PASS (min=0.76153)                      |
+| Gate   | Condition                                            | Result                                  |
+| ------ | ---------------------------------------------------- | --------------------------------------- |
+| SC-002 | At least one eco-feature run with SGAM CV F1 > 0.043 | ✓ PASS (R15 SGAM=0.045, R16 SGAM=0.045) |
+| SC-006 | All Kaggle scores ≥ 0.65                             | ✓ PASS (min=0.76153)                    |
 
 ---
 
@@ -68,34 +68,35 @@
 
 ### New raster eco-derivatives (added to BTM feature extraction)
 
-| Column                | Algorithm                             | Reference                      |
-| --------------------- | ------------------------------------- | ------------------------------ |
-| `btm_northness`       | cos(aspect), Horn (1981) kernels      | Horn 1981, Evans 1998          |
-| `btm_eastness`        | sin(aspect), Horn (1981) kernels      | Horn 1981, Evans 1998          |
-| `btm_max_curvature`   | max Hessian eigenvalue                | Schmidt et al. 2003            |
-| `btm_complexity`      | slope-of-slope (double Horn pass)     | Wilson et al. 2007             |
+| Column              | Algorithm                         | Reference             |
+| ------------------- | --------------------------------- | --------------------- |
+| `btm_northness`     | cos(aspect), Horn (1981) kernels  | Horn 1981, Evans 1998 |
+| `btm_eastness`      | sin(aspect), Horn (1981) kernels  | Horn 1981, Evans 1998 |
+| `btm_max_curvature` | max Hessian eigenvalue            | Schmidt et al. 2003   |
+| `btm_complexity`    | slope-of-slope (double Horn pass) | Wilson et al. 2007    |
 
 Extracted via: `btm-export-features --include-eco-features`
 
 ### New in-pipeline eco-features (added by `EcoFeatureTransformer`)
 
-| Column            | Type    | Description                                     |
-| ----------------- | ------- | ----------------------------------------------- |
-| `btm_depth_zone`  | ordinal | Depth bin 1–4 (quartiles fitted on training set) |
-| `btm_sgam_niche`  | binary  | 1 if BPI < P25 AND slope < P25 AND depth in SGAM training range |
+| Column           | Type    | Description                                                     |
+| ---------------- | ------- | --------------------------------------------------------------- |
+| `btm_depth_zone` | ordinal | Depth bin 1–4 (quartiles fitted on training set)                |
+| `btm_sgam_niche` | binary  | 1 if BPI < P25 AND slope < P25 AND depth in SGAM training range |
 
 ---
 
 ## Dataset
 
-| CSV                    | Rows  | BTM cols | Eco cols | Notes                                 |
-| ---------------------- | ----- | -------- | -------- | ------------------------------------- |
-| `data/train_btm.csv`   | 6256  | 10       | —        | From run-014 BTM extraction           |
-| `data/train_btm_eco.csv` | 6256 | 10      | 4        | New this run, eco raster derivatives  |
-| `data/test_btm.csv`    | 98    | 10       | —        | From run-014 BTM extraction           |
-| `data/test_btm_eco.csv` | 98   | 10       | 4        | New this run, eco raster derivatives  |
+| CSV                      | Rows | BTM cols | Eco cols | Notes                                |
+| ------------------------ | ---- | -------- | -------- | ------------------------------------ |
+| `data/train_btm.csv`     | 6256 | 10       | —        | From run-014 BTM extraction          |
+| `data/train_btm_eco.csv` | 6256 | 10       | 4        | New this run, eco raster derivatives |
+| `data/test_btm.csv`      | 98   | 10       | —        | From run-014 BTM extraction          |
+| `data/test_btm_eco.csv`  | 98   | 10       | 4        | New this run, eco raster derivatives |
 
 Zero NaN across all eco-derivative columns. Value ranges:
+
 - `btm_northness` ∈ [−1, 1], mean=0.009 (near-flat site on average)
 - `btm_eastness` ∈ [−1, 1], mean=0.152 (slight east-facing bias)
 - `btm_max_curvature`: 25th percentile=0.40, median=0.73, max=52.6 (a few high-curvature reef edges)
@@ -105,21 +106,21 @@ Zero NaN across all eco-derivative columns. Value ranges:
 
 ## Code Changes (this run)
 
-| File                                             | Change                                                                                         |
-| ------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| `src/benthic_model/config.py`                    | Added `FeatureFlags.include_eco_features`, `PipelineConfig.model_params`                       |
-| `src/benthic_model/features/eco_features.py`     | New: `EcoFeatureTransformer` (depth zones ordinal 1–4, SGAM niche binary, fit/transform/to_dict/from_dict) |
-| `src/benthic_model/features/engineering.py`      | Added `y` param; eco-feature hook when `flags.include_eco_features=True`                       |
-| `src/benthic_model/models/train.py`              | `model_params` forwarding in `_build_model()`; `eco_thresholds.json` artifact                  |
-| `src/benthic_model/inference/predict.py`         | Load `eco_thresholds.json` if present; apply `EcoFeatureTransformer.transform()`               |
-| `btm/features/extract.py`                        | 3 new raster derivative functions + `extract_eco_raster_features()` + `include_eco_features` param |
-| `btm/cli/export_features.py`                     | Added `--include-eco-features` flag                                                            |
-| `configs/rf-btm-eco-depth.yaml`                  | New (R15)                                                                                      |
-| `configs/rf-btm-eco-full.yaml`                   | New (R16)                                                                                      |
-| `configs/rf-btm-interactions.yaml`               | New (R17)                                                                                      |
-| `configs/rf-btm-tuned.yaml`                      | New (R18)                                                                                      |
-| `tests/unit/test_eco_features.py`                | New: 15 unit tests for `EcoFeatureTransformer`                                                 |
-| `tests/unit/test_eco_raster_features.py`          | New: 13 unit tests for raster derivative functions                                             |
+| File                                         | Change                                                                                                     |
+| -------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `src/benthic_model/config.py`                | Added `FeatureFlags.include_eco_features`, `PipelineConfig.model_params`                                   |
+| `src/benthic_model/features/eco_features.py` | New: `EcoFeatureTransformer` (depth zones ordinal 1–4, SGAM niche binary, fit/transform/to_dict/from_dict) |
+| `src/benthic_model/features/engineering.py`  | Added `y` param; eco-feature hook when `flags.include_eco_features=True`                                   |
+| `src/benthic_model/models/train.py`          | `model_params` forwarding in `_build_model()`; `eco_thresholds.json` artifact                              |
+| `src/benthic_model/inference/predict.py`     | Load `eco_thresholds.json` if present; apply `EcoFeatureTransformer.transform()`                           |
+| `btm/features/extract.py`                    | 3 new raster derivative functions + `extract_eco_raster_features()` + `include_eco_features` param         |
+| `btm/cli/export_features.py`                 | Added `--include-eco-features` flag                                                                        |
+| `configs/rf-btm-eco-depth.yaml`              | New (R15)                                                                                                  |
+| `configs/rf-btm-eco-full.yaml`               | New (R16)                                                                                                  |
+| `configs/rf-btm-interactions.yaml`           | New (R17)                                                                                                  |
+| `configs/rf-btm-tuned.yaml`                  | New (R18)                                                                                                  |
+| `tests/unit/test_eco_features.py`            | New: 15 unit tests for `EcoFeatureTransformer`                                                             |
+| `tests/unit/test_eco_raster_features.py`     | New: 13 unit tests for raster derivative functions                                                         |
 
 **Test suite**: 192 passed, 4 skipped, 0 failures.
 
@@ -128,10 +129,13 @@ Zero NaN across all eco-derivative columns. Value ranges:
 ## Technical Notes
 
 ### scipy.ndimage.convolve vs correlate
+
 `scipy.ndimage.convolve` performs true mathematical convolution (flips the kernel), unlike `correlate`. The Horn gradient kernels must account for this. The correct aspect formula is `arctan2(dz_dx, -dz_dy)` where `dz_dx` is the result of convolving with the east-west Horn kernel — this gives CW-from-North downslope direction.
 
 ### Max curvature via Hessian eigenvalues
+
 Plan/profile curvature decomposition requires non-zero slope (divides by p²+q²), producing NaN at local extrema (hilltops, bowl centres). The Hessian eigenvalue approach `((r+t) ± sqrt((r-t)²+4s²))/2` is well-defined everywhere and used here instead.
 
 ### EcoFeatureTransformer fit/predict consistency
+
 `eco_thresholds.json` is saved alongside `model.joblib` at training time. `predict.py` auto-loads it if present. This ensures depth zone bins and SGAM niche thresholds are identical between training and inference — there is no risk of threshold drift between runs.

@@ -70,6 +70,7 @@ markers = [
     "arcgis: requires ArcGIS Pro / arcpy",
     "qgis: requires QGIS / PyQGIS",
     "benthic: benthic_model ML pipeline tests (requires benthic extras)",
+    "integration: end-to-end pipeline tests requiring fixture rasters in tests/data/",
 ]
 testpaths = ["tests"]
 pythonpath = ["src", "."]

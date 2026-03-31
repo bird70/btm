@@ -119,6 +119,9 @@ def extract_btm_features(
     classification_file: str | Path | None = None,
     include_interactions: bool = True,
     include_eco_features: bool = False,
+    scales: list[int] | None = None,
+    include_glcm: bool = False,
+    backscatter_tif: str | Path | None = None,
     btm_prefix: str = "btm_",
     outdir: str | Path | None = None,
 ):
@@ -153,6 +156,21 @@ def extract_btm_features(
         If ``True``, call ``extract_eco_raster_features()`` and join the
         four eco columns (northness, eastness, max curvature, complexity)
         before returning.
+    scales:
+        If provided, compute each scalable terrain derivative (slope, VRM,
+        surface ratio, northness, eastness, max curvature, complexity) at
+        each window size using the calculate-then-average method
+        (Misiuk et al. 2021), and compute RDMV from bathymetry at each
+        scale.  Produces columns named ``btm_{derivative}_{scale}`` and
+        ``btm_rdmv_{scale}``.  Pass ``None`` (default) to suppress
+        multi-scale features and maintain backward compatibility.
+    include_glcm:
+        If ``True``, compute GLCM contrast and homogeneity from the
+        backscatter raster at each scale in ``scales``.  Requires
+        ``backscatter_tif`` to be provided.
+    backscatter_tif:
+        Path to the single-band backscatter GeoTIFF.  Required when
+        ``include_glcm=True``.
     btm_prefix:
         String prefix for all BTM-derived column names.
     outdir:
@@ -194,6 +212,8 @@ def extract_btm_features(
 
     if include_rule_class and classification_file is None:
         raise ValueError("classification_file is required when include_rule_class=True")
+    if include_glcm and backscatter_tif is None:
+        raise ValueError("backscatter_tif is required when include_glcm=True")
 
     # ------------------------------------------------------------------
     # 1. Load bathymetry
@@ -288,10 +308,94 @@ def extract_btm_features(
     )
 
     # ------------------------------------------------------------------
-    # 6. Optionally append eco raster features (T023)
+    # 6. Optionally append eco raster features
     # ------------------------------------------------------------------
     if include_eco_features:
         result = extract_eco_raster_features(result, bathymetry_tif)
+
+    # ------------------------------------------------------------------
+    # 7. Multi-scale terrain derivatives
+    # ------------------------------------------------------------------
+    if scales is not None:
+        from btm.core.multiscale import (
+            compute_rdmv,
+            focal_mean_multiscale,
+            multiscale_column_names,
+        )
+
+        # Derivatives to multi-scale (native 3×3 arrays already in `derivatives`)
+        # northness/eastness/max_curvature/complexity computed here for multi-scaling.
+        northness_arr, eastness_arr = compute_northness_eastness(bathy, cell_size)
+        max_curv_arr = compute_max_curvature(bathy, cell_size)
+        complexity_arr = compute_complexity(bathy, cell_size)
+
+        scalable: dict[str, np.ndarray] = {
+            "slope": slope.astype(np.float64),
+            "vrm": vrm.astype(np.float64),
+            "surface_ratio": surf_ratio.astype(np.float64),
+            "northness": northness_arr,
+            "eastness": eastness_arr,
+            "max_curvature": max_curv_arr,
+            "complexity": complexity_arr,
+        }
+
+        for deriv_name, base_arr in scalable.items():
+            scaled = focal_mean_multiscale(deriv_name, base_arr, scales)
+            col_names = multiscale_column_names(deriv_name, scales)
+            for s, col in zip(scales, col_names):
+                result[col] = sample_raster_at_points(
+                    scaled[s], transform, xs, ys, nodata=nodata
+                )
+
+        # RDMV from bathymetry at each scale
+        for s in scales:
+            rdmv_arr = compute_rdmv(bathy.astype(np.float64), scale=s)
+            result[f"btm_rdmv_{s}"] = sample_raster_at_points(
+                rdmv_arr, transform, xs, ys, nodata=nodata
+            )
+
+        _log.info(
+            "extract_btm_features: multi-scale: %d derivatives × %d scales + %d RDMV = %d new columns",
+            len(scalable),
+            len(scales),
+            len(scales),
+            len(scalable) * len(scales) + len(scales),
+        )
+
+    # ------------------------------------------------------------------
+    # 8. GLCM texture from backscatter
+    # ------------------------------------------------------------------
+    if include_glcm and backscatter_tif is not None:
+        import rasterio as _rio
+        import rasterio.transform as _rtransform
+
+        from btm.core.glcm import compute_glcm_texture
+
+        with _rio.open(str(backscatter_tif)) as src:
+            bs_band = src.read(1).astype(np.float64)
+            bs_nodata = src.nodata
+            bs_transform = src.transform
+
+        if bs_nodata is not None:
+            bs_band[bs_band == bs_nodata] = np.nan
+
+        glcm_scales = scales if scales is not None else [7]
+
+        # Convert (x, y) to pixel indices in the backscatter raster
+        bs_rows, bs_cols = _rtransform.rowcol(bs_transform, xs, ys)
+        bs_rows = np.asarray(bs_rows, dtype=int)
+        bs_cols = np.asarray(bs_cols, dtype=int)
+
+        glcm_df = compute_glcm_texture(
+            bs_band, bs_rows, bs_cols, scales=glcm_scales
+        )
+        glcm_df.index = result.index
+        result = result.join(glcm_df)
+
+        _log.info(
+            "extract_btm_features: GLCM: %d columns added",
+            len(glcm_df.columns),
+        )
 
     return result
 
