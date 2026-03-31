@@ -46,7 +46,15 @@ class TestMultiscalePipeline:
             scales=[3, 7],
             include_glcm=False,
         )
-        for deriv in ["slope", "vrm", "surface_ratio", "northness", "eastness", "max_curvature", "complexity"]:
+        for deriv in [
+            "slope",
+            "vrm",
+            "surface_ratio",
+            "northness",
+            "eastness",
+            "max_curvature",
+            "complexity",
+        ]:
             for scale in [3, 7]:
                 col = f"btm_{deriv}_{scale}"
                 assert col in df.columns, f"Missing column: {col}"
@@ -95,9 +103,14 @@ class TestMultiscalePipeline:
             include_glcm=True,
             backscatter_tif=BACK_TIF,
         )
-        ms_cols = [c for c in df.columns if any(
-            c.startswith(prefix) for prefix in ["btm_slope_", "btm_vrm_", "btm_rdmv_", "btm_glcm_"]
-        )]
+        ms_cols = [
+            c
+            for c in df.columns
+            if any(
+                c.startswith(prefix)
+                for prefix in ["btm_slope_", "btm_vrm_", "btm_rdmv_", "btm_glcm_"]
+            )
+        ]
         assert len(ms_cols) > 0, "No multi-scale columns found"
         for col in ms_cols:
             assert not df[col].isna().all(), f"Column {col} is entirely NaN"

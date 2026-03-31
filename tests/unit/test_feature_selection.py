@@ -58,7 +58,13 @@ class TestSelectByPermutationImportance:
         X, y = _make_synthetic(50, 5, 5)
         model = _fit_model(X, y)
         result = select_by_permutation_importance(X, y, model, n_repeats=3)
-        expected_cols = {"feature_name", "importance_mean", "importance_std", "selected", "rank"}
+        expected_cols = {
+            "feature_name",
+            "importance_mean",
+            "importance_std",
+            "selected",
+            "rank",
+        }
         assert expected_cols.issubset(set(result.importance_df.columns))
         assert len(result.importance_df) == len(X.columns)
 
@@ -106,8 +112,9 @@ class TestSelectByPermutationImportance:
         # feat_b: almost identical but lower variance
         feat_b = base * 1.0 + rng.standard_normal(60) * 0.01
 
-        X = pd.DataFrame({"feat_a": feat_a, "feat_b": feat_b,
-                          "feat_c": rng.standard_normal(60)})
+        X = pd.DataFrame(
+            {"feat_a": feat_a, "feat_b": feat_b, "feat_c": rng.standard_normal(60)}
+        )
         y = pd.Series((feat_a > 0).astype(int), name="label")
         model = _fit_model(X, y)
 

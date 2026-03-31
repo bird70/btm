@@ -53,7 +53,9 @@ class TestFocalMeanMultiscale:
         arr = self._make_array(rows=10, cols=10)
         result = focal_mean_multiscale("slope", arr, [7])
         corner_val = result[7][0, 0]
-        assert np.isfinite(corner_val), f"Corner value should be finite, got {corner_val}"
+        assert np.isfinite(
+            corner_val
+        ), f"Corner value should be finite, got {corner_val}"
 
     def test_uniform_array_identity(self):
         """Focal mean of a uniform array at any scale equals the constant."""
@@ -77,7 +79,7 @@ class TestComputeRdmv:
         # Place a ridge in the centre
         depth[10, 10] = -5.0  # shallower → positive RDMV
         # Place a depression offset
-        depth[5, 5] = -20.0   # deeper → negative RDMV
+        depth[5, 5] = -20.0  # deeper → negative RDMV
 
         rdmv = compute_rdmv(depth, scale=7)
         assert rdmv[10, 10] > 0, "Ridge should have positive RDMV"

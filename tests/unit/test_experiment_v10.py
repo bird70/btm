@@ -22,7 +22,9 @@ import pytest
 
 SCRIPT_DIR = Path(__file__).parent.parent.parent / "scripts"
 KNOWN_CLASSES = {"NVB", "FMAT", "SGZ", "ALG", "SGAM"}
-SAMPLE_SUBMISSION = Path(__file__).parent.parent.parent / "data" / "sample_submission.csv"
+SAMPLE_SUBMISSION = (
+    Path(__file__).parent.parent.parent / "data" / "sample_submission.csv"
+)
 
 
 def _import_v10():
@@ -45,18 +47,28 @@ class TestWriteFeatureImportance:
         feature_names = ["feat_a", "feat_b", "feat_c", "feat_d"]
         out_path = tmp_path / "importance.csv"
 
-        mod._write_feature_importance(importances_mean, importances_std, feature_names, str(out_path))
+        mod._write_feature_importance(
+            importances_mean, importances_std, feature_names, str(out_path)
+        )
 
         assert out_path.exists()
         df = pd.read_csv(out_path)
-        required_cols = {"feature_name", "importance_mean", "importance_std", "rank", "selected"}
+        required_cols = {
+            "feature_name",
+            "importance_mean",
+            "importance_std",
+            "rank",
+            "selected",
+        }
         assert required_cols.issubset(set(df.columns))
         assert len(df) == len(feature_names)
 
     def test_rank_is_sequential(self, tmp_path):
         mod = _import_v10()
         out_path = tmp_path / "imp.csv"
-        mod._write_feature_importance([0.1, 0.3, 0.2], [0.0, 0.0, 0.0], ["a", "b", "c"], str(out_path))
+        mod._write_feature_importance(
+            [0.1, 0.3, 0.2], [0.0, 0.0, 0.0], ["a", "b", "c"], str(out_path)
+        )
         df = pd.read_csv(out_path)
         assert set(df["rank"]) == {1, 2, 3}
 
@@ -87,7 +99,10 @@ class TestWriteSubmission:
         mod = _import_v10()
         expected_cols = self._get_sample_columns()
         predictions = pd.DataFrame(
-            {expected_cols[0]: range(1, 6), expected_cols[1]: ["NVB", "FMAT", "SGZ", "ALG", "SGAM"]}
+            {
+                expected_cols[0]: range(1, 6),
+                expected_cols[1]: ["NVB", "FMAT", "SGZ", "ALG", "SGAM"],
+            }
         )
         out_path = tmp_path / "sub.csv"
         mod._write_submission(predictions, str(out_path))

@@ -193,9 +193,7 @@ def select_by_permutation_importance(
         }
     )
     imp_df["rank"] = (
-        imp_df["importance_mean"]
-        .rank(ascending=False, na_option="bottom")
-        .astype(int)
+        imp_df["importance_mean"].rank(ascending=False, na_option="bottom").astype(int)
     )
 
     return FeatureSelectionResult(

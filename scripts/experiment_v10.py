@@ -61,9 +61,9 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from sklearn.cluster import KMeans
 from sklearn.metrics import classification_report, f1_score
 from sklearn.model_selection import GroupKFold
-from sklearn.cluster import KMeans
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -260,7 +260,9 @@ def _run_cv(
         oof = np.zeros((len(y), n_classes), dtype=np.float32)
         fold_scores: list[float] = []
 
-        for fold_i, (tr_idx, va_idx) in enumerate(gkf.split(X.values, y.values, groups)):
+        for fold_i, (tr_idx, va_idx) in enumerate(
+            gkf.split(X.values, y.values, groups)
+        ):
             m = make_model()
             m.fit(X.values[tr_idx], y.values[tr_idx])
             oof[va_idx] = m.predict_proba(X.values[va_idx])
@@ -283,7 +285,10 @@ def _run_cv(
         all_fold_scores[name] = fold_scores
         log.info(
             "  [%s] %s: CV F1=%.4f ± %.4f",
-            label, name, cv_f1, float(np.std(fold_scores)),
+            label,
+            name,
+            cv_f1,
+            float(np.std(fold_scores)),
         )
         if cv_f1 > best_f1:
             best_f1, best_name, best_oof = cv_f1, name, oof
@@ -298,7 +303,9 @@ def _run_cv(
         fold_ens.append(f1_score(y.values[va_idx], va_preds, average="weighted"))
     log.info(
         "  [%s] cat+lgb ensemble: CV F1=%.4f ± %.4f",
-        label, f1_ens, float(np.std(fold_ens)),
+        label,
+        f1_ens,
+        float(np.std(fold_ens)),
     )
     if f1_ens > best_f1:
         best_f1, best_name, best_oof = f1_ens, "cat+lgb_ensemble", oof_ens
@@ -315,7 +322,9 @@ def _run_cv(
         for cls in KNOWN_CLASSES:
             col = f"recall_{cls}"
             if col in pc_df.columns:
-                log.info("  %s recall: %.4f ± %.4f", cls, pc_df[col].mean(), pc_df[col].std())
+                log.info(
+                    "  %s recall: %.4f ± %.4f", cls, pc_df[col].mean(), pc_df[col].std()
+                )
 
     return {
         "label": label,
@@ -377,7 +386,9 @@ def main(dry_run: bool = False, extract_only: bool = False) -> None:
 
     log.info(
         "Feature matrix: %d train × %d features  (%d test)",
-        len(X_train), len(btm_cols), len(X_test),
+        len(X_train),
+        len(btm_cols),
+        len(X_test),
     )
 
     # ── Spatial CV groups ─────────────────────────────────────────────────
@@ -406,7 +417,9 @@ def main(dry_run: bool = False, extract_only: bool = False) -> None:
 
         sgam_recall = pc_df["recall_SGAM"].mean()
         if sgam_recall > 0:
-            log.info("SC-003 CHECK: SGAM recall=%.4f (compare to baseline run)", sgam_recall)
+            log.info(
+                "SC-003 CHECK: SGAM recall=%.4f (compare to baseline run)", sgam_recall
+            )
         else:
             log.warning("SC-003 WARNING: SGAM mean recall=%.4f", sgam_recall)
 
@@ -414,8 +427,12 @@ def main(dry_run: bool = False, extract_only: bool = False) -> None:
     import catboost as cb
 
     final_model = cb.CatBoostClassifier(
-        iterations=800, learning_rate=0.03, depth=7,
-        auto_class_weights="Balanced", random_seed=CV_RANDOM_STATE, verbose=0,
+        iterations=800,
+        learning_rate=0.03,
+        depth=7,
+        auto_class_weights="Balanced",
+        random_seed=CV_RANDOM_STATE,
+        verbose=0,
     )
     final_model.fit(X_train.values, y_train.values)
     # Use model's built-in feature importances for ranking (fast)
@@ -439,7 +456,8 @@ def main(dry_run: bool = False, extract_only: bool = False) -> None:
     n_selected = len(sel_result.selected_features)
     log.info(
         "Feature selection: %d → %d features",
-        len(btm_cols), n_selected,
+        len(btm_cols),
+        n_selected,
     )
 
     if n_selected <= 25:
@@ -459,7 +477,9 @@ def main(dry_run: bool = False, extract_only: bool = False) -> None:
         degradation = cv_f1 - cv_f1_sel
         log.info(
             "SC-004 CHECK: CV F1 before=%.4f after=%.4f degradation=%.4f",
-            cv_f1, cv_f1_sel, degradation,
+            cv_f1,
+            cv_f1_sel,
+            degradation,
         )
         if degradation <= 0.01:
             log.info("SC-004 PASS (degradation): ≤ 0.01")
@@ -468,8 +488,12 @@ def main(dry_run: bool = False, extract_only: bool = False) -> None:
 
         # Submission: selected features
         final_model_sel = cb.CatBoostClassifier(
-            iterations=800, learning_rate=0.03, depth=7,
-            auto_class_weights="Balanced", random_seed=CV_RANDOM_STATE, verbose=0,
+            iterations=800,
+            learning_rate=0.03,
+            depth=7,
+            auto_class_weights="Balanced",
+            random_seed=CV_RANDOM_STATE,
+            verbose=0,
         )
         final_model_sel.fit(X_train_sel.values, y_train.values)
         test_preds_sel = final_model_sel.predict(X_test_sel.values).ravel()
@@ -480,15 +504,21 @@ def main(dry_run: bool = False, extract_only: bool = False) -> None:
         changed = (sub_full[class_col].values != sub_sel[class_col].values).sum()
         log.info(
             "Predictions changed after feature selection: %d / %d (%.1f%%)",
-            changed, len(sub_full), 100 * changed / max(len(sub_full), 1),
+            changed,
+            len(sub_full),
+            100 * changed / max(len(sub_full), 1),
         )
 
     log.info("=== Experiment v10 complete ===")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Experiment v10: multi-scale terrain + GLCM")
+    parser = argparse.ArgumentParser(
+        description="Experiment v10: multi-scale terrain + GLCM"
+    )
     parser.add_argument("--dry-run", action="store_true", help="5 points, 2 scales")
-    parser.add_argument("--extract-only", action="store_true", help="Extract features then stop")
+    parser.add_argument(
+        "--extract-only", action="store_true", help="Extract features then stop"
+    )
     args = parser.parse_args()
     main(dry_run=args.dry_run, extract_only=args.extract_only)

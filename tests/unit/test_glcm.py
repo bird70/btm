@@ -82,4 +82,6 @@ class TestComputeGlcmTexture:
         mean_orig = df_orig["btm_glcm_homogeneity_9"].mean()
         mean_trans = df_trans["btm_glcm_homogeneity_9"].mean()
         # Allow ±20% relative difference (direction-averaged GLCM is ~rotation-invariant)
-        assert abs(mean_orig - mean_trans) < 0.2 * max(abs(mean_orig), abs(mean_trans), 0.01)
+        assert abs(mean_orig - mean_trans) < 0.2 * max(
+            abs(mean_orig), abs(mean_trans), 0.01
+        )

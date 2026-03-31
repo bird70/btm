@@ -386,9 +386,7 @@ def extract_btm_features(
         bs_rows = np.asarray(bs_rows, dtype=int)
         bs_cols = np.asarray(bs_cols, dtype=int)
 
-        glcm_df = compute_glcm_texture(
-            bs_band, bs_rows, bs_cols, scales=glcm_scales
-        )
+        glcm_df = compute_glcm_texture(bs_band, bs_rows, bs_cols, scales=glcm_scales)
         glcm_df.index = result.index
         result = result.join(glcm_df)
 
