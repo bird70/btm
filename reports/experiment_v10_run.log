@@ -1,0 +1,144 @@
+2026-03-31 18:08:42,520 INFO === Experiment v10: Multi-Scale Terrain + GLCM ===
+2026-03-31 18:08:42,521 INFO Baseline: CV=0.8024  Kaggle=0.7952
+2026-03-31 18:08:42,564 INFO Train: 6256 rows   Test: 98 rows
+2026-03-31 18:08:42,577 INFO Loading cached features from reports\metrics\cache_train_feats_v10.csv / reports\metrics\cache_test_feats_v10.csv
+2026-03-31 18:08:42,673 INFO Feature matrix: 6256 train Î 64 features  (98 test)
+2026-03-31 18:16:53,078 INFO   [full_multiscale] cat: CV F1=0.6377 ▒ 0.2446
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+2026-03-31 18:17:55,081 INFO   [full_multiscale] lgb: CV F1=0.6336 ▒ 0.2657
+2026-03-31 18:17:55,147 INFO   [full_multiscale] cat+lgb ensemble: CV F1=0.6362 ▒ 0.2669
+2026-03-31 18:17:55,147 INFO [full_multiscale] Best: cat (CV F1=0.6377)
+2026-03-31 18:17:55,148 INFO [full_multiscale] SGAM mean recall across folds (SC-003): 0.0000
+2026-03-31 18:17:55,149 INFO   ALG recall: 0.4047 ▒ 0.4347
+2026-03-31 18:17:55,149 INFO   FMAT recall: 0.3432 ▒ 0.4426
+2026-03-31 18:17:55,149 INFO   NVB recall: 0.6141 ▒ 0.3739
+2026-03-31 18:17:55,150 INFO   SGAM recall: 0.0000 ▒ 0.0000
+2026-03-31 18:17:55,150 INFO   SGZ recall: 0.0391 ▒ 0.1024
+2026-03-31 18:17:55,156 WARNING SC-001 FAIL: CV F1=0.6377 < 0.8024
+2026-03-31 18:17:55,162 INFO Per-class metrics written: reports\metrics\cv_per_class_v10.csv
+2026-03-31 18:17:55,163 WARNING SC-003 WARNING: SGAM mean recall=0.0000
+2026-03-31 18:18:42,733 INFO Feature importance written: reports\metrics\feature_importance_v10.csv
+2026-03-31 18:18:42,737 INFO Submission written: data\submission_v10.csv (98 rows)
+2026-03-31 18:18:42,747 INFO Running permutation importance feature selection...
+2026-03-31 18:18:43,554 INFO Correlation pre-filter dropped 25 features (|r| > 0.95): btm_broad_std, btm_complexity_11, btm_complexity_15, btm_max_curvature_15, btm_max_curvature_21, btm_max_curvature_7, btm_northness_15, btm_rdmv_11, btm_rdmv_21, btm_rough_total, btm_slope_11, btm_slope_15, btm_slope_21, btm_slope_7, btm_surface_ratio, btm_surface_ratio_11, btm_surface_ratio_15, btm_surface_ratio_21, btm_surface_ratio_3, btm_surface_ratio_7, btm_vrm_11, btm_vrm_15, btm_vrm_21, btm_vrm_3, btm_vrm_7
+2026-03-31 18:18:47,724 INFO   KEEP  btm_broad_bpi                             importance=0.0000 ▒ 0.0001
+2026-03-31 18:18:47,724 INFO   DROP  btm_fine_bpi                              importance=0.0000 ▒ 0.0000
+2026-03-31 18:18:47,724 INFO   DROP  btm_broad_std                             importance=-0.0001 ▒ 0.0001
+2026-03-31 18:18:47,725 INFO   DROP  btm_fine_std                              importance=-0.0000 ▒ 0.0001
+2026-03-31 18:18:47,725 INFO   KEEP  btm_slope                                 importance=0.0014 ▒ 0.0005
+2026-03-31 18:18:47,725 INFO   KEEP  btm_vrm                                   importance=0.0009 ▒ 0.0006
+2026-03-31 18:18:47,725 INFO   DROP  btm_surface_ratio                         importance=0.0005 ▒ 0.0005
+2026-03-31 18:18:47,725 INFO   DROP  btm_bpi_magnitude                         importance=-0.0003 ▒ 0.0001
+2026-03-31 18:18:47,725 INFO   DROP  btm_broad_x_fine_std                      importance=0.0000 ▒ 0.0000
+2026-03-31 18:18:47,725 INFO   DROP  btm_rough_total                           importance=0.0013 ▒ 0.0006
+2026-03-31 18:18:47,725 INFO   KEEP  btm_northness                             importance=0.0012 ▒ 0.0003
+2026-03-31 18:18:47,725 INFO   KEEP  btm_eastness                              importance=0.0012 ▒ 0.0002
+2026-03-31 18:18:47,725 INFO   KEEP  btm_max_curvature                         importance=0.0015 ▒ 0.0002
+2026-03-31 18:18:47,725 INFO   KEEP  btm_complexity                            importance=0.0010 ▒ 0.0003
+2026-03-31 18:18:47,725 INFO   KEEP  btm_slope_3                               importance=0.0004 ▒ 0.0005
+2026-03-31 18:18:47,725 INFO   DROP  btm_slope_7                               importance=-0.0008 ▒ 0.0009
+2026-03-31 18:18:47,725 INFO   DROP  btm_slope_11                              importance=-0.0030 ▒ 0.0005
+2026-03-31 18:18:47,725 INFO   DROP  btm_slope_15                              importance=-0.0043 ▒ 0.0008
+2026-03-31 18:18:47,725 INFO   DROP  btm_slope_21                              importance=0.0047 ▒ 0.0017
+2026-03-31 18:18:47,725 INFO   DROP  btm_vrm_3                                 importance=0.0013 ▒ 0.0005
+2026-03-31 18:18:47,725 INFO   DROP  btm_vrm_7                                 importance=0.0005 ▒ 0.0004
+2026-03-31 18:18:47,725 INFO   DROP  btm_vrm_11                                importance=0.0000 ▒ 0.0007
+2026-03-31 18:18:47,725 INFO   DROP  btm_vrm_15                                importance=0.0021 ▒ 0.0004
+2026-03-31 18:18:47,725 INFO   DROP  btm_vrm_21                                importance=0.0083 ▒ 0.0016
+2026-03-31 18:18:47,725 INFO   DROP  btm_surface_ratio_3                       importance=0.0012 ▒ 0.0002
+2026-03-31 18:18:47,725 INFO   DROP  btm_surface_ratio_7                       importance=-0.0007 ▒ 0.0005
+2026-03-31 18:18:47,725 INFO   DROP  btm_surface_ratio_11                      importance=-0.0019 ▒ 0.0003
+2026-03-31 18:18:47,725 INFO   DROP  btm_surface_ratio_15                      importance=-0.0053 ▒ 0.0008
+2026-03-31 18:18:47,725 INFO   DROP  btm_surface_ratio_21                      importance=0.0057 ▒ 0.0007
+2026-03-31 18:18:47,725 INFO   KEEP  btm_northness_3                           importance=0.0004 ▒ 0.0004
+2026-03-31 18:18:47,725 INFO   KEEP  btm_northness_7                           importance=0.0030 ▒ 0.0010
+2026-03-31 18:18:47,726 INFO   KEEP  btm_northness_11                          importance=0.0045 ▒ 0.0007
+2026-03-31 18:18:47,726 INFO   DROP  btm_northness_15                          importance=0.0090 ▒ 0.0005
+2026-03-31 18:18:47,726 INFO   KEEP  btm_northness_21                          importance=0.1442 ▒ 0.0020
+2026-03-31 18:18:47,726 INFO   KEEP  btm_eastness_3                            importance=0.0030 ▒ 0.0006
+2026-03-31 18:18:47,726 INFO   KEEP  btm_eastness_7                            importance=0.0033 ▒ 0.0009
+2026-03-31 18:18:47,726 INFO   KEEP  btm_eastness_11                           importance=0.0042 ▒ 0.0007
+2026-03-31 18:18:47,726 INFO   KEEP  btm_eastness_15                           importance=0.0085 ▒ 0.0008
+2026-03-31 18:18:47,726 INFO   KEEP  btm_eastness_21                           importance=0.0443 ▒ 0.0013
+2026-03-31 18:18:47,726 INFO   KEEP  btm_max_curvature_3                       importance=0.0008 ▒ 0.0004
+2026-03-31 18:18:47,726 INFO   DROP  btm_max_curvature_7                       importance=0.0014 ▒ 0.0006
+2026-03-31 18:18:47,726 INFO   KEEP  btm_max_curvature_11                      importance=0.0043 ▒ 0.0008
+2026-03-31 18:18:47,726 INFO   DROP  btm_max_curvature_15                      importance=0.0008 ▒ 0.0005
+2026-03-31 18:18:47,726 INFO   DROP  btm_max_curvature_21                      importance=0.0101 ▒ 0.0009
+2026-03-31 18:18:47,726 INFO   DROP  btm_complexity_3                          importance=-0.0009 ▒ 0.0005
+2026-03-31 18:18:47,726 INFO   DROP  btm_complexity_7                          importance=-0.0024 ▒ 0.0006
+2026-03-31 18:18:47,726 INFO   DROP  btm_complexity_11                         importance=-0.0028 ▒ 0.0011
+2026-03-31 18:18:47,726 INFO   DROP  btm_complexity_15                         importance=-0.0043 ▒ 0.0011
+2026-03-31 18:18:47,726 INFO   KEEP  btm_complexity_21                         importance=0.0311 ▒ 0.0030
+2026-03-31 18:18:47,726 INFO   KEEP  btm_rdmv_3                                importance=0.0018 ▒ 0.0004
+2026-03-31 18:18:47,726 INFO   KEEP  btm_rdmv_7                                importance=0.0009 ▒ 0.0002
+2026-03-31 18:18:47,726 INFO   DROP  btm_rdmv_11                               importance=0.0015 ▒ 0.0003
+2026-03-31 18:18:47,726 INFO   KEEP  btm_rdmv_15                               importance=0.0017 ▒ 0.0006
+2026-03-31 18:18:47,726 INFO   DROP  btm_rdmv_21                               importance=0.0032 ▒ 0.0004
+2026-03-31 18:18:47,726 INFO   KEEP  btm_glcm_contrast_3                       importance=0.0021 ▒ 0.0006
+2026-03-31 18:18:47,726 INFO   KEEP  btm_glcm_homogeneity_3                    importance=0.0028 ▒ 0.0005
+2026-03-31 18:18:47,726 INFO   KEEP  btm_glcm_contrast_7                       importance=0.0031 ▒ 0.0008
+2026-03-31 18:18:47,726 INFO   KEEP  btm_glcm_homogeneity_7                    importance=0.0057 ▒ 0.0010
+2026-03-31 18:18:47,727 INFO   KEEP  btm_glcm_contrast_11                      importance=0.0036 ▒ 0.0010
+2026-03-31 18:18:47,727 INFO   KEEP  btm_glcm_homogeneity_11                   importance=0.0041 ▒ 0.0003
+2026-03-31 18:18:47,727 INFO   KEEP  btm_glcm_contrast_15                      importance=0.0043 ▒ 0.0005
+2026-03-31 18:18:47,727 INFO   KEEP  btm_glcm_homogeneity_15                   importance=0.0039 ▒ 0.0009
+2026-03-31 18:18:47,727 INFO   KEEP  btm_glcm_contrast_21                      importance=0.0110 ▒ 0.0012
+2026-03-31 18:18:47,727 INFO   KEEP  btm_glcm_homogeneity_21                   importance=0.0115 ▒ 0.0011
+2026-03-31 18:18:47,727 INFO Feature selection: retained 33 / 64; dropped 31 (corr pre-filter or low importance)
+2026-03-31 18:18:47,728 INFO Feature selection: 64 \u2192 33 features
+2026-03-31 18:18:47,728 WARNING SC-004 FAIL (count): 33 > 25 features
+2026-03-31 18:23:34,475 INFO   [selected_features] cat: CV F1=0.6383 ▒ 0.2524
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+2026-03-31 18:24:09,395 INFO   [selected_features] lgb: CV F1=0.6232 ▒ 0.2658
+2026-03-31 18:24:09,455 INFO   [selected_features] cat+lgb ensemble: CV F1=0.6294 ▒ 0.2665
+2026-03-31 18:24:09,455 INFO [selected_features] Best: cat (CV F1=0.6383)
+2026-03-31 18:24:09,457 INFO [selected_features] SGAM mean recall across folds (SC-003): 0.0000
+2026-03-31 18:24:09,457 INFO   ALG recall: 0.3968 ▒ 0.4291
+2026-03-31 18:24:09,458 INFO   FMAT recall: 0.3403 ▒ 0.4450
+2026-03-31 18:24:09,458 INFO   NVB recall: 0.6106 ▒ 0.3784
+2026-03-31 18:24:09,459 INFO   SGAM recall: 0.0000 ▒ 0.0000
+2026-03-31 18:24:09,459 INFO   SGZ recall: 0.0487 ▒ 0.1332
+2026-03-31 18:24:09,464 INFO SC-004 CHECK: CV F1 before=0.6377 after=0.6383 degradation=-0.0006
+2026-03-31 18:24:09,464 INFO SC-004 PASS (degradation): \u2264 0.01
+2026-03-31 18:24:40,162 INFO Submission written: data\submission_v10_selected.csv (98 rows)
+2026-03-31 18:24:40,163 INFO Predictions changed after feature selection: 1 / 98 (1.0%)
+2026-03-31 18:24:40,163 INFO === Experiment v10 complete ===

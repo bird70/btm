@@ -55,9 +55,13 @@ from __future__ import annotations
 
 import argparse
 import logging
+import sys
 import time
 from datetime import datetime
 from pathlib import Path
+
+# Ensure src/ is on the path so benthic_model can be imported
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 import numpy as np
 import pandas as pd
@@ -152,6 +156,9 @@ def _write_submission(predictions: pd.DataFrame, path: str) -> None:
 
 
 # ---------------------------------------------------------------------------
+CACHE_TRAIN = Path("reports/metrics/cache_train_feats_v10.csv")
+CACHE_TEST = Path("reports/metrics/cache_test_feats_v10.csv")
+
 # Feature extraction
 # ---------------------------------------------------------------------------
 
@@ -165,6 +172,11 @@ def _extract_features(
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Extract multi-scale BTM features for train and test point sets."""
     from btm.features.extract import extract_btm_features
+
+    # Use cached features if available (saves ~10 min on re-runs)
+    if not dry_run and CACHE_TRAIN.exists() and CACHE_TEST.exists():
+        log.info("Loading cached features from %s / %s", CACHE_TRAIN, CACHE_TEST)
+        return pd.read_csv(CACHE_TRAIN), pd.read_csv(CACHE_TEST)
 
     common_kwargs = dict(
         bathymetry_tif=BATHY_PATH,
@@ -198,6 +210,12 @@ def _extract_features(
         time.time() - t1,
     )
 
+    if not dry_run:
+        CACHE_TRAIN.parent.mkdir(parents=True, exist_ok=True)
+        train_feats.to_csv(CACHE_TRAIN, index=False)
+        test_feats.to_csv(CACHE_TEST, index=False)
+        log.info("Feature cache written to %s / %s", CACHE_TRAIN, CACHE_TEST)
+
     return train_feats, test_feats
 
 
@@ -222,7 +240,7 @@ def _run_cv(
     import lightgbm as lgb
 
     feature_cols = list(X.columns)
-    classes = np.sort(y.unique())
+    classes = np.array(sorted(y.dropna().unique().astype(str)))
     n_classes = len(classes)
     gkf = GroupKFold(n_splits=CV_N_SPLITS)
 
@@ -256,23 +274,24 @@ def _run_cv(
     # Accumulate per-fold classification reports for per-class metrics
     per_class_rows: list[dict] = []
 
+    # CatBoost requires a plain numpy str array, not pandas StringArray
+    y_np = y.to_numpy(dtype=str, na_value="NVB")
+
     for name, make_model in models.items():
         oof = np.zeros((len(y), n_classes), dtype=np.float32)
         fold_scores: list[float] = []
 
-        for fold_i, (tr_idx, va_idx) in enumerate(
-            gkf.split(X.values, y.values, groups)
-        ):
+        for fold_i, (tr_idx, va_idx) in enumerate(gkf.split(X.values, y_np, groups)):
             m = make_model()
-            m.fit(X.values[tr_idx], y.values[tr_idx])
+            m.fit(X.values[tr_idx], y_np[tr_idx])
             oof[va_idx] = m.predict_proba(X.values[va_idx])
             va_preds = classes[np.argmax(oof[va_idx], axis=1)]
-            fold_f1 = f1_score(y.values[va_idx], va_preds, average="weighted")
+            fold_f1 = f1_score(y_np[va_idx], va_preds, average="weighted")
             fold_scores.append(fold_f1)
 
             if name == "cat":
                 report = classification_report(
-                    y.values[va_idx], va_preds, output_dict=True, zero_division=0
+                    y_np[va_idx], va_preds, output_dict=True, zero_division=0
                 )
                 row = {"model": name, "fold": fold_i, "weighted_f1": fold_f1}
                 for cls in KNOWN_CLASSES:
@@ -280,7 +299,7 @@ def _run_cv(
                 per_class_rows.append(row)
 
         preds_full = classes[np.argmax(oof, axis=1)]
-        cv_f1 = f1_score(y.values, preds_full, average="weighted")
+        cv_f1 = f1_score(y_np, preds_full, average="weighted")
         all_oofs[name] = oof
         all_fold_scores[name] = fold_scores
         log.info(
@@ -296,11 +315,11 @@ def _run_cv(
     # Soft-vote ensemble
     oof_ens = (all_oofs["cat"] + all_oofs["lgb"]) / 2.0
     preds_ens = classes[np.argmax(oof_ens, axis=1)]
-    f1_ens = f1_score(y.values, preds_ens, average="weighted")
+    f1_ens = f1_score(y_np, preds_ens, average="weighted")
     fold_ens: list[float] = []
-    for tr_idx, va_idx in gkf.split(X.values, y.values, groups):
+    for tr_idx, va_idx in gkf.split(X.values, y_np, groups):
         va_preds = classes[np.argmax(oof_ens[va_idx], axis=1)]
-        fold_ens.append(f1_score(y.values[va_idx], va_preds, average="weighted"))
+        fold_ens.append(f1_score(y_np[va_idx], va_preds, average="weighted"))
     log.info(
         "  [%s] cat+lgb ensemble: CV F1=%.4f ± %.4f",
         label,
@@ -434,7 +453,7 @@ def main(dry_run: bool = False, extract_only: bool = False) -> None:
         random_seed=CV_RANDOM_STATE,
         verbose=0,
     )
-    final_model.fit(X_train.values, y_train.values)
+    final_model.fit(X_train.values, y_train.to_numpy(dtype=str, na_value="NVB"))
     # Use model's built-in feature importances for ranking (fast)
     imp_mean = final_model.get_feature_importance().tolist()
     imp_std = [0.0] * len(btm_cols)
@@ -495,7 +514,9 @@ def main(dry_run: bool = False, extract_only: bool = False) -> None:
             random_seed=CV_RANDOM_STATE,
             verbose=0,
         )
-        final_model_sel.fit(X_train_sel.values, y_train.values)
+        final_model_sel.fit(
+            X_train_sel.values, y_train.to_numpy(dtype=str, na_value="NVB")
+        )
         test_preds_sel = final_model_sel.predict(X_test_sel.values).ravel()
         sub_sel = pd.DataFrame({id_col: test_feats[id_col], class_col: test_preds_sel})
         _write_submission(sub_sel, str(OUTPUT_SUBMISSION_SELECTED))

@@ -88,9 +88,15 @@ def focal_mean_multiscale(
     Misiuk et al. (2021) — see module docstring.
     """
     work = base_array.astype(np.float64)
+    # scipy.ndimage.uniform_filter propagates NaN; fill with 0 before filtering
+    # and restore NaN at nodata positions afterwards.
+    nan_mask = np.isnan(work)
+    work_filled = np.where(nan_mask, 0.0, work)
     result: dict[int, np.ndarray] = {}
     for s in scales:
-        result[s] = scipy.ndimage.uniform_filter(work, size=s, mode="reflect")
+        filtered = scipy.ndimage.uniform_filter(work_filled, size=s, mode="reflect")
+        filtered[nan_mask] = np.nan
+        result[s] = filtered
     return result
 
 
@@ -130,14 +136,21 @@ def compute_rdmv(
     Lecours, V. et al. (2017) — see module docstring.
     """
     work = depth_array.astype(np.float64)
+    # scipy.ndimage.uniform_filter propagates NaN; fill nodata before filtering.
+    nan_mask = np.isnan(work)
+    fill_val = float(np.nanmean(work)) if not np.all(nan_mask) else 0.0
+    work_filled = np.where(nan_mask, fill_val, work)
 
-    focal_mean = scipy.ndimage.uniform_filter(work, size=scale, mode="reflect")
+    focal_mean = scipy.ndimage.uniform_filter(work_filled, size=scale, mode="reflect")
 
     # Variance via E[X²] − (E[X])²; clip to zero to suppress floating-point noise
-    focal_mean_sq = scipy.ndimage.uniform_filter(work**2, size=scale, mode="reflect")
+    focal_mean_sq = scipy.ndimage.uniform_filter(
+        work_filled**2, size=scale, mode="reflect"
+    )
     variance = np.maximum(focal_mean_sq - focal_mean**2, 0.0)
     focal_std = np.sqrt(variance)
 
     with np.errstate(invalid="ignore", divide="ignore"):
         rdmv = np.where(focal_std == 0.0, 0.0, (work - focal_mean) / focal_std)
+    rdmv[nan_mask] = np.nan
     return rdmv

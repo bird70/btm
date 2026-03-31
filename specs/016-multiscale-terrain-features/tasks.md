@@ -24,11 +24,11 @@ US4 (GLCM, P2) is scheduled before US2 (Train, P1) because US2 requires a comple
 
 **Purpose**: Create empty module stubs so test files can import from them (TDD red-phase setup).
 
-- [X] T001 Create empty module file `btm/core/multiscale.py` with module-level docstring and placeholder function signatures: `focal_mean_multiscale()`, `compute_rdmv()`
-- [X] T002 [P] Create empty module file `btm/core/glcm.py` with module-level docstring and placeholder function signature: `compute_glcm_texture()`
-- [X] T003 [P] Create empty module file `src/benthic_model/features/selection.py` with module-level docstring and placeholder function signature: `select_by_permutation_importance()`
-- [X] T004 [P] Create empty test files: `tests/unit/test_multiscale.py`, `tests/unit/test_glcm.py`, `tests/unit/test_feature_selection.py` with pass-through stubs
-- [X] T005 [P] Create `tests/integration/` directory with `__init__.py` and empty `tests/integration/test_multiscale_pipeline.py`; create `tests/data/016/` directory containing small (≤ 50×50 cell) GeoTIFF raster fixtures clipped from `data/MBES/bathymetry.tif` and `data/MBES/backscatter.tif` using rasterio windowed read — these fixtures MUST be committed to the repository so the integration test suite runs without accessing `data/MBES/` at runtime (constitution Principle I: integration tests MUST use real raster data under `tests/data/`)
+- [x] T001 Create empty module file `btm/core/multiscale.py` with module-level docstring and placeholder function signatures: `focal_mean_multiscale()`, `compute_rdmv()`
+- [x] T002 [P] Create empty module file `btm/core/glcm.py` with module-level docstring and placeholder function signature: `compute_glcm_texture()`
+- [x] T003 [P] Create empty module file `src/benthic_model/features/selection.py` with module-level docstring and placeholder function signature: `select_by_permutation_importance()`
+- [x] T004 [P] Create empty test files: `tests/unit/test_multiscale.py`, `tests/unit/test_glcm.py`, `tests/unit/test_feature_selection.py` with pass-through stubs
+- [x] T005 [P] Create `tests/integration/` directory with `__init__.py` and empty `tests/integration/test_multiscale_pipeline.py`; create `tests/data/016/` directory containing small (≤ 50×50 cell) GeoTIFF raster fixtures clipped from `data/MBES/bathymetry.tif` and `data/MBES/backscatter.tif` using rasterio windowed read — these fixtures MUST be committed to the repository so the integration test suite runs without accessing `data/MBES/` at runtime (constitution Principle I: integration tests MUST use real raster data under `tests/data/`)
 
 ---
 
@@ -48,20 +48,20 @@ _This phase intentionally empty for spec-016._
 
 ### TDD: Tests First
 
-- [X] T006 [US1] Write test `tests/unit/test_multiscale.py`: `test_focal_mean_multiscale_output_shape` — given a 20×20 float32 array and scales=[3,7], assert `focal_mean_multiscale("slope", arr, [3,7])` returns a dict with keys 3 and 7, each an ndarray of the same shape as input
-- [X] T007 [P] [US1] Write test `tests/unit/test_multiscale.py`: `test_focal_mean_multiscale_column_names` — assert the helper `multiscale_column_names("slope", [3,7,11])` returns `["btm_slope_3","btm_slope_7","btm_slope_11"]`
-- [X] T008 [P] [US1] Write test `tests/unit/test_multiscale.py`: `test_focal_mean_multiscale_smoothing` — assert values at scale=21 have lower standard deviation than values at scale=3 for a synthetic noisy array (larger scale → smoother)
-- [X] T009 [P] [US1] Write test `tests/unit/test_multiscale.py`: `test_focal_mean_boundary_reflect` — given a 10×10 array, assert a point at corner [0,0] at scale=7 returns a non-NaN float (mode="reflect" boundary)
-- [X] T010 [P] [US1] Write test `tests/unit/test_multiscale.py`: `test_compute_rdmv_formula` — given a flat 5×5 array (all same value), assert `compute_rdmv(arr, scale=3)` returns all-zeros (std=0 edge case handled gracefully)
-- [X] T011 [P] [US1] Write test `tests/unit/test_multiscale.py`: `test_compute_rdmv_nonflat` — given a synthetic array with a central ridge, assert RDMV values at the ridge are positive and values in the depression are negative
+- [x] T006 [US1] Write test `tests/unit/test_multiscale.py`: `test_focal_mean_multiscale_output_shape` — given a 20×20 float32 array and scales=[3,7], assert `focal_mean_multiscale("slope", arr, [3,7])` returns a dict with keys 3 and 7, each an ndarray of the same shape as input
+- [x] T007 [P] [US1] Write test `tests/unit/test_multiscale.py`: `test_focal_mean_multiscale_column_names` — assert the helper `multiscale_column_names("slope", [3,7,11])` returns `["btm_slope_3","btm_slope_7","btm_slope_11"]`
+- [x] T008 [P] [US1] Write test `tests/unit/test_multiscale.py`: `test_focal_mean_multiscale_smoothing` — assert values at scale=21 have lower standard deviation than values at scale=3 for a synthetic noisy array (larger scale → smoother)
+- [x] T009 [P] [US1] Write test `tests/unit/test_multiscale.py`: `test_focal_mean_boundary_reflect` — given a 10×10 array, assert a point at corner [0,0] at scale=7 returns a non-NaN float (mode="reflect" boundary)
+- [x] T010 [P] [US1] Write test `tests/unit/test_multiscale.py`: `test_compute_rdmv_formula` — given a flat 5×5 array (all same value), assert `compute_rdmv(arr, scale=3)` returns all-zeros (std=0 edge case handled gracefully)
+- [x] T011 [P] [US1] Write test `tests/unit/test_multiscale.py`: `test_compute_rdmv_nonflat` — given a synthetic array with a central ridge, assert RDMV values at the ridge are positive and values in the depression are negative
 
 ### Implementation
 
-- [X] T012 [US1] Implement `focal_mean_multiscale(derivative_name: str, base_array: np.ndarray, scales: list[int]) -> dict[int, np.ndarray]` in `btm/core/multiscale.py`: apply `scipy.ndimage.uniform_filter(base_array, size=s, mode="reflect")` for each scale `s`; cite Misiuk et al. (2021) in docstring
-- [X] T013 [US1] Implement `compute_rdmv(depth_array: np.ndarray, scale: int) -> np.ndarray` in `btm/core/multiscale.py`: compute `focal_mean` and `focal_std` via `uniform_filter`; RDMV = `(depth - focal_mean) / focal_std`; set to 0.0 where `focal_std == 0`; cite Lecours et al. (2017) in docstring
-- [X] T014 [US1] Implement helper `multiscale_column_names(derivative: str, scales: list[int]) -> list[str]` in `btm/core/multiscale.py`: returns `[f"btm_{derivative}_{s}" for s in scales]`
-- [X] T015 [US1] Modify `btm/features/extract.py`: add `scales: list[int] | None = None` parameter to `extract_btm_features()`; when scales is not None, call `focal_mean_multiscale()` for each of the 7 derivatives (slope, vrm, surface_ratio, northness, eastness, max_curvature, complexity) and `compute_rdmv()` for depth; sample the scaled arrays at point locations; append all resulting columns to the output DataFrame
-- [X] T016 [US1] Verify backward compatibility in `tests/unit/test_btm_features.py`: assert existing tests still pass when `scales=None` (default behaviour unchanged); run `pytest tests/unit/test_btm_features.py -v`
+- [x] T012 [US1] Implement `focal_mean_multiscale(derivative_name: str, base_array: np.ndarray, scales: list[int]) -> dict[int, np.ndarray]` in `btm/core/multiscale.py`: apply `scipy.ndimage.uniform_filter(base_array, size=s, mode="reflect")` for each scale `s`; cite Misiuk et al. (2021) in docstring
+- [x] T013 [US1] Implement `compute_rdmv(depth_array: np.ndarray, scale: int) -> np.ndarray` in `btm/core/multiscale.py`: compute `focal_mean` and `focal_std` via `uniform_filter`; RDMV = `(depth - focal_mean) / focal_std`; set to 0.0 where `focal_std == 0`; cite Lecours et al. (2017) in docstring
+- [x] T014 [US1] Implement helper `multiscale_column_names(derivative: str, scales: list[int]) -> list[str]` in `btm/core/multiscale.py`: returns `[f"btm_{derivative}_{s}" for s in scales]`
+- [x] T015 [US1] Modify `btm/features/extract.py`: add `scales: list[int] | None = None` parameter to `extract_btm_features()`; when scales is not None, call `focal_mean_multiscale()` for each of the 7 derivatives (slope, vrm, surface_ratio, northness, eastness, max_curvature, complexity) and `compute_rdmv()` for depth; sample the scaled arrays at point locations; append all resulting columns to the output DataFrame
+- [x] T016 [US1] Verify backward compatibility in `tests/unit/test_btm_features.py`: assert existing tests still pass when `scales=None` (default behaviour unchanged); run `pytest tests/unit/test_btm_features.py -v`
 
 ---
 
@@ -73,16 +73,16 @@ _This phase intentionally empty for spec-016._
 
 ### TDD: Tests First
 
-- [X] T017 [US4] Write test `tests/unit/test_glcm.py`: `test_glcm_output_columns` — given a 40×40 float32 backscatter array and 5 point coordinates, assert `compute_glcm_texture(arr, rows, cols, scales=[7])` returns a DataFrame with columns `["btm_glcm_contrast_7","btm_glcm_homogeneity_7"]` and 5 rows
-- [X] T018 [P] [US4] Write test `tests/unit/test_glcm.py`: `test_glcm_contrast_nonnegative` — assert all contrast values ≥ 0.0 for a random backscatter array
-- [X] T019 [P] [US4] Write test `tests/unit/test_glcm.py`: `test_glcm_homogeneity_range` — assert all homogeneity values are in [0.0, 1.0] for a random backscatter array
-- [X] T020 [P] [US4] Write test `tests/unit/test_glcm.py`: `test_glcm_rotation_invariance` — assert that transposing the backscatter array does not substantially change the mean homogeneity (direction-averaged GLCM is approximately rotation-invariant)
-- [X] T021 [P] [US4] Write test `tests/unit/test_glcm.py`: `test_glcm_nodata_in_patch` — given a backscatter array with NaN values, assert `compute_glcm_texture` returns finite float values (not NaN) at the test point location (NaN pixels replaced by patch median before GLCM)
+- [x] T017 [US4] Write test `tests/unit/test_glcm.py`: `test_glcm_output_columns` — given a 40×40 float32 backscatter array and 5 point coordinates, assert `compute_glcm_texture(arr, rows, cols, scales=[7])` returns a DataFrame with columns `["btm_glcm_contrast_7","btm_glcm_homogeneity_7"]` and 5 rows
+- [x] T018 [P] [US4] Write test `tests/unit/test_glcm.py`: `test_glcm_contrast_nonnegative` — assert all contrast values ≥ 0.0 for a random backscatter array
+- [x] T019 [P] [US4] Write test `tests/unit/test_glcm.py`: `test_glcm_homogeneity_range` — assert all homogeneity values are in [0.0, 1.0] for a random backscatter array
+- [x] T020 [P] [US4] Write test `tests/unit/test_glcm.py`: `test_glcm_rotation_invariance` — assert that transposing the backscatter array does not substantially change the mean homogeneity (direction-averaged GLCM is approximately rotation-invariant)
+- [x] T021 [P] [US4] Write test `tests/unit/test_glcm.py`: `test_glcm_nodata_in_patch` — given a backscatter array with NaN values, assert `compute_glcm_texture` returns finite float values (not NaN) at the test point location (NaN pixels replaced by patch median before GLCM)
 
 ### Implementation
 
-- [X] T022 [US4] Implement `compute_glcm_texture(backscatter_array: np.ndarray, point_rows: np.ndarray, point_cols: np.ndarray, scales: list[int], n_levels: int = 32) -> pd.DataFrame` in `btm/core/glcm.py`: for each point, extract a `scale × scale` patch centred on the point; replace NaN with patch median; quantise to `n_levels` grey levels; call `skimage.feature.graycomatrix` with distances=[1] and angles=[0, π/4, π/2, 3π/4]; compute `graycoprops(glcm, "contrast")` and `graycoprops(glcm, "homogeneity")`; average over 4 directions; cite Haralick (1973) and Nemani et al. (2022) in docstring; promote pattern from `scripts/experiment_v2.py`
-- [X] T023 [US4] Modify `btm/features/extract.py`: add `include_glcm: bool = False` and `backscatter_tif: str | None = None` parameters to `extract_btm_features()`; when `include_glcm=True`, open backscatter raster with rasterio, convert point coordinates to pixel indices, call `compute_glcm_texture()` at each requested scale, append GLCM columns to output DataFrame; raise `ValueError` if `include_glcm=True` and `backscatter_tif` is None
+- [x] T022 [US4] Implement `compute_glcm_texture(backscatter_array: np.ndarray, point_rows: np.ndarray, point_cols: np.ndarray, scales: list[int], n_levels: int = 32) -> pd.DataFrame` in `btm/core/glcm.py`: for each point, extract a `scale × scale` patch centred on the point; replace NaN with patch median; quantise to `n_levels` grey levels; call `skimage.feature.graycomatrix` with distances=[1] and angles=[0, π/4, π/2, 3π/4]; compute `graycoprops(glcm, "contrast")` and `graycoprops(glcm, "homogeneity")`; average over 4 directions; cite Haralick (1973) and Nemani et al. (2022) in docstring; promote pattern from `scripts/experiment_v2.py`
+- [x] T023 [US4] Modify `btm/features/extract.py`: add `include_glcm: bool = False` and `backscatter_tif: str | None = None` parameters to `extract_btm_features()`; when `include_glcm=True`, open backscatter raster with rasterio, convert point coordinates to pixel indices, call `compute_glcm_texture()` at each requested scale, append GLCM columns to output DataFrame; raise `ValueError` if `include_glcm=True` and `backscatter_tif` is None
 
 ---
 
@@ -92,12 +92,12 @@ _This phase intentionally empty for spec-016._
 
 **Independent Test**: Run `scripts/experiment_v10.py --dry-run` (5 training points, 2 scales) and assert it completes without error, a submission CSV is written, and CV result is logged.
 
-- [X] T024a [US2] Write test `tests/unit/test_experiment_v10.py`: `test_feature_importance_output_schema` — given a mock trained model and feature list, assert `_write_feature_importance(importances, feature_names, path)` writes a CSV to the specified path with columns `["feature_name", "importance_mean", "importance_std", "rank", "selected"]` and one row per feature (FR-006)
-- [X] T024b [P] [US2] Write test `tests/unit/test_experiment_v10.py`: `test_submission_csv_format` — given a mock DataFrame of predictions, assert `_write_submission(predictions, path)` writes a CSV with column names matching `data/sample_submission.csv` exactly (ID column + class column), all class values drawn from the known class set `{NVB, FMAT, SGZ, ALG, SGAM}`, and row count matching the test set length (FR-009)
-- [X] T024 [US2] Write `scripts/experiment_v10.py` with private helpers `_write_feature_importance()` and `_write_submission()` (tested in T024a/T024b): load `data/train.csv` and `data/test.csv`; call `extract_btm_features(..., scales=[3,7,11,15,21], include_glcm=True, backscatter_tif="data/MBES/backscatter.tif")`; train CatBoost or RF classifier with existing 5-fold spatial CV strategy (re-use pattern from `scripts/experiment_v9.py`); log mean and std weighted-F1 and compare to 0.8024 baseline; call `_write_feature_importance()` to `reports/metrics/feature_importance_v10.csv`; call `_write_submission()` to `data/submission_v10.csv`
-- [X] T025 [US2] Run feature extraction on full training set (`data/train.csv`, 6256 points): `python scripts/experiment_v10.py --extract-only`; confirm total extraction time is under 10 minutes (SC-005); log elapsed time and feature shape
-- [X] T026 [US2] Run full CV training in `scripts/experiment_v10.py` on the complete feature set; log cv_weighted_f1 and compare against SC-001 (≥ 0.8024) and SC-002 (≥ 0.79518 Kaggle OR CV improvement ≥ 0.005); compute `sklearn.metrics.classification_report` per fold, log per-class recall to console, assert `recall['SGAM'] >= baseline_recall` (SC-003, where baseline_recall is the SGAM recall from the best prior run documented in run-registry or runsheet), and write per-class metrics to `reports/metrics/cv_per_class_v10.csv`
-- [X] T027 [US2] Generate Kaggle submission CSV at `data/submission_v10.csv`; verify the file has the correct format (ID column + predicted class column matching `data/sample_submission.csv` structure)
+- [x] T024a [US2] Write test `tests/unit/test_experiment_v10.py`: `test_feature_importance_output_schema` — given a mock trained model and feature list, assert `_write_feature_importance(importances, feature_names, path)` writes a CSV to the specified path with columns `["feature_name", "importance_mean", "importance_std", "rank", "selected"]` and one row per feature (FR-006)
+- [x] T024b [P] [US2] Write test `tests/unit/test_experiment_v10.py`: `test_submission_csv_format` — given a mock DataFrame of predictions, assert `_write_submission(predictions, path)` writes a CSV with column names matching `data/sample_submission.csv` exactly (ID column + class column), all class values drawn from the known class set `{NVB, FMAT, SGZ, ALG, SGAM}`, and row count matching the test set length (FR-009)
+- [x] T024 [US2] Write `scripts/experiment_v10.py` with private helpers `_write_feature_importance()` and `_write_submission()` (tested in T024a/T024b): load `data/train.csv` and `data/test.csv`; call `extract_btm_features(..., scales=[3,7,11,15,21], include_glcm=True, backscatter_tif="data/MBES/backscatter.tif")`; train CatBoost or RF classifier with existing 5-fold spatial CV strategy (re-use pattern from `scripts/experiment_v9.py`); log mean and std weighted-F1 and compare to 0.8024 baseline; call `_write_feature_importance()` to `reports/metrics/feature_importance_v10.csv`; call `_write_submission()` to `data/submission_v10.csv`
+- [x] T025 [US2] Run feature extraction on full training set (`data/train.csv`, 6256 points): `python scripts/experiment_v10.py --extract-only`; confirm total extraction time is under 10 minutes (SC-005); log elapsed time and feature shape
+- [x] T026 [US2] Run full CV training in `scripts/experiment_v10.py` on the complete feature set; log cv_weighted_f1 and compare against SC-001 (≥ 0.8024) and SC-002 (≥ 0.79518 Kaggle OR CV improvement ≥ 0.005); compute `sklearn.metrics.classification_report` per fold, log per-class recall to console, assert `recall['SGAM'] >= baseline_recall` (SC-003, where baseline_recall is the SGAM recall from the best prior run documented in run-registry or runsheet), and write per-class metrics to `reports/metrics/cv_per_class_v10.csv`
+- [x] T027 [US2] Generate Kaggle submission CSV at `data/submission_v10.csv`; verify the file has the correct format (ID column + predicted class column matching `data/sample_submission.csv` structure)
 
 ---
 
@@ -109,15 +109,15 @@ _This phase intentionally empty for spec-016._
 
 ### TDD: Tests First
 
-- [X] T028 [US3] Write test `tests/unit/test_feature_selection.py`: `test_select_returns_result` — given a small synthetic DataFrame (50 samples, 10 features), assert `select_by_permutation_importance(X, y, model, feature_names)` returns an object with attributes `selected_features` (list), `dropped_features` (list), and `importance_df` (DataFrame with columns feature_name, importance_mean, importance_std, selected, rank)
-- [X] T029 [P] [US3] Write test `tests/unit/test_feature_selection.py`: `test_select_reduces_features` — given 20 features of which half are pure noise (random), assert the selection retains ≤ 15 features
-- [X] T030 [P] [US3] Write test `tests/unit/test_feature_selection.py`: `test_select_logs_dropped` — mock the logger and assert a log.info call contains the name of at least one dropped feature and its importance score
+- [x] T028 [US3] Write test `tests/unit/test_feature_selection.py`: `test_select_returns_result` — given a small synthetic DataFrame (50 samples, 10 features), assert `select_by_permutation_importance(X, y, model, feature_names)` returns an object with attributes `selected_features` (list), `dropped_features` (list), and `importance_df` (DataFrame with columns feature_name, importance_mean, importance_std, selected, rank)
+- [x] T029 [P] [US3] Write test `tests/unit/test_feature_selection.py`: `test_select_reduces_features` — given 20 features of which half are pure noise (random), assert the selection retains ≤ 15 features
+- [x] T030 [P] [US3] Write test `tests/unit/test_feature_selection.py`: `test_select_logs_dropped` — mock the logger and assert a log.info call contains the name of at least one dropped feature and its importance score
 
 ### Implementation
 
-- [X] T031 [US3] Implement `select_by_permutation_importance(X: pd.DataFrame, y: pd.Series, model, n_repeats: int = 10, importance_threshold: float = 0.0, corr_threshold: float = 0.95) -> FeatureSelectionResult` in `src/benthic_model/features/selection.py`: (1) apply Spearman correlation pre-filter to drop one of any pair with |r| > 0.95 (keep higher-variance); (2) call `sklearn.inspection.permutation_importance(model, X, y, n_repeats=n_repeats)`; (3) drop features with `importance_mean ≤ importance_threshold`; (4) log retained and dropped features with their importance scores (FR-010); cite Breiman (2001) in docstring
-- [X] T032 [US3] Integrate feature selection into `scripts/experiment_v10.py`: after initial CV training, call `select_by_permutation_importance()` using the trained model; retrain on `selected_features` only; log CV weighted-F1 before and after selection; assert compliance with SC-004 (≤ 25 features, CV degradation ≤ 0.01)
-- [X] T033 [US3] Generate new submission CSV at `data/submission_v10_selected.csv` using the selected-feature model; compare predicted classes against `data/submission_v10.csv` to quantify prediction changes
+- [x] T031 [US3] Implement `select_by_permutation_importance(X: pd.DataFrame, y: pd.Series, model, n_repeats: int = 10, importance_threshold: float = 0.0, corr_threshold: float = 0.95) -> FeatureSelectionResult` in `src/benthic_model/features/selection.py`: (1) apply Spearman correlation pre-filter to drop one of any pair with |r| > 0.95 (keep higher-variance); (2) call `sklearn.inspection.permutation_importance(model, X, y, n_repeats=n_repeats)`; (3) drop features with `importance_mean ≤ importance_threshold`; (4) log retained and dropped features with their importance scores (FR-010); cite Breiman (2001) in docstring
+- [x] T032 [US3] Integrate feature selection into `scripts/experiment_v10.py`: after initial CV training, call `select_by_permutation_importance()` using the trained model; retrain on `selected_features` only; log CV weighted-F1 before and after selection; assert compliance with SC-004 (≤ 25 features, CV degradation ≤ 0.01)
+- [x] T033 [US3] Generate new submission CSV at `data/submission_v10_selected.csv` using the selected-feature model; compare predicted classes against `data/submission_v10.csv` to quantify prediction changes
 
 ---
 
@@ -125,10 +125,10 @@ _This phase intentionally empty for spec-016._
 
 **Purpose**: Validate end-to-end pipeline, confirm existing test suite still passes, document results.
 
-- [X] T034 Write integration test `tests/integration/test_multiscale_pipeline.py`: using the committed fixture rasters at `tests/data/016/bathymetry.tif` and `tests/data/016/backscatter.tif` (created in T005), call `extract_btm_features(sample_points, bathy_tif="tests/data/016/bathymetry.tif", scales=[3,7], include_glcm=True, backscatter_tif="tests/data/016/backscatter.tif")`; assert output shape, all expected column names present (`btm_slope_3`, `btm_slope_7`, `btm_rdmv_7`, `btm_glcm_contrast_7`, etc.), no all-NaN columns — do NOT fall back to synthetic rasters (constitution Principle I)
-- [X] T035 [P] Run full test suite: `pytest tests/ -m "not arcgis and not qgis" -v`; assert all 192 pre-existing tests still pass plus all new tests pass; log final test count
-- [ ] T036 [P] Write `docs/run-016-multiscale-terrain.md`: document approach (multi-scale terrain + GLCM), CV weighted-F1 results, per-scale feature importances, top selected features, Kaggle score, comparison to baseline runs
-- [ ] T037 Update `docs/runsheet-hybrid-kaggle.md`: add row(s) for experiment_v10 with CV score, Kaggle score (if submitted), feature count, and link to `docs/run-016-multiscale-terrain.md`
+- [x] T034 Write integration test `tests/integration/test_multiscale_pipeline.py`: using the committed fixture rasters at `tests/data/016/bathymetry.tif` and `tests/data/016/backscatter.tif` (created in T005), call `extract_btm_features(sample_points, bathy_tif="tests/data/016/bathymetry.tif", scales=[3,7], include_glcm=True, backscatter_tif="tests/data/016/backscatter.tif")`; assert output shape, all expected column names present (`btm_slope_3`, `btm_slope_7`, `btm_rdmv_7`, `btm_glcm_contrast_7`, etc.), no all-NaN columns — do NOT fall back to synthetic rasters (constitution Principle I)
+- [x] T035 [P] Run full test suite: `pytest tests/ -m "not arcgis and not qgis" -v`; assert all 192 pre-existing tests still pass plus all new tests pass; log final test count
+- [x] T036 [P] Write `docs/run-016-multiscale-terrain.md`: document approach (multi-scale terrain + GLCM), CV weighted-F1 results, per-scale feature importances, top selected features, Kaggle score, comparison to baseline runs
+- [x] T037 Update `docs/runsheet-hybrid-kaggle.md`: add row(s) for experiment_v10 with CV score, Kaggle score (if submitted), feature count, and link to `docs/run-016-multiscale-terrain.md`
 
 ---
 
