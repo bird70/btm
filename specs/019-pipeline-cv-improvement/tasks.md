@@ -121,9 +121,9 @@
 - [X] T028 [P] Update `docs/runsheet-hybrid-kaggle.md` with row for 019 experiment with row for 019 experiment — include CV, Kaggle slot budget note
 - [X] T029 [P] Run full test suite: `.venv\Scripts\python.exe -m pytest tests/ -m "not arcgis and not qgis"` — confirm 0 failures
 - [X] T030 Update `CHANGELOG` with entry for `019-pipeline-cv-improvement` with entry for `019-pipeline-cv-improvement` findings
-- [ ] T031 `git add -A; git commit -m "019: pipeline CV improvement investigation complete"` — stage all artifacts, configs, scripts, docs, specs
-- [ ] T032 `git push --set-upstream origin 019-pipeline-cv-improvement`
-- [ ] T033 Create GitHub PR: base=main (or relevant integration branch), title "019: Pipeline CV Improvement Investigation", body from `docs/run-019-pipeline-cv-improvement.md` §Summary
+- [X] T031 `git add -A; git commit -m "019: pipeline CV improvement investigation complete"` — stage all artifacts, configs, scripts, docs, specs
+- [X] T032 `git push --set-upstream origin 019-pipeline-cv-improvement`
+- [X] T033 Create GitHub PR: base=main, title "019: Pipeline CV Improvement Investigation" — PR #16 (already open)
 
 **Checkpoint**: Branch pushed. PR created. All experiment artifacts committed.
 
