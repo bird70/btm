@@ -1,0 +1,16 @@
+[
+  "x",
+  "y",
+  "btm_complexity_21",
+  "btm_northness_21",
+  "btm_max_curvature_11",
+  "btm_northness_11",
+  "bathymetry",
+  "backscatter",
+  "bathymetry_x_backscatter",
+  "acoustic_hardness_proxy",
+  "relief_index",
+  "bathymetry_z",
+  "backscatter_z",
+  "bathymetry_backscatter_rank"
+]
