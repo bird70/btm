@@ -1,0 +1,16 @@
+# S13 — R04 with stratified_random CV (not spatial blocked)
+# Hypothesis: stratified random folds may be more representative of the test
+# distribution if the test set is randomly sampled, not geographically held out.
+# NOTE: If the test set IS geographically held out, this will be misleading.
+model_type: rf
+seed: 42
+cv:
+  n_splits: 5
+  fold_scheme: stratified_random
+  random_state: 42
+  spatial_bins: 4
+feature_flags:
+  include_focal_stats: false
+  include_interactions: false
+  include_spatial_z_scores: false
+  include_btm_features: true

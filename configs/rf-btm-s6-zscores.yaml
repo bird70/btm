@@ -1,0 +1,15 @@
+# S6 — R04 setup + spatial z-scores only (no interactions, no focal stats)
+# Hypothesis: z-scores normalize per-location depth/backscatter relative to
+# spatial neighborhood, reducing domain-shift between train and test areas
+model_type: rf
+seed: 42
+cv:
+  n_splits: 5
+  fold_scheme: spatial_blocked
+  random_state: 42
+  spatial_bins: 4
+feature_flags:
+  include_focal_stats: false
+  include_interactions: false
+  include_spatial_z_scores: true
+  include_btm_features: true

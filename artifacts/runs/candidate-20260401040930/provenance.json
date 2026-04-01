@@ -1,0 +1,16 @@
+{
+  "run_id": "candidate-20260401040930",
+  "code_revision": "c72bb14",
+  "config_ref": "configs\\rf-lgbm-ensemble.yaml",
+  "config_hash": "a03383fb4dee",
+  "seed": 42,
+  "fold_scheme": "spatial_blocked",
+  "data_split_ref": "data\\train_btm.csv",
+  "command": "train --train-csv data/train_btm.csv --bathymetry-tif data/MBES/bathymetry.tif --backscatter-tif data/MBES/backscatter.tif --config configs/rf-lgbm-ensemble.yaml --run-type candidate --seed 42",
+  "artifacts": {
+    "model": "artifacts\\runs\\candidate-20260401040930\\model.joblib",
+    "feature_columns": "artifacts\\runs\\candidate-20260401040930\\feature_columns.json",
+    "class_vocab": "artifacts\\runs\\candidate-20260401040930\\class_vocab.json",
+    "metrics": "artifacts\\runs\\candidate-20260401040930\\metrics.json"
+  }
+}

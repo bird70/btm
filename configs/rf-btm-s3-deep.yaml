@@ -1,0 +1,17 @@
+# S3 — RF with more trees + deeper trees on R04 data
+# Hypothesis: deeper trees capture more complex class boundaries
+model_type: rf
+seed: 42
+cv:
+  n_splits: 5
+  fold_scheme: spatial_blocked
+  random_state: 42
+  spatial_bins: 4
+feature_flags:
+  include_focal_stats: false
+  include_interactions: false
+  include_spatial_z_scores: false
+  include_btm_features: true
+model_params:
+  n_estimators: 500
+  max_depth: 20

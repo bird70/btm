@@ -1,0 +1,17 @@
+# S12 — R04 with 1000 trees (higher n_estimators for more stable predictions)
+# Hypothesis: 1000 trees reduces bootstrap variance per fold, may give more
+# stable CV and slightly better generalization than 300 trees
+model_type: rf
+seed: 42
+cv:
+  n_splits: 5
+  fold_scheme: spatial_blocked
+  random_state: 42
+  spatial_bins: 4
+feature_flags:
+  include_focal_stats: false
+  include_interactions: false
+  include_spatial_z_scores: false
+  include_btm_features: true
+model_params:
+  n_estimators: 1000

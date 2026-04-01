@@ -1,0 +1,17 @@
+# S10 — R04 setup but exclude x,y coordinates from model features
+# Hypothesis: x,y coords cause spatial memorization — removing them may reduce
+# the CV score slightly but improve Kaggle generalization significantly.
+# R04 used x,y (14 features), this run uses 12 features (BTM-10 + bathymetry + backscatter)
+model_type: rf
+seed: 42
+cv:
+  n_splits: 5
+  fold_scheme: spatial_blocked
+  random_state: 42
+  spatial_bins: 4
+feature_flags:
+  include_focal_stats: false
+  include_interactions: false
+  include_spatial_z_scores: false
+  include_btm_features: true
+  exclude_coords: true

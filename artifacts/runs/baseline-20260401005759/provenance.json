@@ -1,0 +1,16 @@
+{
+  "run_id": "baseline-20260401005759",
+  "code_revision": "aa7a284",
+  "config_ref": "configs\\baseline.yaml",
+  "config_hash": "453de9b07aeb",
+  "seed": 42,
+  "fold_scheme": "spatial_blocked",
+  "data_split_ref": "data\\train_btm4.csv",
+  "command": "train --train-csv data/train_btm4.csv --bathymetry-tif data/MBES/bathymetry.tif --backscatter-tif data/MBES/backscatter.tif --config configs/baseline.yaml --run-type baseline --seed 42",
+  "artifacts": {
+    "model": "artifacts\\runs\\baseline-20260401005759\\model.joblib",
+    "feature_columns": "artifacts\\runs\\baseline-20260401005759\\feature_columns.json",
+    "class_vocab": "artifacts\\runs\\baseline-20260401005759\\class_vocab.json",
+    "metrics": "artifacts\\runs\\baseline-20260401005759\\metrics.json"
+  }
+}

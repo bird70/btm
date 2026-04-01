@@ -1,0 +1,54 @@
+2026-04-01 13:47:58,331 INFO === Experiment v12: MBES-8 + Top-4 BTM (12 features) ===
+2026-04-01 13:47:58,331 INFO Baseline: CV=0.8024  Kaggle=0.7952
+2026-04-01 13:47:58,331 INFO Features (12): depth, backscatter, slope, vrm, complexity, max_curvature, northness, eastness, btm_complexity_21, btm_northness_21, btm_max_curvature_11, btm_northness_11
+2026-04-01 13:47:58,346 INFO Train: 6256 rows   Test: 98 rows
+2026-04-01 13:47:58,346 INFO Loading v11 combined cache from reports\metrics\cache_combined_v11.csv
+2026-04-01 13:47:58,400 INFO Feature matrix: 6256 Î 12 train,  98 Î 12 test
+2026-04-01 13:48:04,191 INFO   rf: CV F1=0.7822 ▒ 0.0878  (5.5s)
+2026-04-01 13:49:13,389 INFO   cat: CV F1=0.7851 ▒ 0.0845  (69.2s)
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\DEVlocal\BTM-Hybrid\btm\.venv\Lib\site-packages\sklearn\utils\validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+2026-04-01 13:49:31,362 INFO   lgb: CV F1=0.7692 ▒ 0.0903  (18.0s)
+2026-04-01 13:49:31,409 INFO   rf+cat+lgb ensemble: CV F1=0.7791 ▒ 0.0892
+2026-04-01 13:49:31,441 INFO Best: cat (CV F1=0.7851)
+2026-04-01 13:49:31,441 INFO Training times: RF=5.5s Cat=69.2s LGB=18.0s Ens=0.0s
+2026-04-01 13:49:31,442 INFO   ALG recall: 0.4955 ▒ 0.3220 (15 folds)
+2026-04-01 13:49:31,442 INFO   FMAT recall: 0.6942 ▒ 0.1946 (12 folds)
+2026-04-01 13:49:31,442 INFO   NVB recall: 0.8498 ▒ 0.1313 (15 folds)
+2026-04-01 13:49:31,443 INFO   SGAM recall: 0.3148 ▒ 0.3062 (6 folds)
+2026-04-01 13:49:31,443 INFO   SGZ recall: 0.3821 ▒ 0.3136 (12 folds)
+2026-04-01 13:49:31,448 WARNING SC-001 FAIL: RF CV F1=0.7822 < 0.8024 (gap=0.0202)
+2026-04-01 13:49:31,449 INFO SGAM recall: 0.3148 (baseline=0.045)
+2026-04-01 13:49:31,452 INFO Per-class metrics written: reports\metrics\cv_per_class_v12.csv
+2026-04-01 13:49:31,453 INFO Training final cat model on full training set...
+2026-04-01 13:49:46,561 INFO Submission written: data\submission_v12.csv (98 rows)
+2026-04-01 13:49:47,893 INFO Submission written: data\submission_v12_rf.csv (98 rows)
+2026-04-01 13:49:47,893 INFO === Experiment v12 complete ===
+2026-04-01 13:49:47,893 INFO Summary:
+2026-04-01 13:49:47,893 INFO   rf: 0.7822
+2026-04-01 13:49:47,894 INFO   cat: 0.7851 <- BEST
+2026-04-01 13:49:47,894 INFO   lgb: 0.7692
+2026-04-01 13:49:47,894 INFO   ensemble: 0.7791
+2026-04-01 13:49:47,894 INFO   RF vs baseline: 0.7822 vs 0.8024  (delta=+-0.0202)
+2026-04-01 13:49:50,068 INFO Submitting submission_v12.csv to Kaggle competition geohab-mlwg-competition-2026 ...
+
+  0%|          | 0.00/811 [00:00<?, ?B/s]
+100%|##########| 811/811 [00:00<00:00, 1.09kB/s]
+100%|##########| 811/811 [00:01<00:00, 519B/s]  
+2026-04-01 13:49:54,344 INFO Submission accepted ù score will appear on the leaderboard shortly.
+2026-04-01 13:50:03,290 INFO Latest submission: submission_v12.csv  public_score=  status=SubmissionStatus.PENDING
+2026-04-01 13:50:04,203 INFO Submitting submission_v12_rf.csv to Kaggle competition geohab-mlwg-competition-2026 ...
+
+  0%|          | 0.00/816 [00:00<?, ?B/s]
+100%|##########| 816/816 [00:00<00:00, 1.12kB/s]
+100%|##########| 816/816 [00:01<00:00, 505B/s]  
+2026-04-01 13:50:08,511 INFO Submission accepted ù score will appear on the leaderboard shortly.
+2026-04-01 13:50:17,457 INFO Latest submission: submission_v12_rf.csv  public_score=  status=SubmissionStatus.PENDING

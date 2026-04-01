@@ -1,0 +1,16 @@
+# S9 — RF + max_features='log2' (fewer features per split = more diverse trees)
+# Hypothesis: increased tree diversity may reduce overfitting to spatial patterns
+model_type: rf
+seed: 42
+cv:
+  n_splits: 5
+  fold_scheme: spatial_blocked
+  random_state: 42
+  spatial_bins: 4
+feature_flags:
+  include_focal_stats: false
+  include_interactions: false
+  include_spatial_z_scores: false
+  include_btm_features: true
+model_params:
+  max_features: log2

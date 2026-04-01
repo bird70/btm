@@ -26,6 +26,7 @@ class FeatureFlags:
     include_spatial_z_scores: bool = True
     include_btm_features: bool = True
     include_eco_features: bool = False
+    exclude_coords: bool = False
 
 
 @dataclass(slots=True)

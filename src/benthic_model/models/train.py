@@ -85,6 +85,23 @@ def _build_model(
                 **{k: v for k, v in model_params.items()},
             }
         )
+    # 019-T001/T002: Forward model_params to the underlying LightGBM classifier.
+    if model_params and resolved == "lgbm" and hasattr(model, "_model"):
+        from lightgbm import LGBMClassifier
+
+        current_lgbm = model._model
+        model._model = LGBMClassifier(
+            **{
+                "n_estimators": getattr(current_lgbm, "n_estimators", 600),
+                "learning_rate": getattr(current_lgbm, "learning_rate", 0.03),
+                "num_leaves": getattr(current_lgbm, "num_leaves", 63),
+                "class_weight": getattr(current_lgbm, "class_weight", "balanced"),
+                "random_state": seed,
+                "verbose": -1,
+                "n_jobs": getattr(current_lgbm, "n_jobs", -1),
+                **{k: v for k, v in model_params.items()},
+            }
+        )
     return model
 
 
@@ -169,7 +186,13 @@ def train_and_register_run(
     pipeline_cfg = PipelineConfig.from_yaml(config_path)
     y = frame["class"].astype(str)
     engineered = engineer_features(sampled, flags=pipeline_cfg.feature_flags, y=y)
-    feature_cols = select_model_feature_columns(engineered)
+    exclude_coords = (
+        pipeline_cfg.feature_flags is not None
+        and pipeline_cfg.feature_flags.exclude_coords
+    )
+    feature_cols = select_model_feature_columns(
+        engineered, exclude_coords=exclude_coords
+    )
 
     X = engineered[feature_cols]
 
