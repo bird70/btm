@@ -1,0 +1,25 @@
+# 019-T001 — LightGBM tuned for small dataset (BTM-10 features)
+# Lighter config vs lgbm-candidate.yaml: fewer estimators, higher LR, fewer leaves
+# Small dataset: 590 samples, 14 features, 5 classes
+# Train with: --train-csv data/train_btm.csv
+model_type: lgbm
+seed: 42
+cv:
+  n_splits: 5
+  fold_scheme: spatial_blocked
+  random_state: 42
+  spatial_bins: 4
+feature_flags:
+  include_focal_stats: false
+  include_interactions: false
+  include_spatial_z_scores: false
+  include_btm_features: true
+  include_eco_features: false
+  exclude_coords: false
+model_params:
+  n_estimators: 200
+  learning_rate: 0.1
+  num_leaves: 31
+  class_weight: balanced
+  n_jobs: -1
+  verbose: -1

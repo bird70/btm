@@ -400,6 +400,7 @@ See `docs/` for per-run detailed write-ups.
 | experiment_v12            | —                                              | MBES-8 + top-4 BTM (CatBoost)                    | 12            | 0.7851 | 0.72862     | Standalone plateau confirmed; pipeline needed  |
 | experiment_v12 RF         | —                                              | MBES-8 + top-4 BTM (RF)                          | 12            | 0.7822 | 0.72489     | Standalone plateau confirmed                   |
 | pipeline: BTM-10+c21      | run-018 (below)                                | R04 BTM-10 + btm_complexity_21 (RF pipeline)     | 11            | 0.8033 | **0.68959** | ⚠️ FAILED: large-window feature non-stationary |
+| 019: RF S2/S9, lgbm variants, ensemble | [run-019](run-019-pipeline-cv-improvement.md) | BTM-10 (multiple configs, seed=42) | 14 | 0.7916–0.8024 | none submitted | No config exceeded noise floor (0.8374). R04 remains best. Kaggle budget conserved. |
 
 ### ⚠️ Run-018 post-mortem: large-window BTM features cause spatial non-stationarity
 

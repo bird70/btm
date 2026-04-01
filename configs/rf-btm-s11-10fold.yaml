@@ -1,0 +1,14 @@
+# S11 — R04 with 10-fold spatial-blocked CV
+# Hypothesis: more folds = more stable CV estimate and potentially higher mean
+model_type: rf
+seed: 42
+cv:
+  n_splits: 10
+  fold_scheme: spatial_blocked
+  random_state: 42
+  spatial_bins: 4
+feature_flags:
+  include_focal_stats: false
+  include_interactions: false
+  include_spatial_z_scores: false
+  include_btm_features: true

@@ -1,0 +1,16 @@
+{
+  "run_id": "candidate-20260401020024",
+  "code_revision": "c72bb14",
+  "config_ref": "configs\\rf-btm-s6-zscores.yaml",
+  "config_hash": "b4452d8b2f49",
+  "seed": 42,
+  "fold_scheme": "spatial_blocked",
+  "data_split_ref": "data\\train_btm.csv",
+  "command": "train --train-csv data/train_btm.csv --bathymetry-tif data/MBES/bathymetry.tif --backscatter-tif data/MBES/backscatter.tif --config configs/rf-btm-s6-zscores.yaml --run-type candidate --seed 42",
+  "artifacts": {
+    "model": "artifacts\\runs\\candidate-20260401020024\\model.joblib",
+    "feature_columns": "artifacts\\runs\\candidate-20260401020024\\feature_columns.json",
+    "class_vocab": "artifacts\\runs\\candidate-20260401020024\\class_vocab.json",
+    "metrics": "artifacts\\runs\\candidate-20260401020024\\metrics.json"
+  }
+}

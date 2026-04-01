@@ -1,3 +1,24 @@
+019-pipeline-cv-improvement (branch 019-pipeline-cv-improvement):
+
+- Systematic CV improvement investigation for R04 baseline (RF + BTM-10, CV=0.8024,
+  Kaggle=0.7952). All remaining improvement avenues exhausted.
+- Experiments run: RF S2 (500 trees, CV=0.8001), RF S9 (log2 max_features, CV=0.8024),
+  LightGBM tuned (200 est/lr=0.1, CV=0.7976), LightGBM 300 (300 est/lr=0.05, CV=0.7959),
+  RF+LightGBM ensemble (CV=0.7916). None exceeded the noise floor (threshold: CV > 0.8374).
+- Noise floor confirmed: 5-seed variance for R04 gives mean=0.7891, std=0.0186,
+  noise floor (2×std)=0.037. Only improvements >0.037 are statistically distinguishable.
+- Seed ensemble: 97/98 unanimous across 5-seed majority vote. Ensemble is identical
+  to R04 predictions. Prediction stability confirmed.
+- Feature extension support: `src/benthic_model/models/train.py` extended to forward
+  `model_params` from YAML config to LightGBM classifier (n_estimators, learning_rate,
+  num_leaves). Enables config-driven LightGBM hyperparameter tuning.
+- Conclusion: R04 is the effective ceiling for this dataset + feature configuration.
+  No Kaggle submission warranted per FR-010 (noise floor not cleared). Final submission
+  candidate: `submission_v14_final.csv` = R04 (candidate-20260401040507, CV=0.8024).
+- New files: configs/lgbm-btm-tuned.yaml, configs/lgbm-btm-300.yaml,
+  configs/lgbm-btm-ensemble.yaml, scripts/experiment_v14_seed_ensemble.py,
+  tests/unit/test_experiment_v14.py, docs/run-019-pipeline-cv-improvement.md.
+
 4.0-dev (branch 012-v9-catboost-lgb-texture):
 
 - Root cause of v8 Kaggle failure identified: Random Forest selected as best-CV

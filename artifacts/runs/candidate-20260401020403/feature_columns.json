@@ -1,0 +1,17 @@
+[
+  "x",
+  "y",
+  "btm_broad_bpi",
+  "btm_fine_bpi",
+  "btm_broad_std",
+  "btm_fine_std",
+  "btm_slope",
+  "btm_vrm",
+  "btm_surface_ratio",
+  "btm_bpi_magnitude",
+  "btm_broad_x_fine_std",
+  "btm_rough_total",
+  "btm_rdmv_3",
+  "bathymetry",
+  "backscatter"
+]

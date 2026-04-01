@@ -63,7 +63,13 @@ def engineer_features(
     return features
 
 
-def select_model_feature_columns(features: pd.DataFrame) -> list[str]:
+def select_model_feature_columns(
+    features: pd.DataFrame,
+    *,
+    exclude_coords: bool = False,
+) -> list[str]:
     excluded = {"ID", "id", "class", "bathymetry_flag", "backscatter_flag"}
+    if exclude_coords:
+        excluded |= {"x", "y"}
     cols = [c for c in features.columns if c not in excluded]
     return [c for c in cols if np.issubdtype(features[c].dtype, np.number)]
