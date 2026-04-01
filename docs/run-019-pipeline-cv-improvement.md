@@ -21,11 +21,11 @@ Systematic investigation of all remaining CV improvement avenues for the R04 bas
 
 ## RF Experiments
 
-| Experiment | Config | Run ID | CV | Delta vs R04 | Exceeds 0.8374? |
-|------------|--------|--------|----|-------------|-----------------|
-| R04 baseline (reference) | rf-btm-fine.yaml | candidate-20260401040507 | 0.8024 | — | N/A |
-| S2: 500 trees | rf-btm-s2-500trees.yaml | candidate-20260401041240 | 0.8001 | -0.0023 | ❌ |
-| S9: log2 max_features | rf-btm-s9-log2.yaml | candidate-20260401041256 | 0.8024 | 0.0000 | ❌ |
+| Experiment               | Config                  | Run ID                   | CV     | Delta vs R04 | Exceeds 0.8374? |
+| ------------------------ | ----------------------- | ------------------------ | ------ | ------------ | --------------- |
+| R04 baseline (reference) | rf-btm-fine.yaml        | candidate-20260401040507 | 0.8024 | —            | N/A             |
+| S2: 500 trees            | rf-btm-s2-500trees.yaml | candidate-20260401041240 | 0.8001 | -0.0023      | ❌              |
+| S9: log2 max_features    | rf-btm-s9-log2.yaml     | candidate-20260401041256 | 0.8024 | 0.0000       | ❌              |
 
 **Finding**: S9 (log2 max_features) ties R04 exactly — identical per-class F1 scores. R04's `sqrt` max_features is equivalent to `log2` for 14 features (√14 ≈ 3.7, log₂14 ≈ 3.8). S2 with 500 trees shows marginal degradation (-0.0023), well within noise.
 
@@ -33,11 +33,11 @@ Systematic investigation of all remaining CV improvement avenues for the R04 bas
 
 ## LightGBM Experiments
 
-| Experiment | Config | Run ID | CV | Delta vs R04 | Exceeds 0.8374? |
-|------------|--------|--------|----|-------------|-----------------|
-| lgbm-btm-tuned (200 est, lr=0.1) | lgbm-btm-tuned.yaml | candidate-20260401040546 | 0.7976 | -0.0048 | ❌ |
-| lgbm-btm-300 (300 est, lr=0.05) | lgbm-btm-300.yaml | candidate-20260401040606 | 0.7959 | -0.0065 | ❌ |
-| RF+LightGBM ensemble | lgbm-btm-ensemble.yaml | candidate-20260401041626 | 0.7916 | -0.0108 | ❌ |
+| Experiment                       | Config                 | Run ID                   | CV     | Delta vs R04 | Exceeds 0.8374? |
+| -------------------------------- | ---------------------- | ------------------------ | ------ | ------------ | --------------- |
+| lgbm-btm-tuned (200 est, lr=0.1) | lgbm-btm-tuned.yaml    | candidate-20260401040546 | 0.7976 | -0.0048      | ❌              |
+| lgbm-btm-300 (300 est, lr=0.05)  | lgbm-btm-300.yaml      | candidate-20260401040606 | 0.7959 | -0.0065      | ❌              |
+| RF+LightGBM ensemble             | lgbm-btm-ensemble.yaml | candidate-20260401041626 | 0.7916 | -0.0108      | ❌              |
 
 **Finding**: All LightGBM variants score below R04. A lighter LightGBM (200 trees, lr=0.1) performs better than a larger one (300 trees, lr=0.05), consistent with the small dataset (590 samples). The RF+LightGBM soft-vote ensemble is degraded by the weaker LightGBM component pulling overall predictions toward lower-confidence regions.
 
@@ -49,12 +49,12 @@ Systematic investigation of all remaining CV improvement avenues for the R04 bas
 
 From `research.md` §RT-3 (experiments conducted on branches 017/018, reproduced here for reference):
 
-| Experiment | Features Added | CV | Delta vs R04 | Safe for submission? |
-|------------|---------------|----|-------------|----------------------|
-| S5a (scale-3 set) | btm_northness_3, btm_eastness_3, btm_roughness_3, btm_rdmv_3, btm_complexity_3 | 0.7950 | -0.0074 | ✅ (spatial stationarity verified for scale-3) |
-| S5b (n3+e3) | btm_northness_3, btm_eastness_3 | 0.7969 | -0.0055 | ✅ |
-| S5c (rdmv_3) | btm_rdmv_3 | 0.7997 | -0.0027 | ✅ |
-| S5d (rdmv+n3+e3) | btm_rdmv_3+northness_3+eastness_3 | 0.7922 | -0.0102 | ✅ |
+| Experiment        | Features Added                                                                 | CV     | Delta vs R04 | Safe for submission?                           |
+| ----------------- | ------------------------------------------------------------------------------ | ------ | ------------ | ---------------------------------------------- |
+| S5a (scale-3 set) | btm_northness_3, btm_eastness_3, btm_roughness_3, btm_rdmv_3, btm_complexity_3 | 0.7950 | -0.0074      | ✅ (spatial stationarity verified for scale-3) |
+| S5b (n3+e3)       | btm_northness_3, btm_eastness_3                                                | 0.7969 | -0.0055      | ✅                                             |
+| S5c (rdmv_3)      | btm_rdmv_3                                                                     | 0.7997 | -0.0027      | ✅                                             |
+| S5d (rdmv+n3+e3)  | btm_rdmv_3+northness_3+eastness_3                                              | 0.7922 | -0.0102      | ✅                                             |
 
 **Finding**: All small-window (scale-3) BTM additions degrade CV. Spatial stationarity is verified for these features — the degradation is genuine signal noise, not a spatial mismatch. Large-window features (≥15 cells) remain strictly prohibited (see research.md RT-3: btm_complexity_21 caused Kaggle score to collapse from 0.8033 to 0.6896).
 
@@ -64,11 +64,11 @@ From `research.md` §RT-3 (experiments conducted on branches 017/018, reproduced
 
 From `research.md` §RT-3 (experiments conducted on branches 017/018):
 
-| Experiment | Flag | CV | Delta vs R04 | Verdict |
-|------------|------|----|-------------|---------|
-| S1 (eco features) | include_eco_features=true | 0.7978 | -0.0046 | ❌ Degrades CV |
-| S6 (spatial z-scores) | include_spatial_z_scores=true | 0.7954 | -0.0070 | ❌ Degrades CV |
-| S10 (exclude coords) | exclude_coords=true | 0.6323 | -0.1701 | ❌❌ Catastrophic — keep x/y |
+| Experiment            | Flag                          | CV     | Delta vs R04 | Verdict                      |
+| --------------------- | ----------------------------- | ------ | ------------ | ---------------------------- |
+| S1 (eco features)     | include_eco_features=true     | 0.7978 | -0.0046      | ❌ Degrades CV               |
+| S6 (spatial z-scores) | include_spatial_z_scores=true | 0.7954 | -0.0070      | ❌ Degrades CV               |
+| S10 (exclude coords)  | exclude_coords=true           | 0.6323 | -0.1701      | ❌❌ Catastrophic — keep x/y |
 
 **Finding**: Eco features and z-scores both reduce CV on this dataset. x,y coordinates carry essential spatial habitat structure — removing them collapses performance. Feature flags must remain at R04 defaults: only `include_btm_features=true`.
 
@@ -78,13 +78,13 @@ From `research.md` §RT-3 (experiments conducted on branches 017/018):
 
 R04 config (`rf-btm-fine.yaml`, `train_btm.csv`) across 5 seeds (runs from branch 018, carried into this branch):
 
-| Seed | Run ID | CV (weighted F1) | SGAM F1 |
-|------|--------|-----------------|---------|
-| 42   | candidate-20260401021038 | 0.8024 | 0.2667 |
-| 123  | candidate-20260401021045 | 0.7626 | 0.0000 |
-| 456  | candidate-20260401021121 | 0.7890 | 0.0000 |
-| 789  | candidate-20260401021128 | 0.8101 | 0.0000 |
-| 2026 | candidate-20260401021136 | 0.7815 | 0.0000 |
+| Seed | Run ID                   | CV (weighted F1) | SGAM F1 |
+| ---- | ------------------------ | ---------------- | ------- |
+| 42   | candidate-20260401021038 | 0.8024           | 0.2667  |
+| 123  | candidate-20260401021045 | 0.7626           | 0.0000  |
+| 456  | candidate-20260401021121 | 0.7890           | 0.0000  |
+| 789  | candidate-20260401021128 | 0.8101           | 0.0000  |
+| 2026 | candidate-20260401021136 | 0.7815           | 0.0000  |
 
 **Summary**: mean=0.7891, std=0.0186, min=0.7626, max=0.8101, range=0.0475, noise floor (2× std)=0.0373
 
@@ -98,21 +98,21 @@ Majority-vote ensemble across 5 seed predictions (`scripts/experiment_v14_seed_e
 
 **Vote confidence distribution**:
 
-| Agreement | Samples |
-|-----------|---------|
-| 5/5 unanimous | 82 |
-| 4/5 majority | 15 |
-| 2/5 minority (tiebreaker used) | 1 |
+| Agreement                      | Samples |
+| ------------------------------ | ------- |
+| 5/5 unanimous                  | 82      |
+| 4/5 majority                   | 15      |
+| 2/5 minority (tiebreaker used) | 1       |
 
 **Class distribution (ensemble)**:
 
 | Class | Count |
-|-------|-------|
-| NVB | 44 |
-| ALG | 21 |
-| FMAT | 20 |
-| SGZ | 8 |
-| SGAM | 5 |
+| ----- | ----- |
+| NVB   | 44    |
+| ALG   | 21    |
+| FMAT  | 20    |
+| SGZ   | 8     |
+| SGAM  | 5     |
 
 **Ensemble vs R04 (seed=42)**: 97/98 agree (99.0%), 1 sample changed  
 **Output file**: `data/submission_v14_seed_ensemble.csv`

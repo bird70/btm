@@ -16,22 +16,21 @@ from pathlib import Path
 
 import pandas as pd
 
-
 # Seed models from branch 018/019 (R04 config, train_btm.csv)
 SEED_RUN_IDS: dict[int, str] = {
-    42:   "candidate-20260401021038",
-    123:  "candidate-20260401021045",
-    456:  "candidate-20260401021121",
-    789:  "candidate-20260401021128",
+    42: "candidate-20260401021038",
+    123: "candidate-20260401021045",
+    456: "candidate-20260401021121",
+    789: "candidate-20260401021128",
     2026: "candidate-20260401021136",
 }
 
 # CV scores for each seed (used as tiebreaker)
 SEED_CV: dict[int, float] = {
-    42:   0.8024,
-    123:  0.7626,
-    456:  0.7890,
-    789:  0.8101,
+    42: 0.8024,
+    123: 0.7626,
+    456: 0.7890,
+    789: 0.8101,
     2026: 0.7815,
 }
 
@@ -89,12 +88,14 @@ def build_ensemble(
         votes = row.tolist()
         winner = majority_vote(votes, seed_cv={s: seed_cv[s] for s in seed_list})
         winning_count = Counter(votes)[winner]
-        results.append({
-            "ID": sample_id,
-            "class": winner,
-            "votes": winning_count,
-            "total": len(votes),
-        })
+        results.append(
+            {
+                "ID": sample_id,
+                "class": winner,
+                "votes": winning_count,
+                "total": len(votes),
+            }
+        )
     return pd.DataFrame(results)
 
 
@@ -102,15 +103,25 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Majority-vote seed ensemble for benthic habitat predictions"
     )
-    parser.add_argument("--dry-run", action="store_true", help="Load files and report, no output written")
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT, help="Output CSV path")
     parser.add_argument(
-        "--predictions-dir", type=Path, default=PREDICTIONS_DIR,
-        help="Directory containing prediction CSVs"
+        "--dry-run",
+        action="store_true",
+        help="Load files and report, no output written",
+    )
+    parser.add_argument(
+        "--output", type=Path, default=DEFAULT_OUTPUT, help="Output CSV path"
+    )
+    parser.add_argument(
+        "--predictions-dir",
+        type=Path,
+        default=PREDICTIONS_DIR,
+        help="Directory containing prediction CSVs",
     )
     args = parser.parse_args(argv)
 
-    print(f"Seed ensemble: loading {len(SEED_RUN_IDS)} prediction files from {args.predictions_dir}")
+    print(
+        f"Seed ensemble: loading {len(SEED_RUN_IDS)} prediction files from {args.predictions_dir}"
+    )
 
     if args.dry_run:
         # Validate files exist and report counts
@@ -152,7 +163,9 @@ def main(argv: list[str] | None = None) -> int:
         merged = ensemble_df.set_index("ID")["class"].rename("ens").to_frame()
         merged["r04"] = r04
         changed = (merged["ens"] != merged["r04"]).sum()
-        print(f"\nEnsemble vs R04 (seed=42): {len(merged)-changed}/{len(merged)} agree ({(len(merged)-changed)/len(merged):.1%}), {changed} changed")
+        print(
+            f"\nEnsemble vs R04 (seed=42): {len(merged)-changed}/{len(merged)} agree ({(len(merged)-changed)/len(merged):.1%}), {changed} changed"
+        )
 
     # Write output
     out_path = args.output

@@ -26,7 +26,9 @@ def _import_v14():
         pytest.skip("experiment_v14_seed_ensemble.py not yet written")
     if str(SCRIPT_DIR) not in sys.path:
         sys.path.insert(0, str(SCRIPT_DIR))
-    spec = importlib.util.spec_from_file_location("experiment_v14_seed_ensemble", spec_path)
+    spec = importlib.util.spec_from_file_location(
+        "experiment_v14_seed_ensemble", spec_path
+    )
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
@@ -86,8 +88,13 @@ class TestBuildEnsemble:
     def test_unanimous_predictions(self):
         mod = _import_v14()
         vote_matrix = pd.DataFrame(
-            {42: ["NVB", "ALG"], 123: ["NVB", "ALG"], 456: ["NVB", "ALG"],
-             789: ["NVB", "ALG"], 2026: ["NVB", "ALG"]},
+            {
+                42: ["NVB", "ALG"],
+                123: ["NVB", "ALG"],
+                456: ["NVB", "ALG"],
+                789: ["NVB", "ALG"],
+                2026: ["NVB", "ALG"],
+            },
             index=[1, 2],
         )
         vote_matrix.index.name = "ID"
