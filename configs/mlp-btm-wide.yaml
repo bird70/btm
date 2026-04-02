@@ -1,0 +1,27 @@
+# 020-MLP-WIDE — Wider MLP with more capacity
+# Deeper network (256, 128, 64, 32), stronger regularisation alpha=0.01 to compensate
+# Train with: --train-csv data/train_btm.csv
+model_type: mlp
+seed: 42
+cv:
+  n_splits: 5
+  fold_scheme: spatial_blocked
+  random_state: 42
+  spatial_bins: 4
+feature_flags:
+  include_focal_stats: false
+  include_interactions: false
+  include_spatial_z_scores: false
+  include_btm_features: true
+  include_eco_features: false
+  exclude_coords: false
+model_params:
+  hidden_layer_sizes: [256, 128, 64, 32]
+  activation: relu
+  solver: adam
+  alpha: 0.01
+  learning_rate_init: 0.0005
+  max_iter: 600
+  early_stopping: true
+  validation_fraction: 0.1
+  n_iter_no_change: 20

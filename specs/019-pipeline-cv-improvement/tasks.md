@@ -13,12 +13,12 @@
 
 **Purpose**: Create YAML configurations and experiment script skeleton needed by all user stories
 
-- [X] T001 Create `configs/lgbm-btm-tuned.yaml` — LightGBM with BTM-10 features, tuned for small dataset (fewer estimators, larger learning rate)
-- [X] T002 [P] Create `configs/lgbm-btm-300.yaml` — LightGBM variant: n_estimators=300, learning_rate=0.05
-- [X] T003 [P] Create `configs/lgbm-btm-ensemble.yaml` — RF+LightGBM soft-vote ensemble with BTM-10 features
-- [X] T004 Create `scripts/experiment_v14_seed_ensemble.py` — skeleton script for majority-vote ensemble (reads predictions, writes output). Acceptance criterion: `--dry-run` flag loads 5 CSV paths, prints file count, exits 0.
-- [X] T004a [P] Write unit test in `tests/unit/test_experiment_v14.py` covering majority-vote logic: unanimous 5/5 result, split 3/2 result, tiebreaker 2/2/1 using highest-CV seed
-- [X] T004b [P] Create `docs/run-019-pipeline-cv-improvement.md` with placeholder section headers: §Summary, §RF Experiments, §LightGBM Experiments, §Feature Additions (FR-003), §Feature Flags (FR-004), §Seed Variance, §Seed Ensemble, §Submission Decision
+- [x] T001 Create `configs/lgbm-btm-tuned.yaml` — LightGBM with BTM-10 features, tuned for small dataset (fewer estimators, larger learning rate)
+- [x] T002 [P] Create `configs/lgbm-btm-300.yaml` — LightGBM variant: n_estimators=300, learning_rate=0.05
+- [x] T003 [P] Create `configs/lgbm-btm-ensemble.yaml` — RF+LightGBM soft-vote ensemble with BTM-10 features
+- [x] T004 Create `scripts/experiment_v14_seed_ensemble.py` — skeleton script for majority-vote ensemble (reads predictions, writes output). Acceptance criterion: `--dry-run` flag loads 5 CSV paths, prints file count, exits 0.
+- [x] T004a [P] Write unit test in `tests/unit/test_experiment_v14.py` covering majority-vote logic: unanimous 5/5 result, split 3/2 result, tiebreaker 2/2/1 using highest-CV seed
+- [x] T004b [P] Create `docs/run-019-pipeline-cv-improvement.md` with placeholder section headers: §Summary, §RF Experiments, §LightGBM Experiments, §Feature Additions (FR-003), §Feature Flags (FR-004), §Seed Variance, §Seed Ensemble, §Submission Decision
 
 **Checkpoint**: All configs are valid YAML parseable by `PipelineConfig.from_yaml`. Skeleton script passes `--dry-run`. Unit test for majority-vote logic is written and fails (TDD). Report file exists with section stubs.
 
@@ -30,9 +30,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until the baseline CV score is confirmed
 
-- [X] T005 Run R04 baseline: `benthic_model.cli train --config configs/rf-btm-fine.yaml --train-csv data/train_btm.csv --seed 42` and verify CV ≈ 0.8024 in `artifacts/runs/{run_id}/metrics.json`
-- [X] T006 Run R04 predict: generate test predictions for the T005 run_id into `artifacts/predictions/{run_id}_test_predictions.csv`
-- [X] T007 Run R04 make-submission: write `data/submission_v14_r04_baseline.csv` — establishes the submission format reference
+- [x] T005 Run R04 baseline: `benthic_model.cli train --config configs/rf-btm-fine.yaml --train-csv data/train_btm.csv --seed 42` and verify CV ≈ 0.8024 in `artifacts/runs/{run_id}/metrics.json`
+- [x] T006 Run R04 predict: generate test predictions for the T005 run_id into `artifacts/predictions/{run_id}_test_predictions.csv`
+- [x] T007 Run R04 make-submission: write `data/submission_v14_r04_baseline.csv` — establishes the submission format reference
 
 **Checkpoint**: T005 CV within ±0.005 of 0.8024. Predictions and submission CSV exist and have 98 rows.
 
@@ -46,25 +46,25 @@
 
 ### RF Hyperparameter Sweep (consolidate prior findings)
 
-- [X] T008 [P] [US1] Run S2 variant: `configs/rf-btm-s2-500trees.yaml` — CV=0.8001 (run candidate-20260401041240) if not already on this branch — record CV in experiment results table in `docs/run-019-pipeline-cv-improvement.md`
-- [X] T009 [P] [US1] Run S9 variant: `configs/rf-btm-s9-log2.yaml` — CV=0.8024 (run candidate-20260401041256) — record CV in experiment results table
+- [x] T008 [P] [US1] Run S2 variant: `configs/rf-btm-s2-500trees.yaml` — CV=0.8001 (run candidate-20260401041240) if not already on this branch — record CV in experiment results table in `docs/run-019-pipeline-cv-improvement.md`
+- [x] T009 [P] [US1] Run S9 variant: `configs/rf-btm-s9-log2.yaml` — CV=0.8024 (run candidate-20260401041256) — record CV in experiment results table
 
 ### LightGBM Experiments
 
-- [X] T010 [US1] Run LightGBM tuned: `benthic_model.cli train --config configs/lgbm-btm-tuned.yaml --train-csv data/train_btm.csv --seed 42 --run-type candidate` — record CV and per-class F1
-- [X] T011 [P] [US1] Run LightGBM 300: `benthic_model.cli train --config configs/lgbm-btm-300.yaml --train-csv data/train_btm.csv --seed 42 --run-type candidate` — record CV
-- [X] T012 [P] [US1] Run RF+LightGBM ensemble: `benthic_model.cli train --config configs/lgbm-btm-ensemble.yaml --train-csv data/train_btm.csv --seed 42 --run-type candidate` — record CV
+- [x] T010 [US1] Run LightGBM tuned: `benthic_model.cli train --config configs/lgbm-btm-tuned.yaml --train-csv data/train_btm.csv --seed 42 --run-type candidate` — record CV and per-class F1
+- [x] T011 [P] [US1] Run LightGBM 300: `benthic_model.cli train --config configs/lgbm-btm-300.yaml --train-csv data/train_btm.csv --seed 42 --run-type candidate` — record CV
+- [x] T012 [P] [US1] Run RF+LightGBM ensemble: `benthic_model.cli train --config configs/lgbm-btm-ensemble.yaml --train-csv data/train_btm.csv --seed 42 --run-type candidate` — record CV
 
 ### LightGBM Multi-Seed Validation (if T010 or T011 shows promising CV)
 
-- [X] T013 [US1] SKIPPED — no LightGBM variant achieved CV > 0.835 (lgbm-tuned=0.7976, lgbm-300=0.7959) (R04 mean + 2× std), run that config with seeds 123, 456, 789, 2026 to validate the improvement is not noise
-- [X] T014 [US1] SKIPPED — T013 was skipped; all LightGBM variants below noise floor into `artifacts/predictions/` (depends on T013 completing — run_id is unknown until T013 identifies the winner)
+- [x] T013 [US1] SKIPPED — no LightGBM variant achieved CV > 0.835 (lgbm-tuned=0.7976, lgbm-300=0.7959) (R04 mean + 2× std), run that config with seeds 123, 456, 789, 2026 to validate the improvement is not noise
+- [x] T014 [US1] SKIPPED — T013 was skipped; all LightGBM variants below noise floor into `artifacts/predictions/` (depends on T013 completing — run_id is unknown until T013 identifies the winner)
 
 ### Evaluation
 
-- [X] T015a [P] [US1] Document FR-003 small-window BTM findings from `research.md` §RT-3 into `docs/run-019-pipeline-cv-improvement.md` §Feature Additions — summarise all S5a–S5d results and confirm none exceed noise floor
-- [X] T015b [P] [US1] Document FR-004 feature flag findings from `research.md` §RT-3 into `docs/run-019-pipeline-cv-improvement.md` §Feature Flags — summarise S1 (eco) and S6 (z-scores) results
-- [X] T015 [US1] Populate US1 results table in `docs/run-019-pipeline-cv-improvement.md` — all CV scores, delta vs R04, noise-floor flag, recommendation
+- [x] T015a [P] [US1] Document FR-003 small-window BTM findings from `research.md` §RT-3 into `docs/run-019-pipeline-cv-improvement.md` §Feature Additions — summarise all S5a–S5d results and confirm none exceed noise floor
+- [x] T015b [P] [US1] Document FR-004 feature flag findings from `research.md` §RT-3 into `docs/run-019-pipeline-cv-improvement.md` §Feature Flags — summarise S1 (eco) and S6 (z-scores) results
+- [x] T015 [US1] Populate US1 results table in `docs/run-019-pipeline-cv-improvement.md` — all CV scores, delta vs R04, noise-floor flag, recommendation
 
 **Checkpoint**: Results table complete. Best model identified. Noise-floor analysis applied — only candidates with CV > 0.8374 (R04 seed=42 CV 0.8024 + noise floor 0.035) proceed to submission consideration.
 
@@ -78,17 +78,17 @@
 
 ### Seed Runs (R04 — mostly completed from branch 018)
 
-- [X] T016 Verify 5 seed runs for R04 already exist in `artifacts/runs/` (seeds 42, 123, 456, 789, 2026 with rf-btm-fine.yaml + train_btm.csv)
-- [X] T017 [P] If any seed runs missing, execute: `benthic_model.cli train --config configs/rf-btm-fine.yaml --train-csv data/train_btm.csv --seed <missing_seed> --run-type candidate`
+- [x] T016 Verify 5 seed runs for R04 already exist in `artifacts/runs/` (seeds 42, 123, 456, 789, 2026 with rf-btm-fine.yaml + train_btm.csv)
+- [x] T017 [P] If any seed runs missing, execute: `benthic_model.cli train --config configs/rf-btm-fine.yaml --train-csv data/train_btm.csv --seed <missing_seed> --run-type candidate`
 
 ### Seed Runs (Best LightGBM — if applicable)
 
-- [X] T018 [US2] SKIPPED — no LightGBM cleared noise floor (seed 42 already done in T010/T011)
+- [x] T018 [US2] SKIPPED — no LightGBM cleared noise floor (seed 42 already done in T010/T011)
 
 ### Variance Report
 
-- [X] T019 [US2] Compute seed variance summary query `artifacts/runs/*/metrics.json` for all R04 seed runs, compute mean, std, min, max weighted_f1 — write to `docs/run-019-pipeline-cv-improvement.md` §Seed Variance
-- [X] T020 [P] [US2] Generate test predictions for all 5 R04 seed runs (if not already in `artifacts/predictions/` from branch 018)
+- [x] T019 [US2] Compute seed variance summary query `artifacts/runs/*/metrics.json` for all R04 seed runs, compute mean, std, min, max weighted_f1 — write to `docs/run-019-pipeline-cv-improvement.md` §Seed Variance
+- [x] T020 [P] [US2] Generate test predictions for all 5 R04 seed runs (if not already in `artifacts/predictions/` from branch 018)
 
 **Checkpoint**: Variance table populated. Noise floor (2× std) quantified. Document confirms prior finding: std ≈ 0.017, noise floor ≈ 0.035.
 
@@ -102,11 +102,11 @@
 
 **Prerequisite**: T020 complete (all 5 seed prediction files present)
 
-- [X] T021 [US3] Implement majority-vote logic in `scripts/experiment_v14_seed_ensemble.py`: load 5 CSVs, compute per-row mode, write `data/submission_v14_seed_ensemble.csv` (depends on T004a unit test turning green; re-runs branch-018 ensemble for 019-branch traceability — expected result: 97/98 unanimous, ensemble = R04 predictions)
-- [X] T022 [US3] Run `scripts/experiment_v14_seed_ensemble.py` — verify output has 98 rows, valid class values
-- [X] T023 [P] [US3] Compare ensemble predictions to R04 (T007 submission): report how many of 98 samples changed, vote confidence distribution
-- [X] T024 [US3] Verify ensemble against R04 predictions — prior finding shows 97/98 unanimous; if any new divergence, investigate
-- [X] T025 [P] [US3] Write ensemble + comparison results to `docs/run-019-pipeline-cv-improvement.md` §Seed Ensemble
+- [x] T021 [US3] Implement majority-vote logic in `scripts/experiment_v14_seed_ensemble.py`: load 5 CSVs, compute per-row mode, write `data/submission_v14_seed_ensemble.csv` (depends on T004a unit test turning green; re-runs branch-018 ensemble for 019-branch traceability — expected result: 97/98 unanimous, ensemble = R04 predictions)
+- [x] T022 [US3] Run `scripts/experiment_v14_seed_ensemble.py` — verify output has 98 rows, valid class values
+- [x] T023 [P] [US3] Compare ensemble predictions to R04 (T007 submission): report how many of 98 samples changed, vote confidence distribution
+- [x] T024 [US3] Verify ensemble against R04 predictions — prior finding shows 97/98 unanimous; if any new divergence, investigate
+- [x] T025 [P] [US3] Write ensemble + comparison results to `docs/run-019-pipeline-cv-improvement.md` §Seed Ensemble
 
 **Checkpoint**: Ensemble submission CSV written. Comparison report shows prediction stability analysis. Confirms whether ensemble differs from single-seed.
 
@@ -116,14 +116,14 @@
 
 **Purpose**: Finalize submission candidate, document all findings, commit and push
 
-- [X] T026 [P] Determine final submission candidate: pick best-validated config (CV > noise floor required, or R04 if nothing clears bar) — document justification in `docs/run-019-pipeline-cv-improvement.md` §Submission Decision
-- [X] T027 Run `benthic_model.cli make-submission` for chosen candidate — write final `data/submission_v14_final.csv`
-- [X] T028 [P] Update `docs/runsheet-hybrid-kaggle.md` with row for 019 experiment with row for 019 experiment — include CV, Kaggle slot budget note
-- [X] T029 [P] Run full test suite: `.venv\Scripts\python.exe -m pytest tests/ -m "not arcgis and not qgis"` — confirm 0 failures
-- [X] T030 Update `CHANGELOG` with entry for `019-pipeline-cv-improvement` with entry for `019-pipeline-cv-improvement` findings
-- [X] T031 `git add -A; git commit -m "019: pipeline CV improvement investigation complete"` — stage all artifacts, configs, scripts, docs, specs
-- [X] T032 `git push --set-upstream origin 019-pipeline-cv-improvement`
-- [X] T033 Create GitHub PR: base=main, title "019: Pipeline CV Improvement Investigation" — PR #16 (already open)
+- [x] T026 [P] Determine final submission candidate: pick best-validated config (CV > noise floor required, or R04 if nothing clears bar) — document justification in `docs/run-019-pipeline-cv-improvement.md` §Submission Decision
+- [x] T027 Run `benthic_model.cli make-submission` for chosen candidate — write final `data/submission_v14_final.csv`
+- [x] T028 [P] Update `docs/runsheet-hybrid-kaggle.md` with row for 019 experiment with row for 019 experiment — include CV, Kaggle slot budget note
+- [x] T029 [P] Run full test suite: `.venv\Scripts\python.exe -m pytest tests/ -m "not arcgis and not qgis"` — confirm 0 failures
+- [x] T030 Update `CHANGELOG` with entry for `019-pipeline-cv-improvement` with entry for `019-pipeline-cv-improvement` findings
+- [x] T031 `git add -A; git commit -m "019: pipeline CV improvement investigation complete"` — stage all artifacts, configs, scripts, docs, specs
+- [x] T032 `git push --set-upstream origin 019-pipeline-cv-improvement`
+- [x] T033 Create GitHub PR: base=main, title "019: Pipeline CV Improvement Investigation" — PR #16 (already open)
 
 **Checkpoint**: Branch pushed. PR created. All experiment artifacts committed.
 

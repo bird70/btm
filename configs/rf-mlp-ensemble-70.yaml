@@ -1,0 +1,20 @@
+# 020-RF-MLP-ENSEMBLE-70 — RF-dominant soft-vote hybrid (70% RF + 30% MLP)
+# Higher RF weight preserves R04's SGAM predictions while keeping MLP's boundary refinement
+# Compare to rf-mlp-ensemble.yaml (50/50 default)
+# Train with: --train-csv data/train_btm.csv
+model_type: rf_mlp_ensemble
+seed: 42
+cv:
+  n_splits: 5
+  fold_scheme: spatial_blocked
+  random_state: 42
+  spatial_bins: 4
+feature_flags:
+  include_focal_stats: false
+  include_interactions: false
+  include_spatial_z_scores: false
+  include_btm_features: true
+  include_eco_features: false
+  exclude_coords: false
+model_params:
+  rf_weight: 0.7

@@ -4,7 +4,9 @@ import os
 
 import numpy as np
 from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.preprocessing import LabelEncoder
+from sklearn.neural_network import MLPClassifier
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.utils.class_weight import compute_sample_weight
 
 try:
     from xgboost import XGBClassifier
@@ -178,3 +180,113 @@ class CandidateEnsembleModel:
 
 def build_rf_lgbm_ensemble_model(seed: int = 42) -> CandidateEnsembleModel:
     return CandidateEnsembleModel(seed=seed)
+
+
+class CandidateMLPModel:
+    """Multi-layer Perceptron classifier for benthic habitat classification.
+
+    Wraps sklearn's MLPClassifier with mandatory StandardScaler preprocessing
+    and automatic class-balanced sample weighting (MLPClassifier does not
+    support ``class_weight`` natively).
+
+    Architecture defaults to (128, 64, 32) hidden units with ReLU activation,
+    Adam optimiser, L2 regularisation (alpha=0.001), and early stopping.
+    All hyperparameters are configurable via ``model_params``.
+    """
+
+    _DEFAULTS: dict = {
+        "hidden_layer_sizes": (128, 64, 32),
+        "activation": "relu",
+        "solver": "adam",
+        "alpha": 0.001,
+        "learning_rate_init": 0.001,
+        "max_iter": 500,
+        "early_stopping": True,
+        "validation_fraction": 0.1,
+        "n_iter_no_change": 15,
+        "batch_size": "auto",
+    }
+
+    def __init__(self, seed: int = 42, **kwargs) -> None:
+        self._seed = seed
+        params = {**self._DEFAULTS, **kwargs}
+        # hidden_layer_sizes from YAML arrives as a list — convert to tuple
+        if isinstance(params.get("hidden_layer_sizes"), list):
+            params["hidden_layer_sizes"] = tuple(params["hidden_layer_sizes"])
+        self._scaler = StandardScaler()
+        self._encoder = LabelEncoder()
+        self._mlp = MLPClassifier(random_state=seed, **params)
+        self._classes: list[str] = []
+
+    def fit(self, X, y):
+        self._classes = sorted(y.unique().tolist() if hasattr(y, "unique") else set(y))
+        X_scaled = self._scaler.fit_transform(X)
+        y_encoded = self._encoder.fit_transform(y)
+        # Compute balanced sample weights to compensate for class imbalance
+        sample_weight = compute_sample_weight("balanced", y_encoded)
+        self._mlp.fit(X_scaled, y_encoded, sample_weight=sample_weight)
+        return self
+
+    def predict(self, X):
+        encoded = self._mlp.predict(self._scaler.transform(X))
+        return self._encoder.inverse_transform(encoded)
+
+    def predict_proba(self, X):
+        return self._mlp.predict_proba(self._scaler.transform(X))
+
+    @property
+    def classes_(self):
+        return self._encoder.classes_
+
+
+def build_mlp_model(seed: int = 42, **kwargs) -> CandidateMLPModel:
+    return CandidateMLPModel(seed=seed, **kwargs)
+
+
+class CandidateRFMLPEnsembleModel:
+    """Soft-vote ensemble of a Random Forest and an MLP classifier.
+
+    Both models are independently fitted; predictions are formed by averaging
+    their class-conditional probability estimates and taking the argmax.  The
+    MLP component uses ``StandardScaler`` internally; the RF does not.
+
+    ``rf_weight`` (default 0.5) controls the RF contribution:
+    - 1.0 → pure RF,  0.0 → pure MLP
+    """
+
+    def __init__(self, seed: int = 42, rf_weight: float = 0.5) -> None:
+        from benthic_model.models.baseline import build_baseline_model
+
+        self._rf = build_baseline_model(seed=seed)
+        self._mlp = CandidateMLPModel(seed=seed)
+        self._rf_weight = float(rf_weight)
+        self._mlp_weight = 1.0 - self._rf_weight
+        self._classes: list[str] = []
+
+    def fit(self, X, y):
+        self._classes = sorted(y.unique().tolist() if hasattr(y, "unique") else set(y))
+        self._rf.fit(X, y)
+        self._mlp.fit(X, y)
+        return self
+
+    def predict(self, X):
+        rf_proba = np.array(self._rf.model.predict_proba(X))
+        mlp_proba_raw = np.array(self._mlp.predict_proba(X))
+        # Align MLP probability columns to RF class order (both use sorted classes)
+        rf_classes = list(self._rf.model.classes_)
+        mlp_classes = list(self._mlp.classes_)
+        if rf_classes == mlp_classes:
+            mlp_proba = mlp_proba_raw
+        else:
+            # Re-order MLP columns to match RF class order
+            mlp_proba = np.zeros_like(rf_proba)
+            for i, cls in enumerate(rf_classes):
+                if cls in mlp_classes:
+                    mlp_proba[:, i] = mlp_proba_raw[:, mlp_classes.index(cls)]
+        mean_proba = self._rf_weight * rf_proba + self._mlp_weight * mlp_proba
+        indices = np.argmax(mean_proba, axis=1)
+        return np.array(rf_classes)[indices]
+
+
+def build_rf_mlp_ensemble_model(seed: int = 42) -> CandidateRFMLPEnsembleModel:
+    return CandidateRFMLPEnsembleModel(seed=seed)
