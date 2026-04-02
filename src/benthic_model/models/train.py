@@ -110,7 +110,9 @@ def _build_model(
     if model_params and resolved == "mlp":
         from benthic_model.models.candidate import CandidateMLPModel
 
-        hls = model_params.get("hidden_layer_sizes", CandidateMLPModel._DEFAULTS["hidden_layer_sizes"])
+        hls = model_params.get(
+            "hidden_layer_sizes", CandidateMLPModel._DEFAULTS["hidden_layer_sizes"]
+        )
         if isinstance(hls, list):
             hls = tuple(hls)
         kwargs = {k: v for k, v in model_params.items() if k != "hidden_layer_sizes"}
@@ -119,7 +121,9 @@ def _build_model(
     if model_params and resolved == "rf_mlp_ensemble" and "rf_weight" in model_params:
         from benthic_model.models.candidate import CandidateRFMLPEnsembleModel
 
-        model = CandidateRFMLPEnsembleModel(seed=seed, rf_weight=model_params["rf_weight"])
+        model = CandidateRFMLPEnsembleModel(
+            seed=seed, rf_weight=model_params["rf_weight"]
+        )
     return model
 
 

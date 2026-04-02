@@ -48,6 +48,7 @@ First application of deep learning to this benthic habitat classification pipeli
 New model type added to `benthic_model.models.candidate.CandidateMLPModel`.
 
 **Architecture**:
+
 ```
 Input(14)
 → Dense(128, relu) → Dense(64, relu) → Dense(32, relu)
@@ -74,29 +75,29 @@ Class probability columns are re-ordered to match RF class ordering before avera
 
 ### MLP standalone (mlp-btm.yaml — 128, 64, 32)
 
-| Seed | Run ID | CV | SGAM F1 |
-|------|--------|----|---------|
-| 42   | candidate-20260402033032 | 0.8156 | 0.3289 |
-| 123  | candidate-20260402033311 | 0.7827 | 0.1842 |
-| 456  | candidate-20260402033331 | 0.8132 | 0.1646 |
-| 789  | candidate-20260402033356 | 0.7959 | 0.0000 |
-| 2026 | candidate-20260402033420 | 0.7703 | 0.0038 |
+| Seed | Run ID                   | CV     | SGAM F1 |
+| ---- | ------------------------ | ------ | ------- |
+| 42   | candidate-20260402033032 | 0.8156 | 0.3289  |
+| 123  | candidate-20260402033311 | 0.7827 | 0.1842  |
+| 456  | candidate-20260402033331 | 0.8132 | 0.1646  |
+| 789  | candidate-20260402033356 | 0.7959 | 0.0000  |
+| 2026 | candidate-20260402033420 | 0.7703 | 0.0038  |
 
 **mean=0.7955, std=0.0195, noise floor (2×std)=0.039**
 
 ### Wide MLP (mlp-btm-wide.yaml — 256, 128, 64, 32)
 
-| Seed | Run ID | CV | SGAM F1 |
-|------|--------|----|---------|
-| 42   | candidate-20260402033142 | 0.8164 | 0.0000 |
+| Seed | Run ID                   | CV     | SGAM F1 |
+| ---- | ------------------------ | ------ | ------- |
+| 42   | candidate-20260402033142 | 0.8164 | 0.0000  |
 
 Higher overall CV but SGAM collapses to 0. Wider network overfits SGAM boundary; less suitable.
 
 ### RF + MLP ensemble (rf-mlp-ensemble.yaml)
 
-| Seed | Run ID | CV | SGAM F1 |
-|------|--------|----|---------|
-| 42   | candidate-20260402033213 | 0.8152 | 0.0891 |
+| Seed | Run ID                   | CV     | SGAM F1 |
+| ---- | ------------------------ | ------ | ------- |
+| 42   | candidate-20260402033213 | 0.8152 | 0.0891  |
 
 Partial SGAM improvement (RF anchors SGAM at low recall, MLP boosts somewhat).
 
@@ -104,13 +105,13 @@ Partial SGAM improvement (RF anchors SGAM at low recall, MLP boosts somewhat).
 
 ## Comparison: MLP vs R04
 
-| Metric | R04 (RF) | MLP (128,64,32) | Delta |
-|--------|----------|-----------------|-------|
-| 5-seed mean CV | 0.7891 | 0.7955 | +0.0064 |
-| 5-seed std | 0.0186 | 0.0195 | ≈ same |
-| Noise floor (2×std) | 0.0373 | 0.0390 | — |
-| SGAM detected (seeds) | 1/5 | 4/5 | ↑ robustly |
-| Best single-seed CV | 0.8101 (789) | 0.8156 (42) | +0.0055 |
+| Metric                | R04 (RF)     | MLP (128,64,32) | Delta      |
+| --------------------- | ------------ | --------------- | ---------- |
+| 5-seed mean CV        | 0.7891       | 0.7955          | +0.0064    |
+| 5-seed std            | 0.0186       | 0.0195          | ≈ same     |
+| Noise floor (2×std)   | 0.0373       | 0.0390          | —          |
+| SGAM detected (seeds) | 1/5          | 4/5             | ↑ robustly |
+| Best single-seed CV   | 0.8101 (789) | 0.8156 (42)     | +0.0055    |
 
 **Key finding**: Mean improvement (+0.006) is below the noise floor (~0.038). Not statistically distinguishable. But SGAM detection is qualitatively more robust across seeds.
 
@@ -118,11 +119,11 @@ Partial SGAM improvement (RF anchors SGAM at low recall, MLP boosts somewhat).
 
 ## Test Set Prediction Analysis
 
-| Model | Changed vs R04 | SGAM predictions |
-|-------|----------------|-----------------|
-| R04 (reference) | — | 5 |
-| MLP standalone | 30/98 (30.6%) | 0 |
-| RF+MLP ensemble | 25/98 (25.5%) | 0 |
+| Model           | Changed vs R04 | SGAM predictions |
+| --------------- | -------------- | ---------------- |
+| R04 (reference) | —              | 5                |
+| MLP standalone  | 30/98 (30.6%)  | 0                |
+| RF+MLP ensemble | 25/98 (25.5%)  | 0                |
 
 **Critical observation**: Both DL models predict 0 SGAM in the test set, despite learning SGAM boundaries in training CV. The SGAM boundary learned by MLP is specific to the training fold distribution and does not generalise to the test spatial block. This is the same spatial non-stationarity pattern seen with btm_complexity_21 in run-018 (but milder — no overall degradation, just SGAM loss).
 
@@ -131,6 +132,7 @@ Partial SGAM improvement (RF anchors SGAM at low recall, MLP boosts somewhat).
 ## Submission Decision
 
 **No Kaggle submission** for this investigation:
+
 1. Mean CV improvement (+0.006) is below the noise floor (0.038)
 2. MLP predicts 0 SGAM on test set — likely to lose SGAM F1 that R04 captures
 3. Risk profile: changing 30% of predictions with uncertain net effect is not justified with limited submission budget
@@ -142,15 +144,15 @@ Partial SGAM improvement (RF anchors SGAM at low recall, MLP boosts somewhat).
 
 ### Changes to pipeline codebase
 
-| File | Change |
-|------|--------|
+| File                                    | Change                                                                                                     |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | `src/benthic_model/models/candidate.py` | Added `CandidateMLPModel`, `CandidateRFMLPEnsembleModel`, `build_mlp_model`, `build_rf_mlp_ensemble_model` |
-| `src/benthic_model/models/train.py` | Added `mlp`, `rf_mlp_ensemble` to dispatch + `model_params` forwarding for MLP |
-| `src/benthic_model/config.py` | Added `mlp`, `rf_mlp_ensemble` to `_ALLOWED_MODEL_TYPES` |
-| `configs/mlp-btm.yaml` | Standalone MLP config |
-| `configs/mlp-btm-wide.yaml` | Wide MLP config |
-| `configs/rf-mlp-ensemble.yaml` | RF + MLP ensemble config |
-| `tests/unit/test_mlp_models.py` | 14 unit tests for new model types |
+| `src/benthic_model/models/train.py`     | Added `mlp`, `rf_mlp_ensemble` to dispatch + `model_params` forwarding for MLP                             |
+| `src/benthic_model/config.py`           | Added `mlp`, `rf_mlp_ensemble` to `_ALLOWED_MODEL_TYPES`                                                   |
+| `configs/mlp-btm.yaml`                  | Standalone MLP config                                                                                      |
+| `configs/mlp-btm-wide.yaml`             | Wide MLP config                                                                                            |
+| `configs/rf-mlp-ensemble.yaml`          | RF + MLP ensemble config                                                                                   |
+| `tests/unit/test_mlp_models.py`         | 14 unit tests for new model types                                                                          |
 
 ### Known limitations
 
@@ -161,6 +163,7 @@ Partial SGAM improvement (RF anchors SGAM at low recall, MLP boosts somewhat).
 ### Future DL directions (if PyTorch is installed)
 
 If deeper DL exploration is warranted, install `torch` + `pytorch-tabnet`:
+
 - **TabNet**: attention-based feature selection, interpretable, 5k–100k sample range
 - **FT-Transformer**: feature tokenization + transformer, competitive with GBDT on tabular data
 - **Semi-supervised MLP**: use the 98 test samples for self-supervised pre-training, then fine-tune on labelled data

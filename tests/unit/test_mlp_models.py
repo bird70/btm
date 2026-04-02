@@ -8,6 +8,7 @@ Covers:
 - CandidateRFMLPEnsembleModel: rf_weight controls contribution
 - build_mlp_model / build_rf_mlp_ensemble_model constructors
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -20,7 +21,6 @@ from benthic_model.models.candidate import (
     build_mlp_model,
     build_rf_mlp_ensemble_model,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
