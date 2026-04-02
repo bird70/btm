@@ -6,7 +6,7 @@ from typing import Any
 
 import yaml
 
-_ALLOWED_MODEL_TYPES = frozenset({"rf", "xgb", "lgbm", "catboost", "rf_lgbm_ensemble"})
+_ALLOWED_MODEL_TYPES = frozenset({"rf", "xgb", "lgbm", "catboost", "rf_lgbm_ensemble", "mlp", "rf_mlp_ensemble"})
 
 
 @dataclass(slots=True)

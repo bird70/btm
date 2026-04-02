@@ -1,0 +1,16 @@
+{
+  "run_id": "candidate-20260402033142",
+  "code_revision": "8222efc",
+  "config_ref": "configs\\mlp-btm-wide.yaml",
+  "config_hash": "e42269205039",
+  "seed": 42,
+  "fold_scheme": "spatial_blocked",
+  "data_split_ref": "data\\train_btm.csv",
+  "command": "train --config configs/mlp-btm-wide.yaml --train-csv data/train_btm.csv --bathymetry-tif data/MBES/bathymetry.tif --backscatter-tif data/MBES/backscatter.tif --run-type candidate --seed 42",
+  "artifacts": {
+    "model": "artifacts\\runs\\candidate-20260402033142\\model.joblib",
+    "feature_columns": "artifacts\\runs\\candidate-20260402033142\\feature_columns.json",
+    "class_vocab": "artifacts\\runs\\candidate-20260402033142\\class_vocab.json",
+    "metrics": "artifacts\\runs\\candidate-20260402033142\\metrics.json"
+  }
+}

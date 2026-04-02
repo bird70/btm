@@ -30,7 +30,9 @@ from benthic_model.models.candidate import (
     build_candidate_model,
     build_catboost_model,
     build_lgbm_model,
+    build_mlp_model,
     build_rf_lgbm_ensemble_model,
+    build_rf_mlp_ensemble_model,
 )
 
 
@@ -62,6 +64,8 @@ def _build_model(
         "lgbm": build_lgbm_model,
         "catboost": build_catboost_model,
         "rf_lgbm_ensemble": build_rf_lgbm_ensemble_model,
+        "mlp": build_mlp_model,
+        "rf_mlp_ensemble": build_rf_mlp_ensemble_model,
     }
     if resolved not in dispatch:
         raise ValueError(f"Unknown model_type: {resolved!r}")
@@ -102,6 +106,20 @@ def _build_model(
                 **{k: v for k, v in model_params.items()},
             }
         )
+    # 020: Forward model_params to the MLP model (re-construct with updated kwargs).
+    if model_params and resolved == "mlp":
+        from benthic_model.models.candidate import CandidateMLPModel
+
+        hls = model_params.get("hidden_layer_sizes", CandidateMLPModel._DEFAULTS["hidden_layer_sizes"])
+        if isinstance(hls, list):
+            hls = tuple(hls)
+        kwargs = {k: v for k, v in model_params.items() if k != "hidden_layer_sizes"}
+        model = CandidateMLPModel(seed=seed, hidden_layer_sizes=hls, **kwargs)
+    # 020: Forward rf_weight from model_params for RF+MLP ensemble.
+    if model_params and resolved == "rf_mlp_ensemble" and "rf_weight" in model_params:
+        from benthic_model.models.candidate import CandidateRFMLPEnsembleModel
+
+        model = CandidateRFMLPEnsembleModel(seed=seed, rf_weight=model_params["rf_weight"])
     return model
 
 

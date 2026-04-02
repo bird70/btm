@@ -401,6 +401,7 @@ See `docs/` for per-run detailed write-ups.
 | experiment_v12 RF                      | —                                              | MBES-8 + top-4 BTM (RF)                          | 12            | 0.7822        | 0.72489        | Standalone plateau confirmed                                                        |
 | pipeline: BTM-10+c21                   | run-018 (below)                                | R04 BTM-10 + btm_complexity_21 (RF pipeline)     | 11            | 0.8033        | **0.68959**    | ⚠️ FAILED: large-window feature non-stationary                                      |
 | 019: RF S2/S9, lgbm variants, ensemble | [run-019](run-019-pipeline-cv-improvement.md)  | BTM-10 (multiple configs, seed=42)               | 14            | 0.7916–0.8024 | none submitted | No config exceeded noise floor (0.8374). R04 remains best. Kaggle budget conserved. |
+| 020: MLP + RF-MLP ensemble (DL)        | [run-020](run-020-deep-learning-mlp.md)         | BTM-14 (mlp-btm, rf-mlp-ensemble)               | 14            | 0.7827–0.8156 | none submitted | MLP mean=0.7955 (+0.006 vs R04 mean). Below noise floor. SGAM improved in CV (4/5 seeds) but 0 on test. R04 retained. |
 
 ### ⚠️ Run-018 post-mortem: large-window BTM features cause spatial non-stationarity
 

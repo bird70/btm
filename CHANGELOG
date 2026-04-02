@@ -1,3 +1,19 @@
+020-deep-learning-mlp (branch 020-deep-learning-mlp):
+
+- First DL integration: CandidateMLPModel (sklearn MLPClassifier, backprop, Adam,
+  L2 regularisation, balanced sample weights, LabelEncoder + StandardScaler).
+  New model_type: mlp in the pipeline. Config-driven via model_params YAML key.
+- RF+MLP soft-vote ensemble (model_type: rf_mlp_ensemble): 50% RF + 50% MLP
+  probability average with class-ordering alignment.
+- 5-seed MLP evaluation: mean CV=0.7955 (+0.006 vs R04 mean 0.7891). Below
+  noise floor (~0.038). No Kaggle submission; R04 retained.
+- Notable: MLP detects SGAM in CV 4/5 seeds (vs RF 1/5) but predicts 0 SGAM
+  on test set. SGAM boundary is spatially non-stationary across train/test blocks.
+- New configs: mlp-btm.yaml (128x64x32), mlp-btm-wide.yaml (256x128x64x32),
+  rf-mlp-ensemble.yaml.
+- 14 new unit tests in tests/unit/test_mlp_models.py (261 total pass).
+- Pipeline extension points documented in run-020-deep-learning-mlp.md.
+
 019-pipeline-cv-improvement (branch 019-pipeline-cv-improvement):
 
 - Systematic CV improvement investigation for R04 baseline (RF + BTM-10, CV=0.8024,
