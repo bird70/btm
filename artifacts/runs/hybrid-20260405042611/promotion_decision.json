@@ -1,0 +1,10 @@
+{
+  "baseline_weighted_f1": 0.9904294872651916,
+  "hybrid_weighted_f1": 0.991233671064575,
+  "baseline_sgam_recall": 1.0,
+  "hybrid_sgam_recall": 1.0,
+  "gate_passed": false,
+  "decision_reason": "Gate failed; baseline retained",
+  "weighted_f1_delta": 0.0008041837993834067,
+  "sgam_recall_delta": 0.0
+}

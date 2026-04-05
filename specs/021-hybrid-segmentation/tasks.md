@@ -7,10 +7,10 @@
 
 **Purpose**: Prepare dependencies, configs, and runnable scaffolding for hybrid segmentation work
 
-- [ ] T001 Add segmentation and tooling dependencies (`torch`, `transformers`, `datasets`, `evaluate`, `huggingface_hub`, `pydensecrf`, `kaggle`) to `pyproject.toml`
-- [ ] T002 [P] Create hybrid segmentation config skeleton in `configs/segmentation-hybrid.yaml`
-- [ ] T003 [P] Add segmentation artifacts directories and README placeholders in `artifacts/segmentation/.gitkeep` and `artifacts/segmentation/README.md`
-- [ ] T004 Document local `.venv` activation and package install commands for this feature in `specs/021-hybrid-segmentation/quickstart.md`
+- [X] T001 Add segmentation and tooling dependencies (`torch`, `transformers`, `datasets`, `evaluate`, `huggingface_hub`, `pydensecrf`, `kaggle`) to `pyproject.toml`
+- [X] T002 [P] Create hybrid segmentation config skeleton in `configs/segmentation-hybrid.yaml`
+- [X] T003 [P] Add segmentation artifacts directories and README placeholders in `artifacts/segmentation/.gitkeep` and `artifacts/segmentation/README.md`
+- [X] T004 Document local `.venv` activation and package install commands for this feature in `specs/021-hybrid-segmentation/quickstart.md`
 
 ---
 
@@ -20,12 +20,12 @@
 
 **⚠️ CRITICAL**: No user story work begins until this phase is complete
 
-- [ ] T005 Create segmentation package scaffold in `src/benthic_model/segmentation/__init__.py`
-- [ ] T006 [P] Implement segmentation artifact schema validators in `src/benthic_model/segmentation/io.py`
-- [ ] T007 [P] Implement class-weight strategy helper (`inverse_freq_capped`) in `src/benthic_model/segmentation/weights.py`
-- [ ] T008 [P] Add shared segmentation dataclasses for run metadata in `src/benthic_model/segmentation/types.py`
-- [ ] T009 Add CLI command stubs for `segmentation-benchmark` and `hybrid-stack` in `src/benthic_model/cli.py`
-- [ ] T010 Add contract tests for required CLI arguments and output artifacts in `tests/contract/test_hybrid_segmentation_cli_contract.py`
+- [X] T005 Create segmentation package scaffold in `src/benthic_model/segmentation/__init__.py`
+- [X] T006 [P] Implement segmentation artifact schema validators in `src/benthic_model/segmentation/io.py`
+- [X] T007 [P] Implement class-weight strategy helper (`inverse_freq_capped`) in `src/benthic_model/segmentation/weights.py`
+- [X] T008 [P] Add shared segmentation dataclasses for run metadata in `src/benthic_model/segmentation/types.py`
+- [X] T009 Add CLI command stubs for `segmentation-benchmark` and `hybrid-stack` in `src/benthic_model/cli.py`
+- [X] T010 Add contract tests for required CLI arguments and output artifacts in `tests/contract/test_hybrid_segmentation_cli_contract.py`
 
 **Checkpoint**: Foundation complete, story work can proceed
 
@@ -39,16 +39,16 @@
 
 ### Tests for User Story 1 (write first, must fail first)
 
-- [ ] T011 [P] [US1] Add unit tests for centered 5x5 expansion rules in `tests/unit/test_segmentation_masking.py`
-- [ ] T012 [P] [US1] Add integration test for mask generation from labeled points in `tests/integration/test_segmentation_mask_pipeline.py`
+- [X] T011 [P] [US1] Add unit tests for centered 5x5 expansion rules in `tests/unit/test_segmentation_masking.py`
+- [X] T012 [P] [US1] Add integration test for mask generation from labeled points in `tests/integration/test_segmentation_mask_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement point-to-pixel index mapping utilities in `src/benthic_model/segmentation/grid_mapping.py`
-- [ ] T014 [US1] Implement 5x5 mask builder with deterministic overlap policy in `src/benthic_model/segmentation/masking.py`
-- [ ] T015 [US1] Implement mask artifact writer/loader (`mask_metadata.json`, arrays) in `src/benthic_model/segmentation/io.py`
-- [ ] T016 [US1] Add `segmentation-build-masks` CLI command flow in `src/benthic_model/cli.py`
-- [ ] T017 [US1] Document mask command usage and expected outputs in `specs/021-hybrid-segmentation/quickstart.md`
+- [X] T013 [US1] Implement point-to-pixel index mapping utilities in `src/benthic_model/segmentation/grid_mapping.py`
+- [X] T014 [US1] Implement 5x5 mask builder with deterministic overlap policy in `src/benthic_model/segmentation/masking.py`
+- [X] T015 [US1] Implement mask artifact writer/loader (`mask_metadata.json`, arrays) in `src/benthic_model/segmentation/io.py`
+- [X] T016 [US1] Add `segmentation-build-masks` CLI command flow in `src/benthic_model/cli.py`
+- [X] T017 [US1] Document mask command usage and expected outputs in `specs/021-hybrid-segmentation/quickstart.md`
 
 **Checkpoint**: US1 independently testable via mask generation command and tests
 
@@ -62,17 +62,17 @@
 
 ### Tests for User Story 2 (write first, must fail first)
 
-- [ ] T018 [P] [US2] Add unit tests for candidate registry enforcing exactly three approaches in `tests/unit/test_segmentation_candidates.py`
-- [ ] T019 [P] [US2] Add integration test for benchmark artifact generation in `tests/integration/test_segmentation_benchmark_pipeline.py`
-- [ ] T020 [P] [US2] Add contract test for `val_location_predictions.csv` and `test_location_predictions.csv` schema in `tests/contract/test_segmentation_artifact_schema.py`
+- [X] T018 [P] [US2] Add unit tests for candidate registry enforcing exactly three approaches in `tests/unit/test_segmentation_candidates.py`
+- [X] T019 [P] [US2] Add integration test for benchmark artifact generation in `tests/integration/test_segmentation_benchmark_pipeline.py`
+- [X] T020 [P] [US2] Add contract test for `val_location_predictions.csv` and `test_location_predictions.csv` schema in `tests/contract/test_segmentation_artifact_schema.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement candidate runner orchestration (`segformer_ft`, `segformer_ft_crf`, `deeplabv3_ft`) in `src/benthic_model/segmentation/benchmark.py`
-- [ ] T022 [P] [US2] Implement Hugging Face SegFormer fine-tuning adapter in `src/benthic_model/segmentation/segformer_adapter.py`
-- [ ] T023 [P] [US2] Implement DeepLabV3+ local training adapter in `src/benthic_model/segmentation/deeplab_adapter.py`
-- [ ] T024 [P] [US2] Implement CRF post-processing wrapper for SegFormer outputs in `src/benthic_model/segmentation/crf.py`
-- [ ] T025 [US2] Wire `segmentation-benchmark` CLI command to produce candidate metrics and location outputs in `src/benthic_model/cli.py`
+- [X] T021 [US2] Implement candidate runner orchestration (`segformer_ft`, `segformer_ft_crf`, `deeplabv3_ft`) in `src/benthic_model/segmentation/benchmark.py`
+- [X] T022 [P] [US2] Implement Hugging Face SegFormer fine-tuning adapter in `src/benthic_model/segmentation/segformer_adapter.py`
+- [X] T023 [P] [US2] Implement DeepLabV3+ local training adapter in `src/benthic_model/segmentation/deeplab_adapter.py`
+- [X] T024 [P] [US2] Implement CRF post-processing wrapper for SegFormer outputs in `src/benthic_model/segmentation/crf.py`
+- [X] T025 [US2] Wire `segmentation-benchmark` CLI command to produce candidate metrics and location outputs in `src/benthic_model/cli.py`
 
 **Checkpoint**: US2 independently testable with benchmark command and artifact schema checks
 
@@ -86,16 +86,16 @@
 
 ### Tests for User Story 3 (write first, must fail first)
 
-- [ ] T026 [P] [US3] Add unit tests for meta-feature assembly and alignment in `tests/unit/test_hybrid_meta_features.py`
-- [ ] T027 [P] [US3] Add unit tests for promotion gate logic in `tests/unit/test_hybrid_promotion_gate.py`
-- [ ] T028 [P] [US3] Add integration test for end-to-end hybrid stacking output artifacts in `tests/integration/test_hybrid_stacking_pipeline.py`
+- [X] T026 [P] [US3] Add unit tests for meta-feature assembly and alignment in `tests/unit/test_hybrid_meta_features.py`
+- [X] T027 [P] [US3] Add unit tests for promotion gate logic in `tests/unit/test_hybrid_promotion_gate.py`
+- [X] T028 [P] [US3] Add integration test for end-to-end hybrid stacking output artifacts in `tests/integration/test_hybrid_stacking_pipeline.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement meta-feature dataset builder from RF/MLP/segmentation probabilities in `src/benthic_model/segmentation/stacking_features.py`
-- [ ] T030 [US3] Implement multinomial logistic regression stacker training/inference in `src/benthic_model/segmentation/stacking.py`
-- [ ] T031 [US3] Implement promotion decision artifact writer (`promotion_decision.json`) in `src/benthic_model/segmentation/io.py`
-- [ ] T032 [US3] Wire `hybrid-stack` CLI command with baseline fallback behavior in `src/benthic_model/cli.py`
+- [X] T029 [US3] Implement meta-feature dataset builder from RF/MLP/segmentation probabilities in `src/benthic_model/segmentation/stacking_features.py`
+- [X] T030 [US3] Implement multinomial logistic regression stacker training/inference in `src/benthic_model/segmentation/stacking.py`
+- [X] T031 [US3] Implement promotion decision artifact writer (`promotion_decision.json`) in `src/benthic_model/segmentation/io.py`
+- [X] T032 [US3] Wire `hybrid-stack` CLI command with baseline fallback behavior in `src/benthic_model/cli.py`
 
 **Checkpoint**: US3 independently testable with hybrid-stack command and promotion-decision artifact
 
@@ -105,10 +105,10 @@
 
 **Purpose**: Final hardening, reproducibility, and documentation across stories
 
-- [ ] T033 [P] Add experiment runbook for Kaggle/HF/gh CLI workflow in `docs/runsheet-hybrid-segmentation.md`
-- [ ] T034 [P] Add regression test matrix entry for segmentation feature set in `TESTING.md`
-- [ ] T035 Run quickstart validation and record exact command transcript in `specs/021-hybrid-segmentation/quickstart.md`
-- [ ] T036 Summarize benchmark outcomes and recommendation in `docs/run-021-hybrid-segmentation.md`
+- [X] T033 [P] Add experiment runbook for Kaggle/HF/gh CLI workflow in `docs/runsheet-hybrid-segmentation.md`
+- [X] T034 [P] Add regression test matrix entry for segmentation feature set in `TESTING.md`
+- [X] T035 Run quickstart validation and record exact command transcript in `specs/021-hybrid-segmentation/quickstart.md`
+- [X] T036 Summarize benchmark outcomes and recommendation in `docs/run-021-hybrid-segmentation.md`
 
 ---
 

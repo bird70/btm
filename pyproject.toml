@@ -36,9 +36,19 @@ benthic = [
     "seaborn>=0.13",
     "jupyter>=1.1",
     "ipykernel>=6.29",
+    "torch>=2.2",
+    "transformers>=4.40",
+    "datasets>=2.19",
+    "evaluate>=0.4",
+    "huggingface_hub>=0.22",
+    "kaggle>=1.6",
+]
+# Optional segmentation stack (includes packages that may require platform-specific build tooling)
+segmentation = [
+    "pydensecrf>=1.0rc3",
 ]
 # Install everything: pip install -e ".[dev,ml,benthic]"
-all = ["btm[dev,ml,benthic]"]
+all = ["btm[dev,ml,benthic,segmentation]"]
 
 [project.scripts]
 btm-bpi               = "btm.cli.bpi:main"

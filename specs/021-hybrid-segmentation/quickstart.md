@@ -11,7 +11,8 @@ source .venv/bin/activate
 
 python -m pip install --upgrade pip
 pip install -e ".[dev,benthic]"
-pip install torch transformers datasets evaluate huggingface_hub pydensecrf kaggle
+# Optional extra (may need local build tooling on macOS/Linux)
+pip install -e ".[segmentation]"
 ```
 
 ## 2. Authenticate Tooling
@@ -102,3 +103,30 @@ If gate fails, keep RF/MLP baseline submission path unchanged.
 - Validation metrics include weighted F1 and SGAM recall
 - Promotion decision artifact exists and is reproducible
 - Baseline fallback remains runnable end-to-end
+
+## 9. Executed Validation Transcript (2026-04-05)
+
+The following commands were executed successfully in this repository:
+
+```bash
+PYTHONPATH=src .venv/bin/python -m benthic_model.cli segmentation-build-masks \
+  --train-csv data/train.csv \
+  --output-dir artifacts/segmentation/mask-run-20260405
+
+PYTHONPATH=src .venv/bin/python -m benthic_model.cli segmentation-benchmark \
+  --config configs/segmentation-hybrid.yaml
+
+PYTHONPATH=src .venv/bin/python -m benthic_model.cli hybrid-stack \
+  --baseline-run candidate-20260330064219 \
+  --seg-run seg-20260405042554 \
+  --train-csv data/train.csv \
+  --test-csv data/test.csv \
+  --seg-base-dir artifacts/segmentation
+
+PYTHONPATH=src .venv/bin/python -m benthic_model.cli make-submission \
+  --predictions artifacts/predictions/hybrid-20260405042701_test_predictions.csv \
+  --sample-submission data/sample_submission.csv \
+  --output submissions/submission_hybrid_segmentation_20260405.csv
+```
+
+Kaggle upload attempt was blocked by local credential configuration (`~/.kaggle/kaggle.json` missing required JSON fields).

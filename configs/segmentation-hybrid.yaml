@@ -1,0 +1,23 @@
+# Hybrid segmentation benchmark configuration
+input:
+  train_csv: data/train.csv
+  test_csv: data/test.csv
+
+output:
+  base_dir: artifacts/segmentation
+
+split:
+  val_fraction: 0.2
+  random_state: 42
+
+weights:
+  strategy: inverse_freq_capped
+  cap: 5.0
+
+training:
+  epochs: 10
+
+candidates:
+  - segformer_ft
+  - segformer_ft_crf
+  - deeplabv3_ft

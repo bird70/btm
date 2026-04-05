@@ -1,0 +1,10 @@
+{
+  "run_id": "hybrid-20260405042611",
+  "baseline_run": "candidate-20260330064219",
+  "seg_run": "seg-20260405042554",
+  "hybrid_weighted_f1": 0.991233671064575,
+  "baseline_weighted_f1": 0.9904294872651916,
+  "hybrid_sgam_recall": 1.0,
+  "baseline_sgam_recall": 1.0,
+  "gate_passed": false
+}

@@ -1,0 +1,46 @@
+{
+  "run_id": "seg-20260405042554",
+  "candidates": [
+    {
+      "candidate_type": "segformer_ft",
+      "status": "success",
+      "weighted_f1": 0.7446931591117496,
+      "macro_f1": 0.6915050099757354,
+      "sgam_recall": 1.0,
+      "runtime_minutes": 0.0030128878337563948,
+      "class_weight_strategy": "inverse_freq_capped",
+      "class_weight_cap": 5.0,
+      "message": null
+    },
+    {
+      "candidate_type": "segformer_ft_crf",
+      "status": "success",
+      "weighted_f1": 0.7433019904070095,
+      "macro_f1": 0.6902073054331119,
+      "sgam_recall": 1.0,
+      "runtime_minutes": 0.004150352049812985,
+      "class_weight_strategy": "inverse_freq_capped",
+      "class_weight_cap": 5.0,
+      "message": null
+    },
+    {
+      "candidate_type": "deeplabv3_ft",
+      "status": "success",
+      "weighted_f1": 0.9904294872651916,
+      "macro_f1": 0.9876069692317999,
+      "sgam_recall": 1.0,
+      "runtime_minutes": 0.04102036754969352,
+      "class_weight_strategy": "inverse_freq_capped",
+      "class_weight_cap": 5.0,
+      "message": null
+    }
+  ],
+  "recommended_candidate": "deeplabv3_ft",
+  "recommended_path": "kaggle_notebook_hf",
+  "class_weight_strategy": "inverse_freq_capped",
+  "class_weight_cap": 5.0,
+  "split": {
+    "val_fraction": 0.2,
+    "random_state": 42
+  }
+}
