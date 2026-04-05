@@ -81,3 +81,13 @@ coverage.xml
 # Distribution / build
 dist/
 build/
+
+# Environment files
+.env*
+
+# Editor directories
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp

@@ -1,0 +1,16 @@
+{
+  "shape": [
+    6256,
+    6256
+  ],
+  "window_size": 5,
+  "class_index_map": {
+    "NVB": 0,
+    "FMAT": 1,
+    "ALG": 2,
+    "SGAM": 3,
+    "SGZ": 4
+  },
+  "expansion_rule": "centered_5x5",
+  "overlap_policy": "deterministic_priority"
+}

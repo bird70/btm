@@ -219,3 +219,25 @@ The full pipeline on `bathy5m_clip.tif` (~500 × 500 cells) completes in
 under 5 seconds. For larger datasets (millions of cells), the `--block-size`
 option (reserved for future tiled processing) will be enabled in a future
 release.
+
+---
+
+## 10. Hybrid Segmentation Regression Matrix (Feature 021)
+
+Run the segmentation/hybrid regression targets with:
+
+```bash
+PYTHONPATH=src .venv/bin/python -m pytest -q \
+  tests/contract/test_hybrid_segmentation_cli_contract.py \
+  tests/contract/test_segmentation_artifact_schema.py \
+  tests/unit/test_segmentation_masking.py \
+  tests/unit/test_segmentation_weights.py \
+  tests/unit/test_segmentation_candidates.py \
+  tests/unit/test_hybrid_meta_features.py \
+  tests/unit/test_hybrid_promotion_gate.py \
+  tests/integration/test_segmentation_mask_pipeline.py \
+  tests/integration/test_segmentation_benchmark_pipeline.py \
+  tests/integration/test_hybrid_stacking_pipeline.py
+```
+
+Expected status: `13 passed` (warnings about MLP convergence are acceptable for this synthetic test harness).
